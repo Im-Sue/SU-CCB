@@ -8,7 +8,7 @@
 - 永远中文回答
 - 未经用户允许不创建业务文档（流程产出的 specs/、decisions/ 和需求/方案文档除外）
 - 不跳过 🔴 必审门
-- v0.3.2 起节点工作流以 `su-ccb-claude-plugin/references/kernel/nodes/*.node.yaml` 为真相源，SKILL.md 只做 thin facade
+- v0.3.2 起节点工作流以 `su-ccb-claude-plugin/references/kernel/nodes/*.node.md` 为真相源，SKILL.md 只做 thin facade
 - transition / guard / capability / state 字段只引用 `su-ccb-claude-plugin/references/kernel/`，不在项目文档里重新定义
 - 不把通用规范反复搬进 `/ask`
 - 直接 `Bash(ccb ask ...)` 派工时统一使用 `ccb ask [--task-id <id>] <agent>`；默认 async，同步场景 `ccb ask --wait [--task-id <id>] <agent>`
