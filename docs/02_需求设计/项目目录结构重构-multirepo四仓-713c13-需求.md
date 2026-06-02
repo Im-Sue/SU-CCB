@@ -2,7 +2,7 @@
 id: req-restructure-713c13
 title: 项目目录结构重构：multi-repo 四仓拆分（含 console 更名 SU-Oriel）
 doc_type: requirement
-status: planning
+status: delivered
 created: 2026-06-02T11:03:14.422Z
 analysis_input_hash: 713c136e4ed12d5f1f64f7e620a7cf7c79384b8fcfe7f63cdc98a6c85ed51e89
 analysis_applied_at: 2026-06-02T11:03:14.422Z

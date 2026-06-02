@@ -1,6 +1,6 @@
 {
   "schema_version": "breakdown-draft-v1",
-  "status": "approved",
+  "status": "consumed",
   "carrier_task_key": null,
   "base_task_revision": null,
   "generated_at": "2026-06-02T11:26:49.172Z",
@@ -153,7 +153,7 @@
   ],
   "approved_at": "2026-06-02T11:29:26.482Z",
   "approved_by": "user",
-  "consumed_at": null,
-  "consumed_by": null,
+  "consumed_at": "2026-06-02T13:05:58.208Z",
+  "consumed_by": "slot4_claude",
   "consumed_from_hash": null
 }

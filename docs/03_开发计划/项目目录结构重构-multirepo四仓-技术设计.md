@@ -2,7 +2,7 @@
 doc_type: technical_design
 requirement_id: req-restructure-713c13
 title: 项目目录结构重构（multi-repo 四仓）技术设计
-status: drafting
+status: delivered
 created: 2026-06-02T11:14:57.120Z
 ---
 
