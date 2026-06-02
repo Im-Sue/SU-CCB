@@ -1,0 +1,9 @@
+[submodule "su-oriel"]
+	path = su-oriel
+	url = git@github.com:Im-Sue/SU-Oriel.git
+[submodule "su-ccb-claude-plugin"]
+	path = su-ccb-claude-plugin
+	url = git@github.com:Im-Sue/su-ccb-claude-plugin.git
+[submodule "su-ccb-codex-skills"]
+	path = su-ccb-codex-skills
+	url = git@github.com:Im-Sue/su-ccb-codex-skills.git

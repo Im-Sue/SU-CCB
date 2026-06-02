@@ -1,7 +1,5 @@
-# ===== 子项目独立仓（multi-repo：各自管理自己的 .git，根仓库不跟踪）=====
-/su-oriel/
-/su-ccb-claude-plugin/
-/su-ccb-codex-skills/
+# 注：su-oriel / su-ccb-claude-plugin / su-ccb-codex-skills 为 submodule（见 .gitmodules），
+# 由 gitlink 指针跟踪其钉定 commit，不在此 ignore。
 
 node_modules/
 dist/

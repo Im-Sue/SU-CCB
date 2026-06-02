@@ -31,7 +31,9 @@ SU-CCB 由 **4 个各自独立的 git 仓库**协作组成（均在 GitHub `Im-S
 | **`Im-Sue/su-ccb-claude-plugin`** | **协议内核真相源**（`references/kernel/`）+ Claude 侧 skills / 命令 / schema generators |
 | **`Im-Sue/su-ccb-codex-skills`** | Codex 侧 execute / consult / doc skills |
 
-本仓 `.gitignore` 排除三个子项目目录（它们是独立仓库）。**开发整套时**把四仓平级 clone 到同一父目录即可。
+**SU-CCB 是根容器**，另外三仓以 **git submodule** 形式嵌套其中（`docs/` 的同级）。submodule 让 SU-CCB
+钉住三仓的精确 commit 组合（版本绑定 / 可复现），整套开发者一条 `git clone --recursive` 即可拉齐；
+三仓本身仍是各自独立的公开仓，使用者可单独 clone / fork，不需要 SU-CCB。
 
 ## 架构
 
@@ -61,35 +63,50 @@ flowchart LR
 
 ## 三种使用角色
 
-| 角色 | 怎么用 | 是否需 clone plugin / codex |
+| 角色 | 怎么用 | 是否需 SU-CCB / 平级 plugin |
 |---|---|---|
-| **整套开发者** | 4 仓平级 clone，开发 Oriel + plugin + skills | 是（平级目录） |
-| **只用 plugin / skills** | `/plugin marketplace add` + skill-installer 装进各自 CLI | 否（不涉及本仓 / console） |
-| **用 SU-Oriel 控制台** | 跑 SU-Oriel + 把 plugin / skills 装进 CLI | 否（控制台经项目本地契约 + 内置 fallback 运行，不要求平级 plugin） |
+| **整套开发者**（维护者） | `git clone --recursive` SU-CCB，统一管理、跨仓开发、各仓独立提交、回 SU-CCB 更新指针做版本绑定 | 是（SU-CCB 为根，三仓为 submodule） |
+| **只用 plugin / skills** | `/plugin marketplace add` + skill-installer 装进各自 CLI；要改自行 fork | 否（不涉及 SU-CCB / console） |
+| **用 SU-Oriel 控制台** | 单独 clone SU-Oriel 运行 + 把 plugin / skills 装进 CLI | 否（控制台经项目本地契约 + 内置 fallback 运行，不要求平级 plugin） |
 
 ## 上手
 
-### 开发整套（四仓平级）
+### 整套开发者：一行拉齐（带版本绑定）
+
+SU-CCB 以 submodule 钉住三仓的精确组合，`--recursive` 一次拉全：
 
 ```bash
-# 在同一父目录下
-git clone git@github.com:Im-Sue/SU-CCB.git
-git clone git@github.com:Im-Sue/SU-Oriel.git su-oriel
-git clone git@github.com:Im-Sue/su-ccb-claude-plugin.git
-git clone git@github.com:Im-Sue/su-ccb-codex-skills.git
+git clone --recursive git@github.com:Im-Sue/SU-CCB.git
+# 已 clone 但没拉 submodule：git submodule update --init --recursive
 ```
 
 各仓自洽，分别构建 / 测试：
 
 ```bash
+cd SU-CCB
 # SU-Oriel 控制台（自洽，无需 sibling）
-cd su-oriel && pnpm install && pnpm build && pnpm test
+cd su-oriel && pnpm install && pnpm build && pnpm test && cd ..
 
 # 协议内核 lint
-cd su-ccb-claude-plugin && python3 references/kernel/tools/lint_all.py
+cd su-ccb-claude-plugin && python3 references/kernel/tools/lint_all.py && cd ..
 
-# 四仓平级时的跨仓一致性检查（本仓脚本，不进单仓 CI）
-bash SU-CCB/scripts/check-cross-repo.sh
+# 四仓凑齐时的跨仓一致性检查（本仓脚本，不进单仓 CI）
+bash scripts/check-cross-repo.sh
+```
+
+**更新版本绑定**：子仓有新提交后，在 SU-CCB 内登记新组合：
+
+```bash
+cd su-ccb-claude-plugin && git pull && cd ..
+git add su-ccb-claude-plugin && git commit -m "chore: bump plugin submodule"
+```
+
+### 使用者：单独取用
+
+```bash
+# 用控制台
+git clone git@github.com:Im-Sue/SU-Oriel.git && cd SU-Oriel && pnpm install && pnpm build
+# 用 plugin / skills：marketplace / skill-installer；二次开发请自行 fork 对应子仓
 ```
 
 > SU-Oriel 详细前后端脚本与环境兜底见其仓库内 `README.md`。
