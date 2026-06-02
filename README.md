@@ -143,7 +143,8 @@ SU-CCB 采用仓库内 dogfooding 模式推进自身：
 
 ## 设计文档
 
-- [CCB 设计总览](docs/01_架构设计/ccb-plan-设计总览架构.md)
-- [node kernel northstar](docs/01_架构设计/ccb-plan-node-kernel-northstar架构.md)
-- [SU-Oriel 控制台系统架构](docs/01_架构设计/ccb-console-system架构.md)
-- [plugin 运行时加载流程](docs/01_架构设计/plugin-运行时加载流程架构.md)
+- [系统总览架构](docs/01_架构设计/su-ccb-系统总览架构.md)
+- [SU-Oriel 后端架构](docs/01_架构设计/su-oriel-后端架构.md)
+- [SU-Oriel 前端架构](docs/01_架构设计/su-oriel-前端架构.md)
+- [Claude Plugin 架构](docs/01_架构设计/su-ccb-claude-plugin-架构.md)
+- [Codex Skills 架构](docs/01_架构设计/su-ccb-codex-skills-架构.md)
