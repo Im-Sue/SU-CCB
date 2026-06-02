@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://su-ccb.local/schemas/capability-status-matrix-v0.1.json",
+  "title": "CCB Capability Status Matrix v0.1",
+  "description": "Global capability status matrix contract for KA-11. It aggregates KA-3 resolver traces and complements NodeRun capability_decisions.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["version", "capabilities"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "cap-matrix-v0.1"
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["name", "binding_source", "status", "last_used_at"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "binding_source": {
+            "type": "string",
+            "enum": [
+              "project",
+              "user",
+              "global"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "deprecated",
+              "disabled"
+            ]
+          },
+          "last_used_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
+}

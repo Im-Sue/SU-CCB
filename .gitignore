@@ -1,0 +1,94 @@
+# ===== 子项目独立仓（multi-repo：各自管理自己的 .git，根仓库不跟踪）=====
+/su-oriel/
+/su-ccb-claude-plugin/
+/su-ccb-codex-skills/
+
+node_modules/
+dist/
+.turbo/
+.DS_Store
+coverage/
+**/.test-dist/
+
+# ========== 构建产物 ==========
+build/
+*.tsbuildinfo
+.next/
+.nuxt/
+.parcel-cache/
+.eslintcache
+
+# ========== Python ==========
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.venv/
+venv/
+
+# ========== 临时与 CCB 中间产物 ==========
+.tmp/
+.cache/
+*.lock-tmp
+docs/.ccb/state/*.lock
+docs/.ccb/audit/*.jsonl
+# 派生缓存（indexer 自动重建，不跟踪 —— 见重构决策）
+docs/.ccb/index/
+
+# ========== 环境与密钥 ==========
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# ========== 日志 ==========
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ========== IDE / OS ==========
+.idea/
+.vscode/
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.swp
+*.swo
+Thumbs.db
+desktop.ini
+
+# ========== Claude Code 本地 ==========
+.claude/settings.local.json
+.claude/.claude-cache/
+.claude/backups/
+.claude/scheduled_tasks.lock
+
+# ========== Codex 本地 marker ==========
+/.codex
+
+# ========== 本地工具状态（不跨机器）==========
+# /.ccb/ 是 ccb wrapper 本地 session；docs/.ccb/ 是 CCB 协作产出（spec/state/ADR），必须 tracked
+.pnpm-store/
+/.ccb/
+.superpowers/
+.vibeman/
+
+# ========== 崩溃残留 / Windows ==========
+*.stackdump
+*:Zone.Identifier
+
+# ========== Misc ==========
+*.tmp
+*.bak
+*.orig
+.workspaces/
+tmp/

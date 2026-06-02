@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://su-ccb.local/schemas/noderun-timeline-v0.1.json",
+  "title": "CCB NodeRun Timeline v0.1",
+  "description": "Additive NodeRun timeline contract. v0.1 records node entry/exit, transitions, and capability decisions; it does not claim full mutation coverage until E1.5 primitive wrapper rollout expands mutation sources.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "version",
+    "node_id",
+    "entered_at",
+    "exited_at",
+    "transitions",
+    "capability_decisions"
+  ],
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "noderun-v0.1"
+    },
+    "node_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "entered_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "exited_at": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    },
+    "transitions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["from_node", "to_node", "transition_id", "triggered_at"],
+        "properties": {
+          "from_node": { "type": ["string", "null"] },
+          "to_node": { "type": "string", "minLength": 1 },
+          "transition_id": { "type": "string", "minLength": 1 },
+          "triggered_at": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
+    "capability_decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["capability_requested", "resolved_binding", "decision_at"],
+        "properties": {
+          "capability_requested": { "type": "string", "minLength": 1 },
+          "resolved_binding": { "type": ["string", "null"] },
+          "decision_at": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
+    "mutation_sources": {
+      "type": "array",
+      "description": "Optional additive field reserved for E1.5 wrapper rollout coverage.",
+      "items": { "type": "object", "additionalProperties": true }
+    }
+  }
+}

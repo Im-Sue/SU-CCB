@@ -1,0 +1,131 @@
+{
+  "schema_version": "breakdown-draft-v0.1",
+  "status": "consumed",
+  "carrier_task_key": "需求详情页嵌入对应 slot 实时终端",
+  "base_task_revision": null,
+  "generated_at": "2026-05-26T08:23:59.507Z",
+  "updated_at": "2026-05-26T10:14:43.227Z",
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "ccb_claude",
+    "cx_agent": "ccb_codex",
+    "ccb_job_id": "job_01cdc51ac9c4"
+  },
+  "epic": {
+    "title": "需求详情页嵌入对应 slot 实时终端",
+    "summary": "把需求详情页 slotGuidancePanel 占位升级为内嵌该需求对应 slot 的实时终端（claude/codex 双 pane，可观察可输入）。方案 A 新建 slot-terminal 后端 service/WS + 前端面板，借鉴 anchor-terminal frame 协议与 ai-cli xterm 模式，不复用 ai-cli PTY、不注册 legacy anchor-terminal。",
+    "spec_outline_md": "## 交付概要\n- **前置门禁（T0，非 subtask）**：先把 07ae88（已 delivered、工作区 dirty 未 commit）的 N1-N4 改动 commit 成稳定基线，pr5 再在干净基线上改 `RequirementDetailPage.tsx`，避免同文件冲突。\n- **方案 A**：新建 slot-terminal 后端 service/WS（借鉴 anchor-terminal frame 协议 + ai-cli xterm 初始化模式），不复用 ai-cli PTY（它 spawn 新进程，非 tmux attach）、不注册 legacy anchor-terminal 路由（未注册且含 resize 副作用）。\n- **安全前置**：target 白名单 + tmux 命令 guard 必须在 pr1-pr3 落地，不压到 pr6，否则读写切片不可验收；错 pane/越权写入是最高风险，不信任 query 传入 target。\n- **读写同一 WS**：pr2 读、pr3 在同一 WS 加 input，分开验收但不是两条 WS。\n- **只读铁律**：真实 CCB tmux socket 仅 capture-pane，禁止 attach/resize-window/refresh-client。\n- **写入默认开启**（用户拍板单人、不考虑抢占），但 UI 显式标注写入目标防误打；MVP 前端默认只连当前可见 tab、隐藏 tab 暂停。\n- 拆分仅安排切片与顺序，不改 requirement_analysis 已锁范围。",
+    "estimated_total_days": 4.5
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-resolver-target",
+      "order": 1,
+      "title": "Resolver + target service（slot_binding → pane 白名单 target + 越权 guard）",
+      "summary": "按 requirementId 查 slot_binding 解析项目 tmux socket/session/window/pane role，返回仅含 claude/codex 的白名单 target，并抽出可复用的 target 越权校验 guard。",
+      "spec_section_md": "## 目标\n提供 `GET /api/projects/:projectId/requirements/:requirementId/slot-terminal`：把需求解析到「该 slot 的 claude/codex pane 寻址 target」，并建立后续读写都要用的 target 白名单 + 越权 guard。\n## 范围\n- 查 `slot_binding`（`findBindingForRequirement`）拿 slotId；无绑定/已回收返回 404。\n- 解析项目 tmux socket（`Project.localPath/.ccb/ccbd/tmux.sock`）、session（`ccb-su-ccb-` 前缀）、window（name==slotId）、pane（按 window+role 解析 claude/codex，**不靠 pane title、不硬编码 index**）。\n- 返回 `{ slotId, sessionName, panes:[{role,target,paneIndex}] }`，target 仅限 claude/codex（白名单，排除 sidebar）。\n- 抽出 `assertTargetBelongsTo(requirementId, slotId, role, target)` guard 供 pr2/pr3 复用。\n## 验收\n- 有绑定返回正确 target；无绑定/slot 回收 → 404。\n- pane role 解析不依赖 title（构造 title 不稳定场景的单测）。\n- 越权 target（跨 project/slot/pane、非白名单 role）被 guard 拒绝的单测。\n## 边界\n- 只读 tmux（list-sessions/list-panes），不改 slot_binding 逻辑、不动 tmux 拓扑。\n## 依赖\n无（先行任务）。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr2-read-ws",
+      "order": 2,
+      "title": "只读帧 WS（capture-pane 镜像 + changed-only + visibility hint）",
+      "summary": "新建 slot-terminal WS 的只读侧：按 pr1 的 target 做 capture-pane -p -e 帧镜像，initial frame + changed-only + 前端 visibility hint 驱动刷新频率。",
+      "spec_section_md": "## 目标\n新建 `slot-terminal` WS 只读侧：把指定 slot pane 的画面以帧推给前端，借鉴 anchor-terminal 的 frame 协议但不注册旧路由、不引其 resize/pipe-pane。\n## 范围\n- WS 端点（如 `/api/slot-terminal/ws?projectId=&requirementId=&pane=`），握手时用 pr1 guard 校验 target。\n- `capture-pane -p -e -t <target>`：ready + initial 全量帧 + 后续 changed-only。\n- 刷新频率由前端发 `visibility/active` hint 决定（活动 100-200ms / 静止降频 / 隐藏暂停），不写成纯后端固定能力。\n## 验收\n- 订阅后收到 initial frame 与后续 changed-only 帧；隐藏 tab 暂停、恢复继续。\n- 并发订阅 claude/codex 两 pane 各自独立。\n- 真实 socket 无 resize 副作用（断言不调用 resize-window/refresh-client -C/attach）。\n## 边界\n- 只 capture，不 send-keys（写入在 pr3）；不注册 legacy anchor-terminal 路由/manager。\n## 依赖\npr1-resolver-target（target 解析 + guard）。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr1-resolver-target"
+      ],
+      "include": true
+    },
+    {
+      "section_id": "pr3-write-input",
+      "order": 3,
+      "title": "同一 WS 增量写入（input → send-keys + 写前 target 重校验）",
+      "summary": "在 pr2 同一条 WS 上增加 input 事件：复用 PoC 按键映射 send-keys 回写 pane；每次写入前用 pr1 guard 重校验 target；无写锁。",
+      "spec_section_md": "## 目标\n在 **pr2 同一条 WS**（不是第二条）上加写入：把前端输入经 send-keys 灌回 slot pane。\n## 范围\n- WS `input` 事件 → 移植 PoC `server-lib` 的按键映射（`keyToTmuxSendArgs`/`inputToTmuxSendArgsList`，覆盖 Enter/退格/方向键/Ctrl-C，文本走 `-l`）→ `send-keys -t <target>`。\n- **每次写入前**用 pr1 guard 重校验 target 属于该 requirement/slot/pane（不信任连接时缓存）。\n- 无写锁（用户拍板单人、不考虑抢占）；记录输入审计事件。\n## 验收\n- 中文/退格/回车/方向键/Ctrl-C 经 WS 正确生效（临时 tmux 集成测试，不打真实 agent）。\n- 越权/错 pane 的 input 被拒绝。\n## 边界\n- 不做 writer lease；写入目标的 UI 标注在 pr5。\n## 依赖\npr2-read-ws（同一 WS 通道）。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr2-read-ws"
+      ],
+      "include": true
+    },
+    {
+      "section_id": "pr4-terminal-substrate",
+      "order": 4,
+      "title": "前端终端 substrate（slot WS client + xterm frame renderer）",
+      "summary": "前端 slot 专用 WS client + xterm 全量帧渲染组件（复用 Console 既有 @xterm 依赖与初始化模式），用 mock WS 验收，可与后端并行。",
+      "spec_section_md": "## 目标\n做前端可独立验收的终端 substrate：slot 专用 WS client + xterm「全量帧」渲染器，与后端并行开发。\n## 范围\n- 复用 Console 既有 `@xterm/xterm@6` + addon-fit/unicode11/web-links 的初始化模式（参考 `EmbeddedTerminal` 但不复用其 PTY/createPtyClient 耦合）；必要时抽 `useXtermTerminal`/`TerminalSurface`。\n- 处理 `frame` 全量快照渲染（区别于 ai-cli 的 `out` 增量）、visibility hint 上报、**禁止向真实 tmux 发 resize**。\n- 渲染节流/diff，缓解全量 repaint 闪烁。\n## 验收\n- 用 mock WS（喂 initial+changed-only 帧）验收渲染、刷新、隐藏暂停；无 resize 外发。\n- 帧协议契约与 pr2 对齐（共享类型/契约测试）。\n## 边界\n- 不碰 RequirementDetailPage（集成在 pr5）；scoped 样式不污染全局。\n## 依赖\n无（mock WS 可并行；协议对齐 pr2-read-ws）。",
+      "priority": "medium",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr5-detail-integration",
+      "order": 5,
+      "title": "详情页集成（替换 slotGuidancePanel + 双 tab + 写入默认开 + 降级）",
+      "summary": "把 RequirementDetailPage 的 slotGuidancePanel 占位替换为 SlotTerminalPanel：claude/codex 双 tab、默认只连可见 tab、写入默认开启并显式标注写入目标、slot 未绑定/回收降级。",
+      "spec_section_md": "## 目标\n把详情页 `slotGuidancePanel` 占位升级为真正的内嵌 slot 终端面板。\n## 范围\n- 新增 `SlotTerminalPanel` 文件，调 pr1 resolver 拿 target，连 pr2/pr3 WS，用 pr4 substrate 渲染。\n- claude/codex 双 tab，**MVP 默认只连当前可见 tab、隐藏 tab 暂停**（自决）。\n- **写入默认开启**（用户拍板），但 UI **显式标注「正在写 slot-X 的 claude/codex」**防误打正在被系统派工驱动的 agent。\n- slot 未绑定/解析 404/slot 回收 → 优雅降级回原占位提示。\n- 详情页只做一处最小替换（`slotGuidancePanel` 节点），其余逻辑在独立组件，降低与 07ae88 同文件交叉。\n## 验收\n- 详情页实时显示对应 slot 的 claude/codex 输出，可输入；不暴露其他 slot。\n- 切 tab 正确；slot 回收时降级；渲染无严重闪烁。\n## 边界\n- **前置门禁**：07ae88 的 N1-N4 改动需已 commit 成稳定基线后再改本文件。\n- 不改 slot 调度/绑定逻辑；不引新前端依赖（xterm 已有）。\n## 依赖\npr1-resolver-target、pr3-write-input、pr4-terminal-substrate。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr1-resolver-target",
+        "pr3-write-input",
+        "pr4-terminal-substrate"
+      ],
+      "include": true
+    },
+    {
+      "section_id": "pr6-security-e2e",
+      "order": 6,
+      "title": "安全 + e2e 收口（鉴权 + 跨域拒绝 + 禁 resize/attach + 集成测试）",
+      "summary": "WS 接 Console 鉴权，端到端验证跨 project/slot/pane 拒绝、真实 socket 只读铁律（禁 resize/attach/refresh-client）、临时 tmux 写入集成测试。",
+      "spec_section_md": "## 目标\n把安全边界收口为可回归的端到端测试（target 白名单/guard 已前置在 pr1-pr3，本片做鉴权 + 集成验证）。\n## 范围\n- slot-terminal WS 接 Console 现有鉴权，不暴露裸端口。\n- e2e/集成：跨 project/slot/pane 的读写请求被拒；真实 socket 只读断言（禁 resize-window/attach/refresh-client -C）。\n- 写入集成测试对临时 tmux session 进行，不打真实工作中的 agent。\n## 验收\n- 未鉴权/越权请求拒绝；真实 socket 无任何改尺寸/attach 调用；端到端冒烟（订阅→看→写）通过。\n## 边界\n- 不在本片才补 target 校验（应已在 pr1-pr3）；本片只做鉴权与集成回归。\n## 依赖\npr2-read-ws、pr3-write-input、pr5-detail-integration。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr2-read-ws",
+        "pr3-write-input",
+        "pr5-detail-integration"
+      ],
+      "include": true
+    }
+  ],
+  "requirement_id": "cmpm4dnh766ea74feb4b5c2d5",
+  "carrier_task_id": "cmpm4dnh766ea74feb4b5c2d5",
+  "review_history": [
+    {
+      "at": "2026-05-26T08:23:59.511Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-05-26T10:14:42.941Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "materialize 前置 review (Console job_ab135ee75eee; slot2_codex 强协商=有条件GO)"
+    },
+    {
+      "at": "2026-05-26T10:14:43.015Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "用户触发 /ccb:su-materialize-requirement 即子任务可进入交付的 approval (skill 第1节)"
+    },
+    {
+      "at": "2026-05-26T10:14:43.227Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-05-26T10:14:43.015Z",
+  "approved_by": "user",
+  "consumed_at": "2026-05-26T10:14:43.227Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "16a64b65941a7a1932100dfe9e21345b373853276a6a65330efb4ec691bca8fc"
+}

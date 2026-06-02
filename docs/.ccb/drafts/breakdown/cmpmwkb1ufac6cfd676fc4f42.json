@@ -1,0 +1,65 @@
+{
+  "schema_version": "breakdown-draft-v0.1",
+  "status": "consumed",
+  "carrier_task_key": "需求管理页改看板",
+  "base_task_revision": null,
+  "generated_at": "2026-05-27T06:12:13.069Z",
+  "updated_at": "2026-05-29T09:47:57.175Z",
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot2_claude",
+    "ccb_job_id": "job_06a7cf948e2a"
+  },
+  "epic": {
+    "title": "需求管理页看板化",
+    "summary": "把 Console 需求管理页从 SegmentedControl 4 tab + 纵向卡片改成与任务看板一致的 4 列 kanban。纯前端单原子改动。",
+    "spec_outline_md": "## 交付概要\n- RequirementsPage 改 4 列 kanban（列=classifyRequirementTab 4 桶）。\n- 新增 requirement-board-config；看板 CSS 复刻 TasksPage。\n- 卡片裁掉任务专有字段；原话有意不在 UI 展示（用户取舍）。\n- 纯前端，无后端/schema 改动。"
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-requirement-board-kanban",
+      "order": 1,
+      "title": "需求管理页重写为 4 列看板",
+      "summary": "RequirementsPage 从 tab+纵向卡片改为与任务看板一致的 4 列 kanban；新增 requirement-board-config；配套测试+快照。",
+      "spec_section_md": "## 目标\n需求页改成任务看板的看板效果。\n## 范围\n- RequirementsPage.tsx/module.css 重写为 4 列 kanban。\n- 新增 lib/requirement-board-config.ts（列=classifyRequirementTab 4 桶）。\n- 卡片裁掉优先级条/进度条/节点徽标；原话不在 UI 展示（用户取舍）。\n- 更新 RequirementsPage/app-redesign/e12 快照测试。\n## 验收\n- tsc --noEmit 通过；vitest 222 通过；快照核对。\n## 依赖\n无（原子任务）。",
+      "priority": "medium",
+      "implementation_owner": "claude",
+      "dependencies": [],
+      "include": true
+    }
+  ],
+  "requirement_id": "cmpmwkb1ufac6cfd676fc4f42",
+  "carrier_task_id": "cmpmwkb1ufac6cfd676fc4f42",
+  "review_history": [
+    {
+      "at": "2026-05-27T06:12:13.076Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-05-27T06:12:14.033Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-05-27T06:12:14.968Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-05-27T06:12:16.834Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-05-29T09:47:57.175Z",
+      "actor": "ai",
+      "action": "edited"
+    }
+  ],
+  "approved_at": "2026-05-27T06:12:14.968Z",
+  "approved_by": "user",
+  "consumed_at": "2026-05-27T06:12:16.834Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "07640add4e4dee1da1fe72c670be479d7b378845043f90147b05ba3bc3e018a2"
+}

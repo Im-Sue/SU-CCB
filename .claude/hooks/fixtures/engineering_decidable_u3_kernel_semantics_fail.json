@@ -1,0 +1,6 @@
+{
+  "tool_name": "Write",
+  "cwd": "<PROJECT_ROOT>",
+  "file_path": "docs/.ccb/state/f7-u3-kernel-semantics.md",
+  "content": "---\ntask_id: f7-u3-kernel-semantics\nengineering_decidable_decisions:\n  - id: ed-u3-fail\n    decision_ref: dec-u3-fail\n    touchpoint: U3_task_status_derivation\n    summary: Change kernel task_status semantics.\n    evidence_list:\n      - state-schema.yaml reviewed\n      - transition-table.md reviewed\n    reversibility_class: reversible\n    rollback_ref: git diff can revert\n    scope:\n      class: repo_local\n      paths:\n        - references/kernel/state-schema.yaml\n      external_contract_impact: true\n    tests_ref:\n      - lint_all\n    canonical_consistency:\n      class: existing_kernel_direction\n      changes_kernel_semantics: true\n      required_decision_refs: []\n    decided_by: claude\n    created_at: 2026-04-27T00:00:00+08:00\n---\n"
+}

@@ -1,0 +1,33 @@
+schema_version: legacy-allowlist-v1
+last_updated: 2026-05-02
+cutoff_date: 2026-05-02
+legacy_archive:
+  - docs/.ccb/specs/archive/2026-04-27-ccb-console-task-projection-bugfix.md
+  - docs/.ccb/specs/archive/2026-04-27-ccb-fully-autonomous-policy-profile.md
+  - docs/.ccb/specs/archive/2026-04-28-ccb-a2bb-k0-transition-consumer-wrapper.md
+  - docs/.ccb/specs/archive/2026-04-28-ccb-a2bb-k1-apply-endpoint.md
+  - docs/.ccb/specs/archive/2026-04-28-ccb-c4-hotfix-finding-disposition.md
+  - docs/.ccb/specs/archive/2026-04-28-ccb-d3-phase1-review-intent-bridge.md
+  - docs/.ccb/specs/archive/2026-04-28-ccb-d3-phase2-a1-event-journal.md
+  - docs/.ccb/specs/archive/2026-04-28-ccb-d3-phase2-a2a-transition-proposal.md
+  - docs/.ccb/specs/archive/2026-04-28-ccb-d3-phase2-a2ba-dry-run-audit.md
+  - docs/.ccb/specs/archive/2026-04-28-ccb-kernel-manifest-c4-cleanup.md
+  - docs/.ccb/specs/archive/2026-04-28-ccb-server-test-fixture-isolation.md
+  - docs/.ccb/specs/archive/2026-04-30-ccb-v6-compat-upgrade.md
+  - docs/.ccb/specs/archive/2026-04-30-g1-t1-plugin-marker-ask-rewrite.md
+  - docs/.ccb/specs/archive/2026-04-30-g1-t2-plugin-stub-removal.md
+  - docs/.ccb/specs/archive/2026-04-30-g1-t3-plugin-path-and-ask-contract.md
+  - docs/.ccb/specs/archive/2026-04-30-g1-t4-plugin-kernel-distribution.md
+  - docs/.ccb/specs/archive/2026-04-30-g1-t5-su-init-p4-rewrite.md
+  - docs/.ccb/specs/archive/2026-05-01-ccb-v6-console-env-followup.md
+  - docs/.ccb/specs/archive/2026-05-01-g2-5-sync-followup-fix-plugin-hash.md
+  - docs/.ccb/specs/archive/2026-05-01-g2-t1-claude-hooks-cleanup.md
+  - docs/.ccb/specs/archive/2026-05-01-g2-t2-ai-cli-wsl-tmux.md
+  - docs/.ccb/specs/archive/2026-05-01-g2-t3-test-fixture-and-build-cross-platform.md
+  - docs/.ccb/specs/archive/2026-05-01-g2-t4-docs-and-dev-shell-mirror.md
+  - docs/.ccb/specs/archive/2026-05-01-g2-t5-kernel-source-marker-and-sync-script.md
+  - docs/.ccb/specs/archive/2026-05-01-g3-t1-vibeman-cleanup.md
+  - docs/.ccb/specs/archive/2026-05-01-g3-t2-env-fixes-python3-and-readme-troubleshoot.md
+  - docs/.ccb/specs/archive/2026-05-01-g4-t1-web-test-abortsignal-fix.md
+  - docs/.ccb/specs/archive/2026-05-01-g4-t2-node-pty-postinstall-rebuild.md
+  - docs/.ccb/specs/archive/2026-05-01-g4-t3-pnpm-corepack-troubleshoot-doc.md

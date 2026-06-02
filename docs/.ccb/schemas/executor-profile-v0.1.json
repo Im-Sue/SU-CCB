@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://su-ccb.local/schemas/executor-profile-v0.1.json",
+  "title": "CCB ExecutorProfile v0.1",
+  "description": "Reference-only executor profile contract. v0.1 declares provider/model/runtime/permission/capability binding metadata and does not invoke, render, or inject prompts.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "provider",
+    "model",
+    "runtime",
+    "permission",
+    "capability_binding",
+    "last_updated"
+  ],
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "executor-profile-v0.1"
+    },
+    "provider": {
+      "type": "string",
+      "minLength": 1
+    },
+    "model": {
+      "type": "string",
+      "minLength": 1
+    },
+    "runtime": {
+      "type": "string",
+      "enum": [
+        "external",
+        "pty",
+        "command",
+        "settings"
+      ]
+    },
+    "permission": {
+      "type": "string",
+      "enum": [
+        "read",
+        "write",
+        "admin"
+      ]
+    },
+    "capability_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capability_id"
+      ],
+      "properties": {
+        "capability_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "meta": {
+      "type": "object",
+      "description": "Optional reference-only metadata, such as prompt_template_ref. Consumers must not render or invoke it in v0.1.",
+      "additionalProperties": true
+    }
+  }
+}

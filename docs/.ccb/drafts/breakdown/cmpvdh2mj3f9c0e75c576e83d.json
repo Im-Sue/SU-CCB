@@ -1,0 +1,94 @@
+{
+  "schema_version": "breakdown-draft-v0.1",
+  "status": "consumed",
+  "carrier_task_key": "需求进度问题/绑定slot或分析自动晋升planning",
+  "base_task_revision": null,
+  "generated_at": "2026-06-01T16:15:15.340Z",
+  "updated_at": "2026-06-01T16:24:07.128Z",
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "ccb_claude",
+    "cx_agent": "ccb_codex",
+    "ccb_job_id": "job_808d003f9477"
+  },
+  "epic": {
+    "title": "需求进度问题 — 绑定slot/执行分析自动晋升 planning(D1)",
+    "summary": "新增 requirement.promote:planning capability-outcome,plugin agent 写 canonical。本期 D1:su-flow planning 入口 promote + 分析成功幂等 affirm,forward-only 只允许 drafting→planning。D2(Console enqueue 覆盖无派工 bind)后续跟进。",
+    "spec_outline_md": "## 交付概要\n\n- pr1 先建 promotion 机制(policy+guard+capability+codegen),pr2/pr3 依赖。\n- pr2 接 D1 两触发点(su-flow 入口 + 分析 affirm)。\n- pr3 更新受旧契约守护的测试并补 forward-only/幂等/集成。\n- 范围已在技术设计与 ADR-0041 锁定;本拆分仅切片与顺序,不改交付范围/owner/目标态(planning)。",
+    "estimated_total_days": 1.5
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-promotion-outcome-mechanism",
+      "order": 1,
+      "title": "promotion 机制:requirement.promote:planning policy + forward-only guard + capability + codegen",
+      "summary": "建 drafting→planning 晋升基础件:新增 enabled policy、注册 forward-only executable guard、注册 requirement.promote capability、重生成两端 generated policy。",
+      "spec_section_md": "## 任务概述\n新增 `requirement.promote:planning` capability-outcome 机制(D1 基础件,pr2 触发点依赖):policy + forward-only guard + capability 注册 + 两端 generated policy 重生成。\n\n## 任务分解\n- 在 `su-ccb-claude-plugin/references/kernel/capability-outcome-policy.yaml` 新增 enabled policy `requirement.promote:planning:requirement`:capability_id `requirement.promote`、outcome_type `planning`、write_target `requirement_md`、state_effects `status: set:planning`、evidence kind A `hash_matches`、guards `[no_self_referential_event, requirement_promote_forward_only]`。\n- 在 `su-ccb-claude-plugin/lib/capability-outcome/index.mjs` 注册 executable guard `requirement_promote_forward_only`:要求 canonical_path + expectedHash/base_hash;当前 md status `drafting→planning` 允许、`planning` 幂等 no-op、`delivering|delivered|deferred|cancelled` 拒绝/no-op。\n- 注册新 capability `requirement.promote` 到 **kernel/global capability registry**(不是 `docs/.ccb/config/capabilities.project.yaml`,后者仅 project override),与现有 requirement.* capability 对齐。\n- 运行 `scripts/generate-capability-outcome-policy.mjs` 重生成 server 与 plugin 两端 generated policy。\n\n## 验收标准\n- guard 单测全状态矩阵:drafting→planning 通过;planning 幂等;delivering/delivered/deferred/cancelled 被拒不覆盖。\n- **真实 `applyCapabilityOutcome` 写 md 集成测试**(非仅 guard 单测):drafting→planning 落盘、planning 幂等、终态不覆盖、缺/错 hash 拒绝、policy resolve 成功。\n- evidence 用 CAS `hash_matches`,不依赖 schema_valid(分析前 md 无 analysis hash 仍可晋升)。\n- 两端 generated policy 与 yaml 源一致(codegen 无 diff)。\n\n## 边界\n- 不接线触发点(pr2 做);不改 Console(D2 后续)。\n- 不复用会放过 delivering 的 `requirement_not_cancelled_or_deferred`。\n\n## 依赖\n无(基础件)。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr2-wire-d1-triggers",
+      "order": 2,
+      "title": "接线 D1 触发:su-flow planning 入口 promote + 分析成功 affirm",
+      "summary": "把 pr1 的 promotion outcome 接到两个触发点:su-flow planning 节点入口(D1a)与 applyRequirementAnalysis 成功后(D1b),幂等收敛。",
+      "spec_section_md": "## 任务概述\n把 pr1 的 promotion outcome 接到 D1 两触发点:su-flow planning 节点入口 promote(D1a)+ `applyRequirementAnalysis` 成功后 affirm(D1b),幂等收敛。\n\n## 任务分解\n- D1b:`su-ccb-claude-plugin/lib/requirement-analysis/index.mjs` 在 applyRequirementAnalysis 成功落盘后,调用 `applyCapabilityOutcome(requirement.promote, planning, subjectRef={canonical_path, base_hash})`,已 planning 则 no-op。\n- D1a:`su-ccb-claude-plugin/skills/su-flow/SKILL.md` 在 requirement_analysis / technical_design 节点入口执行同一 outcome,覆盖「主按钮绑定→派 planning anchor→su-flow 运行」的绑定路径。\n- 设计触发幂等 key,避免重复 dispatch / 事件重复。\n\n## 验收标准\n- 绑定 slot 经主流程派 su-flow 后,需求 canonical 从 drafting 晋升 planning,看板进「推进中」。\n- 仅执行分析后也晋升。\n- 重复触发幂等,无重复事件 / 无降级。\n\n## 边界\n- 无派工的纯手动 `/bind-slot`、startup recovery 本期不晋升(D2 后续,已知缺口)。\n- 不写 Console canonical。\n\n## 依赖\npr1-promotion-outcome-mechanism。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr1-promotion-outcome-mechanism"
+      ],
+      "include": true
+    },
+    {
+      "section_id": "pr3-contract-test-update",
+      "order": 3,
+      "title": "契约测试更新:改旧断言 + forward-only/幂等/集成",
+      "summary": "更新受旧契约(绑定后仍 drafting)守护的测试,补 forward-only 矩阵、幂等与 bind/analysis 集成用例,校验 planning anchor 门控不破坏。",
+      "spec_section_md": "## 任务概述\n更新受旧契约守护的测试并补 D1 行为测试:契约从「绑定后仍 drafting」变为「经 su-flow 晋升 planning」。\n\n## 任务分解\n- 更新 `apps/ccb-console/server/src/modules/anchor-broker/anchor-requirement-dispatch.routes.spec.ts:139` 等断言旧契约的用例。\n- 补集成测试:主流程绑定→su-flow→晋升;分析→晋升;forward-only 不降级。\n- 校验 planning anchor 启动门控(drafting/planning)不被破坏。\n\n## 验收标准\n- 全部受影响测试通过;新增 forward-only / 幂等 / 集成用例通过。\n- 无回归:planning anchor 启动门控行为不变。\n\n## 边界\n- 不测 D2 路径(本期不实现)。\n\n## 依赖\npr1-promotion-outcome-mechanism, pr2-wire-d1-triggers。",
+      "priority": "medium",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr1-promotion-outcome-mechanism",
+        "pr2-wire-d1-triggers"
+      ],
+      "include": true
+    }
+  ],
+  "requirement_id": "cmpvdh2mj3f9c0e75c576e83d",
+  "carrier_task_id": "cmpvdh2mj3f9c0e75c576e83d",
+  "review_history": [
+    {
+      "at": "2026-06-01T16:15:15.344Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-06-01T16:24:06.788Z",
+      "actor": "ai",
+      "action": "edited"
+    },
+    {
+      "at": "2026-06-01T16:24:06.870Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-06-01T16:24:06.910Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-06-01T16:24:07.128Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-06-01T16:24:06.910Z",
+  "approved_by": "user",
+  "consumed_at": "2026-06-01T16:24:07.128Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "b6813bc818346c9ea3b4a9628f7f1a6aeef4cf6793b6f2d1eefd5fc5d357dd43"
+}

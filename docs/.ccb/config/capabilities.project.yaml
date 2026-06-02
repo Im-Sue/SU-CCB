@@ -1,0 +1,18 @@
+# CCB Project Capabilities Override
+# 此模板由 ccb-init 在项目根 docs/.ccb/config/capabilities.project.yaml 生成。
+# 首次生成时保持为空，用户按需 override；不要在此重新定义 capability schema。
+# Schema source: references/kernel/capability-registry-schema.yaml
+
+schema_version: capability-registry-v0.3.2
+layer: project
+
+# 项目层 override 只表达本项目的 provider 偏好、deny 或 rank。
+# capability_id 必须来自 references/kernel/capabilities/global.yaml。
+provider_overrides: {}
+
+# 示例（默认注释，不参与解析）：
+# provider_overrides:
+#   execution.verification:
+#     deny: []
+#     rank:
+#       - claude_native_verification

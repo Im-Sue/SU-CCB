@@ -1,0 +1,107 @@
+{
+  "schema_version": "breakdown-draft-v0.1",
+  "status": "consumed",
+  "carrier_task_key": "Console投影同步健壮性",
+  "base_task_revision": null,
+  "generated_at": "2026-05-29T09:35:45.715Z",
+  "updated_at": "2026-05-29T09:38:09.403Z",
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot2_claude"
+  },
+  "epic": {
+    "title": "Console 投影同步健壮性(schema 漂移 + 扫描兜底 + 状态模型统一)",
+    "summary": "修需求 cmpqlbcw 三类 plugin→Console 投影/交互不一致;状态模型彻底统一含 kernel(ADR-0038)。5 片:PR1 schema fail-loud / PR2 需求级 reindex+轮询 / PR3 watcher 动态注册 / PR4 kernel 升级 / PR5 Console 对齐修按钮。",
+    "spec_outline_md": "## 交付概要\n- 修需求 cmpqlbcw 三类 plugin→Console 投影/交互不一致;方向均用户拍板,状态模型彻底统一含 kernel 协议层(ADR-0038)。\n- **5 片**(Codex 拆分 consult `job_ae27299eca8b`:PR2 拆 2a/2b):\n  - PR1 breakdown-draft schema fail-loud(并 review_history 修正) —— 独立,先落。\n  - PR2a 需求级 reindex 端点 + dev_task 投影 + 前端 10s 轮询 —— 独立。\n  - PR2b FileWatcher Map 重构 + 新项目动态注册 —— 独立。\n  - PR3 主仓 kernel 状态模型升级 + 同步插件副本(敏感,单片) —— 独立开发,**必须先于 PR4 合入**。\n  - PR4 Console 操作层状态对齐(资格门修按钮) —— 依赖 PR3 + PR2a。\n- **共享约束**:① 改 schema/状态只走源头 + codegen,不手改 generated 产物 ② 只动 `generation_source.note`,绝不误伤 `review_history[].note` ③ 状态对齐 fail-closed(`status===\"reviewing\"`),旧值留一版 read-compat 归一、停止写旧值 ④ DB 是可重建投影,26 task 全 `{reviewing,done}`,改 code+rescan 即可不改 docs ⑤ 改 kernel 语义经 U3 治理(已用户授权 + ADR-0038)。\n- **并行度**:PR1 / PR2a / PR2b / PR3 可并行;PR4 等 PR3+PR2a。\n\n## 不做项\n- 不止于操作层(用户要求连 kernel 一起清)。\n- 不在 10s 轮询里删 stale Task(沿用现有\"只报 orphan\")。\n- 不动 `review_history[].note`、不改正文阅读链路、不引新依赖。\n- kernel 旧值 read-compat 的最终退役留待后续版本,不在本需求强删。\n"
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-bd-schema-failloud",
+      "order": 1,
+      "title": "PR1:breakdown-draft schema fail-loud(+review_history 修正)",
+      "summary": "generation_source 拒未知键堵 note 死字段 + review_history 去 required;源头改+codegen+清 2 存量。",
+      "spec_section_md": "## 目标\nbreakdown-draft schema fail-loud:`generation_source` 拒未知键(堵 `note` 死字段),并修 `review_history` required 漂移。源头改 + codegen,不手改产物。\n\n## 范围\n- `[MODIFY] su-ccb-claude-plugin/references/kernel/schemas/breakdown-draft.schema.yaml`:`generation_source` 增 `allowed_keys: [cc_agent, cx_agent, ccb_job_id, manual_actor]`;把 `review_history` 从 root.required 移除(对齐 root kernel `required:false`)。\n- `[MODIFY] scripts/generate-schema-validators.mjs:213` object 分支支持 `allowed_keys`,未知键报错路径如 `generation_source.note`;重生成 plugin + console 双产物(`:289`)。\n- `[MODIFY] lib/runtime/schema-validate.mjs:170`:校验四已知键前枚举 `Object.keys(generation_source)`,未知即 issue;`review_history` 改\"存在时必须数组\"。\n- `[CLEANUP]` 先删 2 存量 `generation_source.note`(`cmpmwkb1ufac6cfd676fc4f42.json:12`、`cmpmwpuy8765c189497e7489a.json:12`),作为本 PR 第一个 commit(收紧前清,否则 read 锁死)。\n\n## 验收\n- generated + runtime + console 三处均拒 `generation_source.note` 并指明路径;合法四键通过。\n- `review_history` 缺省通过;`review_history[].note` 仍通过(不可误伤)。\n- 清洗后 2 存量 draft 可正常 read/update/scan,`breakdownDraftPath` 正常投影。\n- `pnpm run generate:validators` 后产物无手改残留;`pnpm run lint:schema-ownership` 绿;相关 vitest 全绿。\n\n## 边界\n- 只动 `generation_source` 未知键 + `review_history` required;不碰其它字段、不改业务逻辑。\n\n## 依赖\n无(基础片,可立即合)。\n",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr2-req-scoped-reindex",
+      "order": 2,
+      "title": "PR2:需求级 reindex 端点 + dev_task 投影 + 前端 10s 轮询",
+      "summary": "新浏览器端点单需求 reindex,补 dev_task 漏投影,前端 mount 立即+10s 轮询。",
+      "spec_section_md": "## 目标\n需求页定时轮询「单需求」reindex(默认 10s),修 plugin 写入后投影不刷新;补现有需求级 reindex 漏掉的 dev_task/子任务投影。\n\n## 范围\n- `[NEW] 端点 POST /api/projects/:projectId/requirements/:requirementId/reindex`(`requirement.routes.ts:346` 附近,浏览器可调);**不复用 plugin-hooks**(拒浏览器 origin)、**不整项目 scan**。\n- `[MODIFY] requirement-reindex.service.ts`:新增需求级 orchestrator,复用现有三段(req md `:32`/设计 `:67`/draft `:136`),**补需求级 dev_task reindex**:扫 `docs/03` 中 `doc_type=dev_task && requirement_id==rid` → upsert Document → derive/upsert 子任务。\n- `[REFACTOR] project-indexer.ts:475`:抽 `upsertTaskProjectionAsync` 为可复用 helper(**保留函数名或同步 `schema-ownership-lint.ts` 特判**,避免治理 lint 误报);**不碰 `deriveTasks`/`normalizeTaskStatus`**(留 PR4)。\n- `[MODIFY] console-api.ts:617` 附近加客户端;`RequirementDetailPage.tsx:543` 改「mount 立即 reindex + 10s 轮询」,hidden/unmount 停、focus 触发一次、`inFlight` 跳过重入(**本片只加轮询/reindex 调用,不碰 status consumer——留 PR4**)。\n- 后端按 `projectId:requirementId` mutex/TTL debounce 串行化;解析半成品返回 partial/issue,不扩散为页面硬错。\n\n## 验收\n- 需求级 reindex 覆盖 req md + 设计 + draft + **dev_task**;dev_task 新增/更新能 upsert Document 与 Task。\n- stale Task 暂只报 orphan 不删。\n- 多 tab 并发只串行一次、不重复写坏。\n- 前端:mount 立即 reindex、10s interval、hidden/unmount 停、in-flight 跳过。\n- `pnpm --filter ccb-console-server typecheck` + 双侧 vitest 全绿;`lint:schema-ownership` 绿。\n\n## 边界\n- 只读文件更新 DB 投影,不写 canonical docs;轮询不更新文档地图机器文件(避免 churn)。\n- 不改 watcher(PR2b)、不改 normalizeTaskStatus/资格门(PR4)。\n\n## 依赖\n无(独立);与 PR4 在 `project-indexer.ts`/`RequirementDetailPage.tsx` 边界已划清,PR2a 先合更稳。\n",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr3-filewatcher-dynamic",
+      "order": 3,
+      "title": "PR3:FileWatcher Map 重构 + 新项目动态注册",
+      "summary": "watcher 改 Map<projectId> + ensureProjectWatcher,项目创建后注册 + backfill。",
+      "spec_section_md": "## 目标\n修「server 启动后新建项目不被 watcher 监听」+ WSL2 inotify 漏事件,把 FileWatcherService 从一次性整批枚举重构为按项目动态注册。\n\n## 范围\n- `[REFACTOR] file-watcher-service.ts:86,103`:`watchers: Map<projectId, FSWatcher>` + `ensureProjectWatcher(projectId)`(幂等,已存在则 no-op)+ `ensureAllProjectWatchers()`;`start()` 改调 ensureAll(替代一次性枚举 + started no-op)。\n- `[MODIFY] project.routes.ts:22`:项目创建后在 **route 层**调 `ensureProjectWatcher`(不放 store,避免仓储依赖 watcher)。\n- 新 watcher 注册成功后触发一次 `scanProject` backfill(补 `ignoreInitial:true` 漏掉的注册前文件,`:123`)。\n- (评估)WSL2 `usePolling` 兜底:若一并加,需定轮询间隔;否则记为后续。本片至少先解决动态注册。\n\n## 验收\n- 新建项目后 `watchers` Map 含新 projectId;向新项目写文件 → 投影更新(无需手动 scan)。\n- `start/stop` 幂等;不对同一 project 重复注册(否则同文件多次入 `DebouncedPathQueue`,`:157`)。\n- 注册后 backfill 扫一次,注册前已写文件不丢。\n- `file-watcher.spec.ts` 扩充并全绿;`pnpm --filter ccb-console-server typecheck` 绿。\n\n## 边界\n- 只动 watcher 生命周期;不碰 reindex 链路(PR2a)、不碰状态模型。\n\n## 依赖\n无(独立,可与 PR1/PR2a/PR3 并行)。\n",
+      "priority": "medium",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr4-kernel-status-upgrade",
+      "order": 4,
+      "title": "PR4:主仓 kernel 状态模型升级 + 同步插件副本(敏感)",
+      "summary": "state-schema/7manifest/3契约文档对齐 {reviewing,done,cancelled}+current_node,升版本,同步副本,ADR-0038 accepted。",
+      "spec_section_md": "## 目标\n主仓 `references/kernel` 状态模型升级为单一真相源(ADR-0038):`status={reviewing,done,cancelled}` + `current_node` 管位置 + 异常态归 `runtime_state`;再单向同步插件副本。敏感 PR,单片不再细拆。\n\n## 范围\n- `[MODIFY] references/kernel/state-schema.yaml:23`:`task_status` 收敛 3 值;默认 `proposed`→`reviewing`;`:390/:699` 引用同步;`replanning`→node_substate、`waiting_for_user_arbitration`→`runtime_state=waiting_user/escalated` + `active_waiting_set[].waiting_for=user_arbitration`(`:716` 附近)。\n- `[MODIFY] 7 个 node manifest` 的 `task_status_in`:废弃该字段,或统一 `[reviewing]`(入口由 `previous_nodes_any_of`/`current_node`/guard 判定;archive 入口亦 `reviewing`,归档完成才写 done)。\n- `[MODIFY] transition-table.md / guard-registry.md / primitive-executor-contract.md`:旧 status 副作用/guard(如 `dispatch_ready` guard-registry:66,153、`waiting_for_user_arbitration` :171、transition status effects :148,:404)。\n- **升 kernel schema 版本号**;再机械同步插件副本 `su-ccb-claude-plugin/references/kernel`(恢复 正本→副本单向)。\n- `[MODIFY] ADR-0038` status `proposed`→`accepted`(已用户授权)。\n\n## 验收\n- `references/kernel/tools/lint_state.py` 全跑通过;U3 治理(`changes_kernel_semantics`)按 ADR-0038 + 用户授权满足。\n- grep 断言 active kernel 旧 `task_status` 值只剩 deprecated/兼容说明。\n- 7 manifest 与 `state-schema.yaml` 自洽;插件副本与主仓差异可解释(仅分发快照)。\n- 不触碰 Console 运行时(运行时不读这些 YAML gating,`task-node-flow.service.ts:42`)——本片为协议/契约/lint 层。\n\n## 边界\n- 只改 kernel 协议真相源 + 副本同步 + ADR;**不改 Console 代码**(留 PR4)。\n- read-compat 归一逻辑在 PR4 的 Console 层,不在 kernel。\n\n## 依赖\n无(独立开发);但**必须先于 PR4 合入**,不允许 PR4 插队(否则中间态不自洽)。\n",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr5-console-status-align",
+      "order": 5,
+      "title": "PR5:Console 操作层状态对齐(修按钮恒灰)",
+      "summary": "normalizeTaskStatus 收敛 + Prisma 默认 reviewing + 资格门 fail-closed 共享 helper + UI consumer 对齐。",
+      "spec_section_md": "## 目标\nConsole 操作层对齐新状态模型,修「批量推进」按钮恒灰:indexer/Prisma/资格门/UI consumer 全部对齐 `{reviewing,done,cancelled}`,资格门 fail-closed。从已合 PR3+PR2a 基线开工。\n\n## 范围\n- `[MODIFY] project-indexer.ts` `normalizeTaskStatus`(~`:1785`):只出 `{reviewing,done,cancelled}`;删 `active` fallback;旧值(planning/dispatch_ready/dispatched/implementing/active)**read-compat 归一 `reviewing`**(留一版),停止写旧值;空缺省 `reviewing`。\n- `[MODIFY] prisma/schema.prisma:123`:`Task.status` 默认 `active`→`reviewing`(+ migration)。\n- `[MODIFY] anchor-broker/anchor.routes.ts:636`:资格门 fail-closed `currentNode===\"dispatch\" && status===\"reviewing\" && !hasActiveAnchor && !isPendingDispatch`;抽**共享 helper**,batch(`:636`)+ 单派工(`:421` 现无门)复用。\n- `[MODIFY] UI consumer`:`node-board-config.ts:83`、`ui-mapping.ts:117,233`、`start-ai-session.routes.ts:48`、`RequirementDetailPage.tsx:245,1176`、`TaskDetailPage.tsx:421`、`MyWorkPage.tsx:116`;`AlertStrip.tsx:38` blocked 改走 runtime/blockedReason、不再依赖 `status`。\n\n## 验收\n- `deriveTasks`:无 status 默认 reviewing;旧 planning/dispatch_ready/dispatched/active 归一 reviewing;done/cancelled 保持。\n- Prisma 默认 reviewing(migration 生效)。\n- batch + 单派工共用 helper:`dispatch 节点 + reviewing` 才 eligible;done/cancelled/非 dispatch fail-closed。**物化子任务后「批量推进」按钮变亮**(原 bug 修复验证)。\n- UI:board lane、status badge、MyWork、AlertStrip blocked 正确。\n- **回归 rescan:26 task `done=19/reviewing=7`、节点 `archive=19/dispatch=7` 不变**。\n- 双侧 typecheck + vitest 全绿。\n\n## 边界\n- 不可误改同名 `active`:Sprint / capability registry / terminal viewport / anchor allocation / TaskRun `dispatched` / ReviewIntent `cancelled`(非 Task.status 域)。\n- **单派工加门是行为收紧**:开工前先验证「非 dispatch 节点单独派工」是否现用法,是则 helper 留旁路。\n\n## 依赖\npr3-kernel-status-upgrade(新模型为准)+ pr2a-req-scoped-reindex(`project-indexer.ts` helper 先落,避免冲突)。\n",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr4-kernel-status-upgrade",
+        "pr2-req-scoped-reindex"
+      ],
+      "include": true
+    }
+  ],
+  "requirement_id": "cmpqlbcw1e06bb166ae00d341",
+  "carrier_task_id": "cmpqlbcw1e06bb166ae00d341",
+  "review_history": [
+    {
+      "at": "2026-05-29T09:35:45.729Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-05-29T09:38:09.169Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-05-29T09:38:09.217Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "用户在 step3 拆分门确认「认可，继续推进」;Codex 拆分 consult job_ae27299eca8b 结论采纳(PR2 拆 2a/2b → 5 片)"
+    },
+    {
+      "at": "2026-05-29T09:38:09.403Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-05-29T09:38:09.217Z",
+  "approved_by": "user",
+  "consumed_at": "2026-05-29T09:38:09.403Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "32e6a56cb823328e84ea9f34bfe908d10c9a5bd77910b4943f2f9fb857c69576"
+}

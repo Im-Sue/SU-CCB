@@ -1,0 +1,159 @@
+{
+  "schema_version": "breakdown-draft-v1",
+  "status": "approved",
+  "carrier_task_key": null,
+  "base_task_revision": null,
+  "generated_at": "2026-06-02T11:26:49.172Z",
+  "updated_at": "2026-06-02T11:26:49.172Z",
+  "generated_by": "slot4_claude",
+  "generation_source": "task_breakdown:su-flow",
+  "epic": "项目目录结构重构（multi-repo 四仓 · console 更名 SU-Oriel）",
+  "subtasks": [
+    {
+      "section_id": "t1-freeze-unbind",
+      "order": 1,
+      "title": "T1 准备·冻结·解绑 submodule",
+      "summary": "冻结 CCB 队列、备份四仓 refs/工作树、清 .tmp 垃圾 git 仓、删 .gitmodules 与两个 submodule gitlink。",
+      "spec_section_md": "## 任务概述\n冻结 CCB 队列、备份四仓 refs/工作树、清 .tmp 垃圾 git 仓、删 .gitmodules 与两个 submodule gitlink。\n\n## 任务分解\n- 停 CCB 队列（ccb.config agent target 全 \".\"，重构中旧 job 快照/路径会失效）；\n- 四仓 backup tag；\n- 删 .gitmodules、`git rm --cached` 解 gitlink、删 .tmp/CLIProxyAPI 与 .tmp/su-ccb-codex-skills 的 .git。\n- ⚠️ 不可逆动作，须用户在场协同确认。\n\n## 验收标准（O3 gate）\n- refs 可恢复（四仓各打备份 tag 或工作树拷贝）；\n- .gitmodules / gitlink 已清除，三子目录变普通目录；\n- .tmp 下两个垃圾 git 仓已删；\n- 工作区状态已记录（迁移前快照清单）。\n\n## 边界\n- 严格遵守技术设计三 root 分层与\"su-oriel 无 sibling 可独立\"第一原则；不得引入新依赖、不改 schema/DB migration。\n- 顺序迁移任务，未达本片 gate 不得进入依赖它的后续片。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "t2-physical-relayout",
+      "order": 2,
+      "title": "T2 物理重排（基座）",
+      "summary": "apps/ccb-console → su-oriel（去 apps/ccb-console 中间层）；根构建工具与 schema-ownership-matrix 迁入 su-oriel；pnpm 配置进位。",
+      "spec_section_md": "## 任务概述\napps/ccb-console → su-oriel（去 apps/ccb-console 中间层）；根构建工具与 schema-ownership-matrix 迁入 su-oriel；pnpm 配置进位。\n\n## 任务分解\n- `git mv apps/ccb-console/* su-oriel/`；\n- 迁 generate-schema-validators.mjs、generate-capability-outcome-policy.mjs、schema-ownership-matrix.yaml 进 su-oriel；\n- 准备 su-oriel 根的 package.json / pnpm-workspace 占位（具体自洽在 T3）。\n\n## 验收标准（O3 gate）\n- 跑残留路径清单：全仓无 `apps/ccb-console` 文本残留（代码/脚本/配置）；\n- scripts/generate-*.mjs、references/schema-ownership-matrix.yaml 已在 su-oriel；\n- git mv 保留历史血缘；目录结构成形。\n\n## 边界\n- 严格遵守技术设计三 root 分层与\"su-oriel 无 sibling 可独立\"第一原则；不得引入新依赖、不改 schema/DB migration。\n- 顺序迁移任务，未达本片 gate 不得进入依赖它的后续片。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "t1-freeze-unbind"
+      ],
+      "include": true
+    },
+    {
+      "section_id": "t3-su-oriel-selfcontained",
+      "order": 3,
+      "title": "T3 su-oriel 自洽（pnpm·包名·husky）",
+      "summary": "su-oriel 内置 pnpm-workspace(server/web)；包名改 su-oriel-server/web；重生 lock；husky/lint-staged 迁入；dev 脚本与 prisma 路径修。",
+      "spec_section_md": "## 任务概述\nsu-oriel 内置 pnpm-workspace(server/web)；包名改 su-oriel-server/web；重生 lock；husky/lint-staged 迁入；dev 脚本与 prisma 路径修。\n\n## 任务分解\n- pnpm-workspace.yaml 进 su-oriel，packages: server、web；根去 pnpm；\n- web/server package.json name → su-oriel-web/server，所有 --filter 同改；\n- husky/lint-staged glob 迁 su-oriel；重生 pnpm-lock 并验证 node-pty/prisma。\n\n## 验收标准（O3 gate）\n- 脱离父仓：`pnpm install --frozen-lockfile` + build + test 全过；\n- 包名/filter/dev 脚本/husky/lint-staged 全部为 su-oriel-*，无 ccb-console-* 残留；\n- prisma dev.db 等路径基于 su-oriel sourceRoot。\n\n## 边界\n- 严格遵守技术设计三 root 分层与\"su-oriel 无 sibling 可独立\"第一原则；不得引入新依赖、不改 schema/DB migration。\n- 顺序迁移任务，未达本片 gate 不得进入依赖它的后续片。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "t2-physical-relayout"
+      ],
+      "include": true
+    },
+    {
+      "section_id": "t4a-three-root-infra",
+      "order": 4,
+      "title": "T4a 三 root 基础设施",
+      "summary": "落地 sourceRoot / projectRoot / contractRoot 三 root 分层与 contract 解析顺序；DEFAULT_CONTRACT_PATH 改为 su-oriel 内置 bundled fallback（替代猜 sibling plugin）。",
+      "spec_section_md": "## 任务概述\n落地 sourceRoot / projectRoot / contractRoot 三 root 分层与 contract 解析顺序；DEFAULT_CONTRACT_PATH 改为 su-oriel 内置 bundled fallback（替代猜 sibling plugin）。\n\n## 任务分解\n- 新增 su-oriel bundled fallback contract；\n- 改 DEFAULT_CONTRACT_PATH 不再指 sibling plugin；\n- contractRoot 仅显式配置，不参与默认猜测；补解析顺序单测。\n\n## 验收标准（O3 gate）\n- 三 root 可分别显式指定；\n- contract 解析顺序有单测覆盖：显式 env → <projectRoot>/docs/.ccb/contract → bundled fallback → (integration only) sibling；\n- bundled fallback 文件存在且 R3（无 sibling）下可解析。\n\n## 边界\n- 严格遵守技术设计三 root 分层与\"su-oriel 无 sibling 可独立\"第一原则；不得引入新依赖、不改 schema/DB migration。\n- 顺序迁移任务，未达本片 gate 不得进入依赖它的后续片。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "t3-su-oriel-selfcontained"
+      ],
+      "include": true
+    },
+    {
+      "section_id": "t4b-runtime-consumers",
+      "order": 5,
+      "title": "T4b runtime consumers 迁移（最高风险）",
+      "summary": "把 docs-structure-resolver 调用方、role-profile、consult-requests、requirement-edit、ai-cli.cwd 等运行时消费者改用 projectRoot/三 root，删所有 ../../../ 与 5 层硬编码攀爬。",
+      "spec_section_md": "## 任务概述\n把 docs-structure-resolver 调用方、role-profile、consult-requests、requirement-edit、ai-cli.cwd 等运行时消费者改用 projectRoot/三 root，删所有 ../../../ 与 5 层硬编码攀爬。\n\n## 任务分解\n- consult-requests 读 <projectRoot>/.ccb/ccb.config；role-profile prompt root 基于 projectRoot；\n- requirement-edit 改 getDocsStructureResolverForProject；ai-cli.cwd 默认 cwd 显式化；\n- 启动期对 projectRoot 加断言，命中 R1（最高风险：默认回落读自己）。\n\n## 验收标准（O3 gate）\n- server 指向父项目可启动并 scan 一个 fixture 项目成功；\n- 负例：在无 sibling 且 cwd=su-oriel 时，证明不回落读 su-oriel 自身 .ccb/docs；\n- requirement-edit 走 project resolver 而非默认 resolver。\n\n## 边界\n- 严格遵守技术设计三 root 分层与\"su-oriel 无 sibling 可独立\"第一原则；不得引入新依赖、不改 schema/DB migration。\n- 顺序迁移任务，未达本片 gate 不得进入依赖它的后续片。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "t4a-three-root-infra"
+      ],
+      "include": true
+    },
+    {
+      "section_id": "t5-plugin-generator-independent",
+      "order": 6,
+      "title": "T5 plugin generator 独立去根",
+      "summary": "generator 留 plugin（schema 真相源），默认只生成 plugin 自身产物、不写 console；plugin 测试不再读根 scripts。",
+      "spec_section_md": "## 任务概述\ngenerator 留 plugin（schema 真相源），默认只生成 plugin 自身产物、不写 console；plugin 测试不再读根 scripts。\n\n## 任务分解\n- generator 输出路径参数化，默认仅 plugin；\n- 修 plugin lib/*/generated-*.mjs 头注释与 policy.test.mjs:17 的根引用；\n- 确认 plugin 独立测试入口。\n\n## 验收标准（O3 gate）\n- plugin clone 内可独立 regenerate 且无 diff；\n- 默认 generator 不触碰 console 任何路径（证明无隐形 monorepo）；\n- policy.test.mjs 等不再读根 generator，plugin 测试独立过。\n\n## 边界\n- 严格遵守技术设计三 root 分层与\"su-oriel 无 sibling 可独立\"第一原则；不得引入新依赖、不改 schema/DB migration。\n- 顺序迁移任务，未达本片 gate 不得进入依赖它的后续片。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "t2-physical-relayout"
+      ],
+      "include": true
+    },
+    {
+      "section_id": "t6-oriel-generated-drift",
+      "order": 7,
+      "title": "T6 su-oriel generated 接入 + drift",
+      "summary": "su-oriel 提交自身 server/src/generated TS；普通 build 只校验已提交产物可用；新增 repo-local drift 检查（不依赖根 umbrella）。",
+      "spec_section_md": "## 任务概述\nsu-oriel 提交自身 server/src/generated TS；普通 build 只校验已提交产物可用；新增 repo-local drift 检查（不依赖根 umbrella）。\n\n## 任务分解\n- 提交 su-oriel generated 产物；generate:validators 降级为可选 dev 刷新；\n- 加 repo-local drift 检查脚本。\n\n## 验收标准（O3 gate）\n- console build 仅用已提交 generated 产物即可通过（不跨仓再生成）；\n- drift 检查能在 schema 变化时检出不一致；\n- drift 为 repo-local/integration gate，不进 build 前置、不依赖根 umbrella。\n\n## 边界\n- 严格遵守技术设计三 root 分层与\"su-oriel 无 sibling 可独立\"第一原则；不得引入新依赖、不改 schema/DB migration。\n- 顺序迁移任务，未达本片 gate 不得进入依赖它的后续片。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "t5-plugin-generator-independent"
+      ],
+      "include": true
+    },
+    {
+      "section_id": "t7-codex-kernel-cleanup",
+      "order": 8,
+      "title": "T7 codex + kernel + 残留清理",
+      "summary": "codex resolver 不再要求 root kernel（改显式 contract 或仅校验 .ccb/ccb.config [windows]）；删根 references/kernel + sync 脚本；manifest CI 迁 plugin 修 .node.md；清 README/CLAUDE/AGENTS/docs/spec 残留。",
+      "spec_section_md": "## 任务概述\ncodex resolver 不再要求 root kernel（改显式 contract 或仅校验 .ccb/ccb.config [windows]）；删根 references/kernel + sync 脚本；manifest CI 迁 plugin 修 .node.md；清 README/CLAUDE/AGENTS/docs/spec 残留。\n\n## 任务分解\n- 修 resolve-same-group-peer.mjs:240/312；删根 kernel + sync-kernel-to-plugin.sh；\n- 迁 manifest-strict.yml 进 plugin 并改 .node.yaml→.node.md；PR 模板 lint_all.py；\n- 修 executor-profile.schema.spec.ts:12、transition-proposal-routes.spec.ts、validate-prompt-template.cjs、dual-run-smoke.cjs 的根路径假设。\n\n## 验收标准（O3 gate）\n- 无根 references/kernel 布局下 codex resolver 测试过（两布局都过）；\n- manifest-strict CI 指 plugin 的 .node.md；\n- 全仓 grep 无指向根 kernel 的残留引用；F 类 spec(executor-profile.schema.spec 等) 改 projectRoot/bundled。\n\n## 边界\n- 严格遵守技术设计三 root 分层与\"su-oriel 无 sibling 可独立\"第一原则；不得引入新依赖、不改 schema/DB migration。\n- 顺序迁移任务，未达本片 gate 不得进入依赖它的后续片。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "t5-plugin-generator-independent"
+      ],
+      "include": true
+    },
+    {
+      "section_id": "t8-git-ccb-umbrella",
+      "order": 9,
+      "title": "T8 git/.ccb 边界 + CI 拆分 + umbrella",
+      "summary": "根 .gitignore 排除三子目录 + 精确 unignore .ccb/ccb.config + 排派生缓存/runtime/locks；schema-ownership-lint CI 进 su-oriel(repo-local)；跨仓 umbrella 脚本进根 scripts/，仅根仓本地运行。",
+      "spec_section_md": "## 任务概述\n根 .gitignore 排除三子目录 + 精确 unignore .ccb/ccb.config + 排派生缓存/runtime/locks；schema-ownership-lint CI 进 su-oriel(repo-local)；跨仓 umbrella 脚本进根 scripts/，仅根仓本地运行。\n\n## 任务分解\n- 根 .gitignore：/su-oriel/ /su-ccb-claude-plugin/ /su-ccb-codex-skills/ + 精确 !/.ccb/ccb.config 等；\n- schema-ownership-lint.yml 进 su-oriel(只扫 server/src+prisma+matrix)；\n- 写根 scripts/check-cross-repo.* umbrella。\n\n## 验收标准（O3 gate）\n- 各仓 fresh clone 后单仓 CI 绿（不依赖 sibling）；\n- 根仓 tracked 清单只含预期 .ccb 文件（ccb.config/journal/drafts/contract），排除 index/document-map 派生缓存、locks、job 快照与三子目录；\n- umbrella 脚本凑齐 4 仓可跑、不进任何单仓 CI。\n\n## 边界\n- 严格遵守技术设计三 root 分层与\"su-oriel 无 sibling 可独立\"第一原则；不得引入新依赖、不改 schema/DB migration。\n- 顺序迁移任务，未达本片 gate 不得进入依赖它的后续片。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "t3-su-oriel-selfcontained",
+        "t4b-runtime-consumers",
+        "t6-oriel-generated-drift",
+        "t7-codex-kernel-cleanup"
+      ],
+      "include": true
+    },
+    {
+      "section_id": "t9-o3-clone-push",
+      "order": 10,
+      "title": "T9 O3 集成验证 + 推送（不可逆）",
+      "summary": "四仓 fresh clone 到临时父目录(不复用旧 node_modules)跑全量单仓 gate + 集成 umbrella；全绿后按 plugin/codex/su-oriel/根 顺序推 Im-Sue 新仓。",
+      "spec_section_md": "## 任务概述\n四仓 fresh clone 到临时父目录(不复用旧 node_modules)跑全量单仓 gate + 集成 umbrella；全绿后按 plugin/codex/su-oriel/根 顺序推 Im-Sue 新仓。\n\n## 任务分解\n- 临时父目录 fresh clone 四仓；\n- 跑五章 per-repo gate + umbrella；\n- 推送顺序 plugin→codex→su-oriel→根；\n- ⚠️ 不可逆推送，须用户在场授权。\n\n## 验收标准（O3 gate）\n- 临时父目录四仓 fresh clone，全部单仓 gate + integration gate 绿；\n- 集成布局跑 su-oriel scan root、role-profile 校验、consult allowed-agent、docs resolver、schema ownership 集成均过；\n- 四仓推送 Im-Sue 新仓后远程=本地校验通过。\n\n## 边界\n- 严格遵守技术设计三 root 分层与\"su-oriel 无 sibling 可独立\"第一原则；不得引入新依赖、不改 schema/DB migration。\n- 顺序迁移任务，未达本片 gate 不得进入依赖它的后续片。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "t8-git-ccb-umbrella"
+      ],
+      "include": true
+    }
+  ],
+  "requirement_id": "req-restructure-713c13",
+  "carrier_task_id": null,
+  "review_history": [
+    {
+      "at": "2026-06-02T11:29:26.482Z",
+      "by": "user",
+      "action": "approved",
+      "note": "逐步推进，不需要改"
+    }
+  ],
+  "approved_at": "2026-06-02T11:29:26.482Z",
+  "approved_by": "user",
+  "consumed_at": null,
+  "consumed_by": null,
+  "consumed_from_hash": null
+}

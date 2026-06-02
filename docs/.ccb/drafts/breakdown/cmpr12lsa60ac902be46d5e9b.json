@@ -1,0 +1,104 @@
+{
+  "schema_version": "breakdown-draft-v0.1",
+  "status": "consumed",
+  "carrier_task_key": "需求详情内的产物内容优化",
+  "base_task_revision": null,
+  "generated_at": "2026-05-30T07:33:21.053Z",
+  "updated_at": "2026-05-30T07:49:00.441Z",
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot1_claude"
+  },
+  "epic": {
+    "title": "需求/文档产物按模板对齐（C 两层并存）",
+    "summary": "让 AI 解析产出的需求文档按模板 13 章 + 文末 3 投影锚点（C 两层并存），并把 technical_design/dev_task 纳入模板对齐治理。投影链零改动、全 AI 驱动 O2。共 4 片。",
+    "spec_outline_md": "## 交付概要\n\n需求 `cmpr12lsa…6d5e9b`「需求详情内的产物内容优化」：让 AI 解析产出的需求文档按 **C 两层并存**结构（模板 13 章人读主体 + 文末 3 投影锚点）组织，并把 technical_design / dev_task 纳入文档模板对齐治理。\n\n依据：技术设计 `docs/03_开发计划/需求文档C方案与文档模板对齐-6d5e9b-技术设计.md`、决策 `ADR-0039`。\n\n## 切片（4 片）\n\n- **PR1 需求文档 C 方案·plugin 侧**（核心，先做）：`applyAnalysis` 支持可选 `bodyMarkdown` + 锚点 sanitize + 主体区整段替换；需求模板改 C 形态；su-flow / reanalyze skill 契约要求产出 `bodyMarkdown`。\n- **PR2 需求文档 C 方案·Console renderer**（依赖 PR1）：Console 新建需求 renderer 输出 C 形态，与 PR1 模板一致；parser 对 C 文档解析回归。\n- **PR3 dev_task 生成链路模板对齐**（独立）：`materializeRequirement` 产出的 dev_task body 按开发任务模板章节。\n- **PR4 technical_design 规范 + Console 非阻断 conformance**（依赖 PR1）：technical_design 写作按模板；Console 加独立 `template_conformance` 校验（warning 级，不污染 parseStatus）。\n\n## 共享约束（贯穿全 4 片）\n\n- **投影链零改动**：不改 `parseRequirementSections`、不改 `analysisInputHash`（= title + 需求描述）语义、不改 DB 投影字段 schema。\n- **后向兼容**：`bodyMarkdown` 为可选字段，缺失退化为旧 3 锚点路径。\n- **锚点 sanitize**：`bodyMarkdown` 禁含 5 个保留锚点二级标题（需求描述 / 原话（verbatim）/ Claude 解读 / 歧义点 / 保真差异），违则 ValidationError。\n- **全 AI 驱动·O2**：文档主体区每次重分析整段重写（隐式边界：原话 section 后 ~ Claude 解读 section 前），不引入保护用户手改的机制。\n- **conformance 独立**：模板符合度校验用独立字段 / 独立 sync warning，绝不接入 `parseIssues` / `parseStatus`（否则 dev_task / design 投影被整份跳过）。\n\n## 不做项\n\n- 不迁移存量旧 5 段需求文档（用户拍板不强迁）。\n- 不改 parser 投影解析逻辑、不改 DB schema、不引新依赖。\n- 不引入 managed marker / seed-once（用户：文档全 AI 驱动、人不手改）。"
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-requirement-c-plugin",
+      "order": 1,
+      "title": "applyAnalysis 支持 bodyMarkdown + 需求模板 C 形态 + skill 契约",
+      "summary": "applyAnalysis 可选 bodyMarkdown + 锚点 sanitize + 主体区整段替换（O2）；需求模板改 C 形态；su-flow/reanalyze skill 契约。投影/hash 不改。",
+      "spec_section_md": "## 目标\n\n让 su-flow / reanalyze 的 AI 解析产出 **C 两层并存**需求文档（开头 2 锚点 + 模板 13 章主体 + 文末 3 投影锚点），plugin 侧落地，投影链零改动。依据《技术设计》`docs/03_开发计划/需求文档C方案与文档模板对齐-6d5e9b-技术设计.md`、`ADR-0039`。\n\n## 范围（plugin 侧，含测试）\n\n- `[MODIFY] su-ccb-claude-plugin/lib/requirement-analysis/index.mjs`：\n  - `applyAnalysis` 接受**可选** `bodyMarkdown`：写到「原话（verbatim）」section 之后、「Claude 解读」section 之前；缺失则跳过（退化为旧 3 锚点路径）。\n  - **主体区整段替换（O2）**：用隐式边界（原话 section 后 ~ Claude 解读 section 前）定位并整段重写，二次运行不重复插入。\n  - **锚点 sanitize**：`bodyMarkdown` 含 parser 识别的任一锚点二级标题即抛 `ValidationError` —— sanitize 须覆盖全部变体:`需求描述 / 原话（verbatim）/ 原话 / verbatim / Claude 解读 / Claude 解读（可选）/ 歧义点 / 歧义点（可选）/ 保真差异 / 保真差异（可选）`。\n  - `validateAnalysis` 接受可选 `bodyMarkdown`（非字符串 / 含保留锚点才报错）；三字段仍必填。\n  - `analysisInputHash` 维持 `sha256(title + 需求描述)`，**不纳入** `bodyMarkdown`。\n- `[MODIFY] su-ccb-claude-plugin/templates/docs/02_需求设计/_模板_需求.md`：改 C 形态——开头 `## 需求描述` + `## 原话（verbatim）`；中间模板模块（二~十三，序号名，复杂度自适应）；文末 `## Claude 解读` + `## 歧义点` + `## 保真差异`。\n- `[MODIFY] su-ccb-claude-plugin/skills/su-flow/SKILL.md` + `skills/requirement-reanalyze/SKILL.md`：artifact 契约补充——分析产物可带 `bodyMarkdown`（按需求模板主体），并说明 sanitize 约束与 O2 整段替换语义。\n\n## 验收\n\n- 提供 `bodyMarkdown`：产出文档 = 开头 2 锚点 + 模板主体 + 文末 3 锚点；`parseRequirementSections` 提取 5 字段全部正确（投影不变）。\n- 不提供 `bodyMarkdown`：产出与现状一致（旧 3 锚点路径，后向兼容）。\n- `bodyMarkdown` 含保留锚点名 → `ValidationError` 拒绝。\n- 重跑（再次 applyAnalysis）整段替换主体、不重复插入。\n- `analysisInputHash` 不随 `bodyMarkdown` 改变。\n- 单测覆盖上述分支；现有 requirement-analysis 测试全绿。\n\n## 边界\n\n不改 `parseRequirementSections`；不改 hash 语义；不改 DB schema；不引依赖。\n\n## 依赖\n\n无（先读技术设计 + ADR-0039）。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr2-requirement-c-console",
+      "order": 2,
+      "title": "Console renderer 输出 C 形态 + parser 回归",
+      "summary": "Console 新建需求 renderer 输出 C 形态（与 PR1 模板一致）；parser 对 C 文档提取 5 字段回归；旧文档解析不变。",
+      "spec_section_md": "## 目标\n\nConsole 创建需求的 renderer 输出 C 形态（与 PR1 需求模板一致），保证 Console 入口建的需求也是两层并存；并回归验证 parser 对 C 文档解析正确。\n\n## 范围（Console server，含测试）\n\n- `[MODIFY] apps/ccb-console/server/src/indexer/project-indexer.ts`（renderer ~729-757）：渲染需求 markdown 时输出 C 形态——开头 `## 需求描述` + `## 原话（verbatim）`，文末 `## Claude 解读` / `## 歧义点` / `## 保真差异`；中间预留模板主体（无内容时给模板章节占位或留空，结构与 PR1 模板对齐）。保持 description / verbatim / 三锚点字段映射不变。\n- 测试：\n  - `parseRequirementSections` 对 C 文档（锚点在文末）提取 description / verbatimSource / claudeInterpretation / ambiguities / fidelityDiff 全部正确。\n  - renderer 往返（render → parse）一致。\n  - 旧 5 段文档解析不变（回归）。\n\n## 验收\n\n- Console 新建需求产出 C 形态文档。\n- parser 对 C 文档 5 字段提取正确；旧文档解析不变。\n- `pnpm --filter ccb-console-server typecheck` + vitest 全绿。\n\n## 边界\n\n不改 `parseRequirementSections` 逻辑；不改 DB 投影字段；不动 plugin lib（PR1 负责）。\n\n## 依赖\n\nPR1（`pr1-requirement-c-plugin`）——C 结构以 PR1 定稿的需求模板为准。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr1-requirement-c-plugin"
+      ],
+      "include": true
+    },
+    {
+      "section_id": "pr3-devtask-template",
+      "order": 3,
+      "title": "dev_task 生成链路 spec_section_md 模板对齐",
+      "summary": "materializeRequirement 产出的 dev_task body 按开发任务模板章节组织；frontmatter 状态机不变。",
+      "spec_section_md": "## 目标\n\n让物化产出的 dev_task 文档 body 按 `_模板_开发任务.md` 章节组织（任务概述 / 任务分解 / 验收等），落实「其他文档模板对齐」中 dev_task 这条线。dev_task 经 `materializeRequirement` 从 `spec_section_md` 生成（非纯手写）。\n\n## 范围（plugin 生成链路，含测试）\n\n- `[MODIFY] su-ccb-claude-plugin/lib/subtask/index.mjs`（`materializeRequirement` ~70-133,286-390）：dev_task body 由 `spec_section_md` 生成时，按开发任务模板核心章节组织（或在 body 外包裹模板骨架：任务概述 / 任务分解 / 验收标准）。\n- 约定 breakdown draft 的 `spec_section_md` 写作贴合开发任务模板章节（写作规范，不改 draft schema）。\n\n## 验收\n\n- 物化出的 dev_task 含开发任务模板核心章节。\n- dev_task frontmatter 状态机字段（current_node / status / node_substate / section_id / order…）不变。\n- 现有 subtask / materialize 测试全绿。\n\n## 边界\n\n不改 dev_task frontmatter 状态机；不改 breakdown draft schema；不改 dispatch 逻辑。\n\n## 依赖\n\n无（独立线 B）。",
+      "priority": "medium",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr4-conformance-lint",
+      "order": 4,
+      "title": "technical_design 写作规范 + Console 非阻断 template_conformance",
+      "summary": "technical_design 写作按模板；Console 加独立非阻断模板符合度校验（warning 级，不污染 parseStatus）。",
+      "spec_section_md": "## 目标\n\ntechnical_design 写作规范化 + Console 加**非阻断**模板符合度校验，覆盖各 doc_type 是否按模板核心章节产出，但绝不阻断投影。\n\n## 范围（manifest/SKILL + Console server，含测试）\n\n- `[MODIFY] technical_design / task_breakdown 节点 manifest 或 SKILL`：写作按 `_模板_技术设计.md` 章节规范（设计概述 / 方案与架构 / 测试策略等）。\n- `[NEW] Console template_conformance 校验`：检查文档是否含对应 doc_type 模板核心必填章节；warning 级，写入**独立字段 / 独立 sync warning**(注:`Document` 表当前仅 `parseStatus / parseError`,无 template_conformance 字段 → 实施时定:新增 migration 字段 或 sync-level warning)，**不**进 `parseIssues` / `parseStatus`；容忍复杂度自适应（「用不上的段删掉」不算缺失）。\n- 章节白名单按 doc_type 配置（requirement / technical_design / dev_task）。\n\n## 验收\n\n- 缺核心章节的文档标 conformance warning，但投影**不被跳过**（dev_task / design `parseStatus === success` 仍正常投影）。\n- 章节白名单可配；复杂度自适应删段不误报。\n- `pnpm --filter ccb-console-server typecheck` + vitest 全绿。\n\n## 边界\n\n不接入 `parseStatus` / `parseIssues`；不阻断、不强制；不改投影字段。\n\n## 依赖\n\nPR1（`pr1-requirement-c-plugin`）——需求模板定稿后才能定 requirement 章节白名单;PR3（`pr3-devtask-template`）——dev_task conformance 须待其模板对齐后再校验,避免误报旧物化产物。",
+      "priority": "medium",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr1-requirement-c-plugin",
+        "pr3-devtask-template"
+      ],
+      "include": true
+    }
+  ],
+  "requirement_id": "cmpr12lsa60ac902be46d5e9b",
+  "carrier_task_id": "cmpr12lsa60ac902be46d5e9b",
+  "review_history": [
+    {
+      "at": "2026-05-30T07:33:21.081Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-05-30T07:49:00.034Z",
+      "actor": "ai",
+      "action": "edited"
+    },
+    {
+      "at": "2026-05-30T07:49:00.137Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "物化前 Codex 可执行性核验 job_37f850d59a41 通过;采纳 PR4→PR3 依赖 / PR1 sanitize 全变体 / PR4 存储口径 3 点改进"
+    },
+    {
+      "at": "2026-05-30T07:49:00.182Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "用户触发 /ccb:su-materialize-requirement = 审查门批准 4 片拆分"
+    },
+    {
+      "at": "2026-05-30T07:49:00.441Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-05-30T07:49:00.182Z",
+  "approved_by": "user",
+  "consumed_at": "2026-05-30T07:49:00.441Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "30c8d5e6f94d523f271eea5b66aac95406fdc8ec75b7719e677d66ddf8675ded"
+}

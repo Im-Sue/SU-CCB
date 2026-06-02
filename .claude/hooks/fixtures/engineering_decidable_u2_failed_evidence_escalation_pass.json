@@ -1,0 +1,6 @@
+{
+  "tool_name": "Write",
+  "cwd": "<PROJECT_ROOT>",
+  "file_path": "docs/.ccb/state/f7-u2-escalation-allowed.md",
+  "content": "---\ntask_id: f7-u2-escalation-allowed\nescalation_reason: U2_db_api_rename\nengineering_decidable_evidence_status: failed\n---\n"
+}

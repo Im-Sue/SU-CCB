@@ -1,0 +1,6 @@
+{
+  "tool_name": "Write",
+  "cwd": "<PROJECT_ROOT>",
+  "file_path": "docs/.ccb/state/f7-u3-projection-pass.md",
+  "content": "---\ntask_id: f7-u3-projection-pass\nengineering_decidable_decisions:\n  - id: ed-u3-pass\n    decision_ref: dec-u3-pass\n    touchpoint: U3_task_status_derivation\n    summary: Keep task_status canonical and derive Console projection only.\n    evidence_list:\n      - U1 kernel direction approved in dec-u1\n      - U4 v0.4 timing approved in dec-u4\n    reversibility_class: reversible\n    rollback_ref: revert projection helper only\n    scope:\n      class: module_local\n      paths:\n        - apps/ccb-console/server/src/indexer/**\n      external_contract_impact: false\n    tests_ref:\n      - indexer projection tests\n    canonical_consistency:\n      class: u1_u4_settled\n      changes_kernel_semantics: false\n      required_decision_refs:\n        - dec-u1\n        - dec-u4\n    decided_by: codex_recommended\n    created_at: 2026-04-27T00:00:00+08:00\n---\n"
+}

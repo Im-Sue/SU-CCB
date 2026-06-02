@@ -1,0 +1,378 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://su-ccb.local/schemas/event-store-contract-v0.1.json",
+  "title": "CCB Event Store Contract v0.1",
+  "description": "Kernel-level event-store envelope for the canonical reactive and materialization event types. Event append is source-of-truth only and does not apply K0/K1 transitions.",
+  "oneOf": [
+    { "$ref": "#/$defs/codex_receipt_ready_event" },
+    { "$ref": "#/$defs/user_arbitration_submitted_event" },
+    { "$ref": "#/$defs/session_resumed_event" },
+    { "$ref": "#/$defs/state_write_conflict_event" },
+    { "$ref": "#/$defs/verification_finished_event" },
+    { "$ref": "#/$defs/batch_cancelled_event" },
+    { "$ref": "#/$defs/tool_call_denied_event" },
+    { "$ref": "#/$defs/codex_picked_up_event" },
+    { "$ref": "#/$defs/codex_rejected_event" },
+    { "$ref": "#/$defs/requirement_materialized_event" },
+    { "$ref": "#/$defs/subtask_planning_inherited_event" }
+  ],
+  "$defs": {
+    "non_empty_string": {
+      "type": "string",
+      "minLength": 1
+    },
+    "nullable_non_empty_string": {
+      "oneOf": [
+        { "$ref": "#/$defs/non_empty_string" },
+        { "type": "null" }
+      ]
+    },
+    "string_array": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/non_empty_string" }
+    },
+    "open_object": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "subject_id": {
+      "oneOf": [
+        { "$ref": "#/$defs/non_empty_string" },
+        { "type": "null" }
+      ]
+    },
+    "envelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_id",
+        "event_type",
+        "schema_version",
+        "emitted_at",
+        "project_id",
+        "subject_type",
+        "subject_id",
+        "source_actor",
+        "source_component",
+        "payload"
+      ],
+      "properties": {
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "event_type": { "$ref": "#/$defs/non_empty_string" },
+        "schema_version": {
+          "type": "string",
+          "const": "event-store-v0.1"
+        },
+        "emitted_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "project_id": { "$ref": "#/$defs/non_empty_string" },
+        "subject_type": {
+          "type": "string",
+          "enum": ["requirement", "subtask"]
+        },
+        "subject_id": { "$ref": "#/$defs/subject_id" },
+        "subject_key": { "$ref": "#/$defs/nullable_non_empty_string" },
+        "task_id": { "$ref": "#/$defs/subject_id" },
+        "anchor_id": { "$ref": "#/$defs/nullable_non_empty_string" },
+        "source_actor": {
+          "type": "string",
+          "enum": ["claude", "codex", "user", "system"]
+        },
+        "source_component": {
+          "type": "string",
+          "enum": ["scheduler", "primitive_executor", "guard", "hook", "console", "codex-receipt-bridge"]
+        },
+        "causation_id": { "$ref": "#/$defs/non_empty_string" },
+        "correlation_id": { "$ref": "#/$defs/non_empty_string" },
+        "state_revision_seen": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "idempotency_key": { "$ref": "#/$defs/non_empty_string" },
+        "payload": { "$ref": "#/$defs/open_object" }
+      }
+    },
+    "codex_receipt_ready_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["receipt_ref", "provider", "receipt_summary", "unsolicited_findings"],
+      "properties": {
+        "receipt_ref": { "$ref": "#/$defs/non_empty_string" },
+        "provider": { "$ref": "#/$defs/non_empty_string" },
+        "receipt_summary": { "$ref": "#/$defs/non_empty_string" },
+        "unsolicited_findings": {
+          "type": "array",
+          "items": true
+        },
+        "job_id": { "$ref": "#/$defs/non_empty_string" },
+        "reply_id": { "$ref": "#/$defs/non_empty_string" },
+        "spec_id": { "$ref": "#/$defs/non_empty_string" },
+        "status": { "$ref": "#/$defs/non_empty_string" },
+        "completed_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "user_arbitration_submitted_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decision_ref", "verdict"],
+      "properties": {
+        "decision_ref": { "$ref": "#/$defs/non_empty_string" },
+        "verdict": { "$ref": "#/$defs/non_empty_string" },
+        "notes": { "$ref": "#/$defs/non_empty_string" }
+      }
+    },
+    "session_resumed_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resume_source", "waiting_ref", "resumed_by"],
+      "properties": {
+        "resume_source": { "$ref": "#/$defs/non_empty_string" },
+        "waiting_ref": { "$ref": "#/$defs/non_empty_string" },
+        "resumed_by": { "$ref": "#/$defs/non_empty_string" }
+      }
+    },
+    "state_write_conflict_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resource_type", "expected_revision", "actual_revision", "writer", "primitive"],
+      "properties": {
+        "resource_type": { "$ref": "#/$defs/non_empty_string" },
+        "expected_revision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "actual_revision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "writer": { "$ref": "#/$defs/non_empty_string" },
+        "primitive": { "$ref": "#/$defs/non_empty_string" }
+      }
+    },
+    "verification_finished_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["result", "build", "test", "artifact_refs"],
+      "properties": {
+        "result": { "$ref": "#/$defs/non_empty_string" },
+        "build": { "$ref": "#/$defs/open_object" },
+        "test": { "$ref": "#/$defs/open_object" },
+        "artifact_refs": { "$ref": "#/$defs/string_array" }
+      }
+    },
+    "batch_cancelled_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reason", "cancelled_by", "affected_task_ids"],
+      "properties": {
+        "reason": { "$ref": "#/$defs/non_empty_string" },
+        "cancelled_by": { "$ref": "#/$defs/non_empty_string" },
+        "affected_task_ids": { "$ref": "#/$defs/string_array" }
+      }
+    },
+    "tool_call_denied_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tool", "capability", "reason", "policy_profile"],
+      "properties": {
+        "tool": { "$ref": "#/$defs/non_empty_string" },
+        "capability": { "$ref": "#/$defs/non_empty_string" },
+        "reason": { "$ref": "#/$defs/non_empty_string" },
+        "policy_profile": { "$ref": "#/$defs/non_empty_string" }
+      }
+    },
+    "codex_picked_up_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dispatch_id", "agent_id"],
+      "properties": {
+        "dispatch_id": { "$ref": "#/$defs/non_empty_string" },
+        "agent_id": { "$ref": "#/$defs/non_empty_string" },
+        "workspace_ref": { "$ref": "#/$defs/non_empty_string" }
+      }
+    },
+    "codex_rejected_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reason", "spec_path"],
+      "properties": {
+        "reason": { "$ref": "#/$defs/non_empty_string" },
+        "spec_path": { "$ref": "#/$defs/non_empty_string" },
+        "diagnostics": { "$ref": "#/$defs/open_object" }
+      }
+    },
+    "requirement_materialized_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requirement_id",
+        "subtask_count",
+        "plan_spec_path",
+        "draft_hash"
+      ],
+      "properties": {
+        "requirement_id": { "$ref": "#/$defs/non_empty_string" },
+        "subtask_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "plan_spec_path": { "$ref": "#/$defs/non_empty_string" },
+        "draft_hash": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        }
+      }
+    },
+    "subtask_planning_inherited_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requirement_id", "subtask_id", "section_id", "linked_spec_id"],
+      "properties": {
+        "requirement_id": { "$ref": "#/$defs/non_empty_string" },
+        "subtask_id": { "$ref": "#/$defs/non_empty_string" },
+        "section_id": { "$ref": "#/$defs/non_empty_string" },
+        "linked_spec_id": { "$ref": "#/$defs/non_empty_string" }
+      }
+    },
+    "codex_receipt_ready_event": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        {
+          "type": "object",
+          "properties": {
+            "event_type": { "const": "codex_receipt_ready" },
+            "payload": { "$ref": "#/$defs/codex_receipt_ready_payload" }
+          }
+        }
+      ]
+    },
+    "user_arbitration_submitted_event": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        {
+          "type": "object",
+          "properties": {
+            "event_type": { "const": "user_arbitration_submitted" },
+            "payload": { "$ref": "#/$defs/user_arbitration_submitted_payload" }
+          }
+        }
+      ]
+    },
+    "session_resumed_event": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        {
+          "type": "object",
+          "properties": {
+            "event_type": { "const": "session_resumed" },
+            "payload": { "$ref": "#/$defs/session_resumed_payload" }
+          }
+        }
+      ]
+    },
+    "state_write_conflict_event": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        {
+          "type": "object",
+          "properties": {
+            "event_type": { "const": "state_write_conflict" },
+            "payload": { "$ref": "#/$defs/state_write_conflict_payload" }
+          }
+        }
+      ]
+    },
+    "verification_finished_event": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        {
+          "type": "object",
+          "properties": {
+            "event_type": { "const": "verification_finished" },
+            "payload": { "$ref": "#/$defs/verification_finished_payload" }
+          }
+        }
+      ]
+    },
+    "batch_cancelled_event": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        {
+          "type": "object",
+          "properties": {
+            "event_type": { "const": "batch_cancelled" },
+            "payload": { "$ref": "#/$defs/batch_cancelled_payload" }
+          }
+        }
+      ]
+    },
+    "tool_call_denied_event": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        {
+          "type": "object",
+          "properties": {
+            "event_type": { "const": "tool_call_denied" },
+            "payload": { "$ref": "#/$defs/tool_call_denied_payload" }
+          }
+        }
+      ]
+    },
+    "codex_picked_up_event": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        {
+          "type": "object",
+          "properties": {
+            "event_type": { "const": "codex_picked_up" },
+            "payload": { "$ref": "#/$defs/codex_picked_up_payload" }
+          }
+        }
+      ]
+    },
+    "codex_rejected_event": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        {
+          "type": "object",
+          "properties": {
+            "event_type": { "const": "codex_rejected" },
+            "payload": { "$ref": "#/$defs/codex_rejected_payload" }
+          }
+        }
+      ]
+    },
+    "requirement_materialized_event": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        {
+          "type": "object",
+          "properties": {
+            "event_type": { "const": "requirement_materialized" },
+            "payload": { "$ref": "#/$defs/requirement_materialized_payload" }
+          }
+        }
+      ]
+    },
+    "subtask_planning_inherited_event": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        {
+          "type": "object",
+          "properties": {
+            "event_type": { "const": "subtask_planning_inherited" },
+            "payload": { "$ref": "#/$defs/subtask_planning_inherited_payload" }
+          }
+        }
+      ]
+    }
+  }
+}

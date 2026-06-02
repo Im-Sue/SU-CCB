@@ -1,0 +1,107 @@
+{
+  "schema_version": "breakdown-draft-v0.1",
+  "status": "consumed",
+  "carrier_task_key": "console-doc-driven-alignment",
+  "base_task_revision": null,
+  "generated_at": "2026-05-28T13:00:00.000Z",
+  "updated_at": "2026-05-29T09:30:00.000Z",
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot3_claude"
+  },
+  "epic": {
+    "title": "Console 对齐文档驱动新结构",
+    "summary": "把 Console(web/server/DB)对齐 ADR-0037 文档驱动模型:杀状态文档模型、堵写真相漏洞、清 legacy 死料、契约成唯一路径源、UX 优化。DB 剪枝不重设计。",
+    "spec_outline_md": "## Console 对齐文档驱动(对应技术设计 console对齐文档驱动-技术设计.md)\n- P1 真相流收口(derive→dispatch / 契约单一路径源 / status 写收口)\n- P2 杀状态文档模型(web 重指 dev_task frontmatter)\n- P3a 清 legacy 活引用 → P3b migration 删列\n- P4 UX(doc kind 重列 / 导航 / Overview)\n- 执行序:pr1∥pr2∥pr3 → pr4/pr5 → pr6/pr7;web→claude,server/DB→codex"
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-truth-flow",
+      "order": 1,
+      "title": "P1 真相流收口(derive + status)",
+      "summary": "derive 改 Option A dispatch;planning/breakdown status 写收口;md-first 固化为唯一 Console 写文档路径",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "priority": "high",
+      "include": true,
+      "spec_section_md": "## P1 真相流收口\n- derive/derive_followup 改走现有 requirement anchor-dispatch → /ccb:su-flow→task_breakdown(payload 带 source_task provenance),dev_task 由 task_breakdown→审查草案→su-materialize-requirement 写,不再 task.create\n- planning-anchor start / breakdown-draft 翻 Requirement.status 改为只写 console-internal 运行态,status 由 plugin 写 docs/02 后投影\n- md-first 需求创建/编辑固化为唯一被许可的 Console 写文档路径\n- 触及:server(anchor.routes/derive.service/tool-invoke.service/breakdown-draft.service)\n- 产出:改造 + 测试(AnchorDispatchQueue 验证)"
+    },
+    {
+      "section_id": "pr2-contract-single-source",
+      "order": 2,
+      "title": "P1 契约成唯一路径源",
+      "summary": "indexer/parser 所有 docs 路径走 resolver,删写死字面量",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "priority": "high",
+      "include": true,
+      "spec_section_md": "## P1 契约成唯一路径源\n- project-indexer / document-parser 所有 docs 路径走 docs-structure-resolver,删 docs/03_… docs/02_… 等写死字面量\n- 兑现 docs-structure-contract.yaml 的 consumers\n- 触及:server(indexer/document-parser/docs-structure-resolver)\n- 产出:改造 + 测试"
+    },
+    {
+      "section_id": "pr3-kill-state-doc-model",
+      "order": 3,
+      "title": "P2 杀状态文档模型",
+      "summary": "web 删 stateProjection/statePath/drift,重指 dev_task frontmatter;删 refresh-stale + index-health staleState",
+      "implementation_owner": "ccb_claude",
+      "dependencies": [],
+      "priority": "high",
+      "include": true,
+      "spec_section_md": "## P2 杀状态文档模型(web 主导 + 耦合的小 server 端点移除)\n- web 删 stateProjection/statePath、AlertStrip\"数据已过期\"、AdvancedDrawer\"状态源\" → 重指 docs/03 dev_task 文档本身\n- 删 refresh-stale-projections/refresh-projection 入口 + index-health staleState 字段(server 已 stub 0)+ state-projection stub\n- Overview \"State drift\" 卡换真实健康(解析失败/投影滞后/dispatch 失败)\n- Documents 删 \"实时状态文档(kind=state)\" banner\n- 触及:web(task-detail-v2/OverviewPage/DocumentsPage)+ server(project.routes index-health/state-projection)\n- 注:Overview 跟用户在改版本对齐,不擅动"
+    },
+    {
+      "section_id": "pr4-clear-refs-server",
+      "order": 4,
+      "title": "P3a 清 legacy 活引用·server",
+      "summary": "删 .ccb/{plans,tasks,decisions} kind 分支 + deriveTasks 老 kind + epic 壳 + linked* 查询改造",
+      "implementation_owner": "ccb_codex",
+      "dependencies": ["pr1-truth-flow"],
+      "priority": "medium",
+      "include": true,
+      "spec_section_md": "## P3a 清 legacy 活引用·server\n- 删 inferDocumentKind 的 .ccb/{plans,tasks,decisions} 分支、deriveTasks 的 plan/task 分组(只留 dev_task)\n- 改 task detail 的 linkedDocuments 查询方式(不再依赖 linked* 列)\n- 拆除 epic 兼容壳(server 固定返回 parentEpicId:null 等)\n- 触及:server(document-parser/project-indexer/task.routes)\n- 依赖:pr1(derive/provenance 改完)\n- 产出:改造 + 测试"
+    },
+    {
+      "section_id": "pr5-clear-refs-web",
+      "order": 5,
+      "title": "P3a 清 legacy 活引用·web",
+      "summary": "删 legacy 文案/死代码/空目录/spec enum;followup provenance 换 P1 payload",
+      "implementation_owner": "ccb_claude",
+      "dependencies": ["pr1-truth-flow"],
+      "priority": "medium",
+      "include": true,
+      "spec_section_md": "## P3a 清 legacy 活引用·web\n- 删 kind 过滤 legacy 值、outputMode 标签、\"生成 Spec/Plan/Task\"文案、generate job 类型、死 epic/Timeline 代码、3 个空页面目录(anchors/ai-sessions/anchor-terminal-recordings)\n- followup provenance 展示从 sourceTaskId 换成 P1 注入的 payload provenance(DerivedFollowupsCard/UnstartedRequirementStrip)\n- 清 code enum spec_only/spec_plan_task(types/UI label)\n- 触及:web(types/lib/ui-mapping/components)\n- 依赖:pr1\n- 产出:改造 + 验证"
+    },
+    {
+      "section_id": "pr6-drop-columns",
+      "order": 6,
+      "title": "P3b Prisma migration 删列",
+      "summary": "删 linked*/outputMode/splitMode/sourceTaskId",
+      "implementation_owner": "ccb_codex",
+      "dependencies": ["pr4-clear-refs-server", "pr5-clear-refs-web"],
+      "priority": "medium",
+      "include": true,
+      "spec_section_md": "## P3b Prisma migration 删列(在 P3a 之后)\n- 删 Task.linked{Spec,Plan,Task}Id、Requirement.outputMode/splitMode/sourceTaskId\n- epic 四件套已非 DB 列(P3a 拆壳),无需 migration\n- 触及:prisma/schema.prisma + migration\n- 依赖:pr4+pr5(server+web 引用清完)\n- 产出:migration + 重生成 client + 测试绿"
+    },
+    {
+      "section_id": "pr7-ux",
+      "order": 7,
+      "title": "P4 UX 优化·web",
+      "summary": "Documents kind 按新 doc_type 重列;导航可见性确认;Overview 对齐",
+      "implementation_owner": "ccb_claude",
+      "dependencies": ["pr4-clear-refs-server", "pr5-clear-refs-web"],
+      "priority": "low",
+      "include": true,
+      "spec_section_md": "## P4 UX 优化·web\n- Documents kind 过滤按新 doc_type 重列:requirement/technical_design/dev_task/adr/architecture/index\n- 导航 /tasks + /reconcile 可见性确认(默认保留隐藏,需求详情页为主台)\n- Overview 改版与用户在改版本对齐后再合\n- 触及:web(DocumentsPage/导航/OverviewPage)\n- 依赖:pr4+pr5\n- 产出:UX 改造 + 验证"
+    },
+    {
+      "section_id": "pr8-su-flow-derive-followup",
+      "order": 8,
+      "title": "plugin su-flow 处理 derive_followup",
+      "summary": "su-flow 认 derive_followup payload,把 followup 落成 breakdown draft 新 subtask → materialize;pr1 的 plugin 配套",
+      "implementation_owner": "ccb_codex",
+      "dependencies": ["pr1-truth-flow"],
+      "priority": "high",
+      "include": true,
+      "spec_section_md": "## plugin su-flow 处理 derive_followup(pr1 端到端配套)\n- 背景:pr1 已让 Console derive 改派 /ccb:su-flow(step=breakdown_draft, action=derive_followup, 带 source_task provenance),但 plugin su-flow 尚不认 derive_followup,派出去没人接\n- 要点:su-flow / breakdown-draft 识别 action=derive_followup,把 followup.{type,title,description} + source_task provenance 落成该需求 breakdown draft 的新 subtask;走 approved → su-materialize-requirement 写 docs/03 dev_task\n- 触及:su-ccb-claude-plugin(skills/su-flow、lib/breakdown-draft)\n- 依赖:pr1\n- 产出:su-flow derive_followup 处理 + 测试;端到端 derive 验证(Console 点派生 → plugin 生成 followup 子任务)"
+    }
+  ]
+}

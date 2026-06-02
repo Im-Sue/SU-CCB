@@ -1,0 +1,91 @@
+{
+  "schema_version": "breakdown-draft-v0.1",
+  "status": "consumed",
+  "project_id": "cmpkxn1540000qrl36bpddr0k",
+  "carrier_task_key": "需求详情页文档/产物阅读体验整理与滚动修复",
+  "base_task_revision": null,
+  "generated_at": "2026-05-25T11:07:53.481Z",
+  "updated_at": "2026-05-25T11:13:12.544Z",
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "ccb_claude",
+    "cx_agent": "ccb_codex",
+    "ccb_job_id": "job_7afdaa9a331e"
+  },
+  "epic": {
+    "title": "需求详情页文档/产物阅读体验整理与滚动修复",
+    "summary": "N1–N4：去冗余按钮、去重复描述块、编辑态滚动修复（P0）、阅读态渲染 Markdown、阅读设计抽屉显示文档正文。纯前端 + 复用既有只读 document API，无新增后端/schema/依赖。",
+    "spec_outline_md": "## 交付概要\n\n- pr1 先抽共享 helper（asset rewrite + stripFrontmatter），解除 N3-b/N4 依赖，无 UI 行为变化。\n- pr2 与 pr3 在 pr1 后无同文件冲突可并行：pr2 只改编辑器 CSS，pr3 集中改详情页组件。\n- 范围已在 N4 重分析锁定；本拆分仅切片与顺序，不改交付范围/owner/业务规则。",
+    "estimated_total_days": 1.5
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-shared-markdown-helpers",
+      "order": 1,
+      "title": "抽取共享 markdown helper（asset rewrite + stripFrontmatter）",
+      "summary": "抽 rewriteRequirementAssetUrls 与 stripFrontmatter 到共享位置并迁移原调用点，无 UI 行为变化。",
+      "spec_section_md": "## 目标\n抽取两个共享 markdown helper，为 N3-b / N4 解除依赖，**无任何 UI 行为变化**。\n\n## 范围\n- 新增 `rewriteRequirementAssetUrls(markdown, projectId)`：从 `RequirementMarkdownEditor.tsx:18-26`（`ASSET_RELATIVE_RE` + `rewriteAssetUrls`）抽出到共享位置（如 `lib/requirement-asset-url.ts`），并改 `RequirementMarkdownEditor.tsx` 的 `previewRender` 引用共享版。\n- 新增 `stripFrontmatter(content)`：从 `DocumentsPage.tsx:238` 抽出到共享位置（如 `lib/markdown.ts`），并改 `DocumentsPage.tsx` 引用共享版。\n- 两 helper 加单测。\n\n## 验收\n- helper 单测：frontmatter 有/无/CRLF；asset rewrite 覆盖无 projectId、不匹配路径、正常上传图路径。\n- `DocumentsPage` 阅读仍正确 strip frontmatter；编辑器 preview rewrite 行为不变。\n\n## 边界\n- 不改任何 UI 行为、不动 N1–N4 视图逻辑。\n- 两 helper 分文件或清晰命名，不塞进概念混杂的单一 util。\n\n## 依赖\n无（先行任务）。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr2-editor-scroll-fix",
+      "order": 2,
+      "title": "编辑器滚动修复 N3-a（仅 CSS）",
+      "summary": "把高度/overflow 约束移到 .CodeMirror-scroll 并加 fullscreen 例外，仅改编辑器 module.css。",
+      "spec_section_md": "## 目标\n修复编辑器（EasyMDE/CodeMirror）超长内容无法滚动（N3-a，P0）。\n\n## 范围\n- **仅改** `RequirementMarkdownEditor.module.css`。\n- 高度/overflow 约束从外层 `.CodeMirror` 移到滚动层：`.CodeMirror{height:auto;min-height:360px}` + `.CodeMirror-scroll{max-height:60vh}`。\n- fullscreen 例外：`.CodeMirror-fullscreen .CodeMirror-scroll{max-height:none}`。\n\n## 验收\n- 长文在编辑器内可纵向滚到底，滚动条在编辑器内部。\n- 切 fullscreen 不被 60vh 限制。\n- 回归：`App.tsx` 新建需求入口编辑器高度/滚动/上传按钮不回退（需浏览器实测 CodeMirror 滚动，非仅单测）。\n\n## 边界\n- 不碰 `RequirementMarkdownEditor.tsx`（rewrite 抽取已由 pr1 完成）。\n- 不动详情页。\n\n## 依赖\npr1-shared-markdown-helpers。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr1-shared-markdown-helpers"
+      ],
+      "include": true
+    },
+    {
+      "section_id": "pr3-detail-doc-read-ux",
+      "order": 3,
+      "title": "详情页阅读体验整改 N1+N2+N3-b+N4",
+      "summary": "删冗余按钮/原话块、read 弹窗换 MarkdownViewer、阅读设计抽屉渲染文档正文，集中改详情页组件。",
+      "spec_section_md": "## 目标\n详情页「需求文档」与「技术设计」阅读体验整改：N1+N2+N3-b+N4，集中在 `RequirementDetailPage`。\n\n## 范围\n- **N1** 删「展开」按钮（`:678`），保留「全屏阅读」。\n- **N2** 删 verbatim 原话块（`:690`）+ 清 dead `.verbatim` CSS（`RequirementDetailPage.module.css:265`）。\n- **N3-b** read 弹窗（`:888-894`）改渲染 `<MarkdownViewer content={rewriteRequirementAssetUrls(descriptionMarkdown, projectId)}>`；edit 续用 EasyMDE；`editError` 仅 `documentModal==='edit'` 时显示。\n- **N4** 「阅读设计」抽屉（`:995-997`）渲染设计文档正文：用 `useProjectStore.documents` 把 `planDocPath` 解析成 documentId（path normalize：trim、去开头 `./`、反斜杠转 `/`，不折叠大小写），**局部** `fetchDocumentDetail`（不复用全局 detail-store），`stripFrontmatter` + `MarkdownViewer` 渲染。\n- read 弹窗与设计抽屉内 MarkdownViewer 的 scoped 溢出 CSS（img `max-width:100%`、表格 `overflow-x:auto`、长词 `overflow-wrap:anywhere`）写在 `RequirementDetailPage.module.css`。\n\n## 验收\n- 无「展开」按钮；无 verbatim 块；read 弹窗渲染 Markdown 且不显示 editor；上传图片 URL 正确 rewrite。\n- 保存失败后再开 read 不显示旧 `editError`。\n- 设计抽屉：正文加载成功渲染；未索引 / 404 / 读失败 / 空正文各 fallback 正确；不闪现上一份文档（fetch 返回时校验当前 drawer/path/documentId，迟到响应丢弃）。\n- AI 解析抽屉行为不变；长文横向不溢出。\n\n## 边界\n- 不新增后端 API / schema / 依赖。\n- scoped CSS 不落全局 `MarkdownViewer`（勿影响文档中心/AI 解析/其他抽屉）。\n- 不顺带统一「阅读解读」与「阅读设计」。\n\n## 依赖\npr1-shared-markdown-helpers（`rewriteRequirementAssetUrls` + `stripFrontmatter`）。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr1-shared-markdown-helpers"
+      ],
+      "include": true
+    }
+  ],
+  "requirement_id": "cmph5nd2va01cb8b41e07ae88",
+  "carrier_task_id": "cmph5nd2va01cb8b41e07ae88",
+  "review_history": [
+    {
+      "at": "2026-05-25T11:07:53.484Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-05-25T11:13:12.351Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "用户通过 /ccb:su-materialize-requirement 授权(job_602c518dbd6e); Codex 物化前确认 job_1d5c3408e0e1"
+    },
+    {
+      "at": "2026-05-25T11:13:12.425Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "用户通过 /ccb:su-materialize-requirement 授权(job_602c518dbd6e); Codex 物化前确认 job_1d5c3408e0e1"
+    },
+    {
+      "at": "2026-05-25T11:13:12.544Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-05-25T11:13:12.425Z",
+  "approved_by": "user",
+  "consumed_at": "2026-05-25T11:13:12.544Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "c234d90666a28faa181b70898ebecee622919ba87c4f942395e28c0e7eb2e906"
+}

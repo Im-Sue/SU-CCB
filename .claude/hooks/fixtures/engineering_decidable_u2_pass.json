@@ -1,0 +1,6 @@
+{
+  "tool_name": "Write",
+  "cwd": "<PROJECT_ROOT>",
+  "file_path": "docs/.ccb/state/f7-u2-pass.md",
+  "content": "---\ntask_id: f7-u2-pass\nengineering_decidable_decisions:\n  - id: ed-u2-pass\n    decision_ref: dec-u2-pass\n    touchpoint: U2_db_api_rename\n    summary: Rename local Console DB/API field with compatibility shim.\n    evidence_list:\n      - apps/ccb-console/server/prisma/schema.prisma reviewed\n      - apps/ccb-console/server/src/tests/project-routes.spec.ts covers API shape\n    reversibility_class: reversible\n    rollback_ref: git diff can revert field rename\n    scope:\n      class: module_local\n      paths:\n        - apps/ccb-console/server/**\n      external_contract_impact: false\n    tests_ref:\n      - pwsh.exe -NoLogo -Command \"pnpm --filter @ccb-console/server test\"\n    canonical_consistency:\n      class: api_compat_preserved\n      changes_kernel_semantics: false\n      required_decision_refs: []\n    decided_by: claude\n    created_at: 2026-04-27T00:00:00+08:00\n---\n"
+}

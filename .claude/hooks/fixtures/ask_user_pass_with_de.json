@@ -1,0 +1,7 @@
+{
+  "tool_name": "AskUserQuestion",
+  "cwd": "<PROJECT_ROOT>",
+  "task_id": "ccb-v033-slice-b-p0-hooks",
+  "question_body": "请选择哪个实现方案？\nDecision: architecture_boundary\nRisk: medium\nReversibility: costly_reversible\nEvidence: spec and state reviewed\nPrecedent: user authority needed for boundary\nVerdict: escalate with default option A"
+}
+

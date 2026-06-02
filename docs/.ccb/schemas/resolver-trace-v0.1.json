@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://su-ccb.local/schemas/resolver-trace-v0.1.json",
+  "title": "CCB Capability Resolver Trace v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "capability_requested",
+    "resolver_selected_binding",
+    "old_hint_fallback_count",
+    "deny_count",
+    "manual_override",
+    "resolver_error",
+    "decision_mismatch"
+  ],
+  "properties": {
+    "capability_requested": {
+      "type": "string",
+      "minLength": 1
+    },
+    "resolver_selected_binding": {
+      "type": ["string", "null"]
+    },
+    "old_hint_fallback_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "deny_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "manual_override": {
+      "type": "boolean"
+    },
+    "resolver_error": {
+      "type": ["string", "null"]
+    },
+    "decision_mismatch": {
+      "type": "boolean"
+    }
+  }
+}

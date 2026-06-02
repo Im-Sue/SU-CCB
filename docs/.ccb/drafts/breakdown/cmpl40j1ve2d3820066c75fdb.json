@@ -1,0 +1,63 @@
+{
+  "schema_version": "breakdown-draft-v0.1",
+  "status": "consumed",
+  "carrier_task_key": "需求绑定slot和解绑slot的上下文清理",
+  "base_task_revision": null,
+  "generated_at": "2026-05-26T14:38:44.291Z",
+  "updated_at": "2026-05-26T14:38:44.477Z",
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot3_claude",
+    "cx_agent": "slot3_codex",
+    "ccb_job_id": "job_aae649f6a0a3"
+  },
+  "epic": {
+    "title": "绑定/解绑 slot 时对分组内所有 agent 发送 /new 清理上下文",
+    "summary": "在需求与 slot 绑定/解绑时,对该 slot 分组下所有 agent(按 windows 拓扑枚举,当前 claude+codex)送达 provider 自带的 /new 命令,使其新建会话、不继承上个需求上下文;best-effort,不阻断主流程。",
+    "spec_outline_md": "## 交付概要\n- 枚举来源:ccbd project_view 的 windows[].agents,弃用 claudeAgentForSlot() 1:1。\n- 送达:tmux send-keys 把 /new 敲进每个 agent pane(C-u→literal→Enter)。\n- 时机:bind 提交后(幂等、不回滚) / release 之前(不阻断)。\n- 失败:逐 agent best-effort,记 sent/skipped/failed。\n- 单原子任务,无需多片拆分。"
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-slot-context-reset-new",
+      "order": 1,
+      "title": "slot 绑定/解绑时对分组内全部 agent 送达 /new",
+      "summary": "新增 slot-context-reset 服务:经 project_view 枚举 slot 分组 agent,用 tmux send-keys 逐 pane 送达 /new;bind 后(不回滚)与 release 前(不阻断)best-effort 触发。",
+      "spec_section_md": "## 目标\n绑定成功后 / 解绑前,对该 slot 分组下所有 agent(claude+codex)送达 /new,新建会话隔离上下文。\n## 范围\n- ccbd-client 封装 project_view;新增 slot-context-reset.service.ts 枚举 agent + tmux send-keys 送达。\n- slot-binding.service onSlotBound 回调(提交后触发、不回滚);slot.routes release 前 best-effort 触发(不阻断)。\n## 验收\n- 按拓扑枚举全部 agent(非 1:1);bind 后/release 前对多 agent 都触发送达;送达失败不阻断主流程。\n- 实测某 slot 的 claude+codex 都收到 /new。\n## 依赖\n无(原子任务)。",
+      "priority": "medium",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    }
+  ],
+  "requirement_id": "cmpl40j1ve2d3820066c75fdb",
+  "carrier_task_id": "cmpl40j1ve2d3820066c75fdb",
+  "review_history": [
+    {
+      "at": "2026-05-26T14:38:44.295Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-05-26T14:38:44.374Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "backfill: 实现已完成并审查通过,补齐正规拆分链路"
+    },
+    {
+      "at": "2026-05-26T14:38:44.411Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "backfill: 用户确认补齐链路(实现已交付)"
+    },
+    {
+      "at": "2026-05-26T14:38:44.477Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-05-26T14:38:44.411Z",
+  "approved_by": "user",
+  "consumed_at": "2026-05-26T14:38:44.477Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "331d539d7732def7a1b14e0f93da7616b71d809259a1a020e54e6c8a9f4152c0"
+}

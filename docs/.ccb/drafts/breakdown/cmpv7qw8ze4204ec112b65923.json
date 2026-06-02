@@ -1,0 +1,60 @@
+{
+  "schema_version": "breakdown-draft-v0.1",
+  "status": "consumed",
+  "carrier_task_key": "文档中心UI第二次重构",
+  "base_task_revision": null,
+  "generated_at": "2026-06-01T14:23:08.506Z",
+  "updated_at": "2026-06-01T15:16:26.258Z",
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot2_claude",
+    "ccb_job_id": "job_ca2646bf8e7b"
+  },
+  "epic": {
+    "title": "文档中心 UI 第二次重构（两栏目录树浏览器）",
+    "summary": "把文档中心从三栏治理中心简化为两栏「目录树浏览 + Markdown 阅读」，投影只分组不聚合，档位降为筛选/小标记，后端零改动。",
+    "spec_outline_md": "## 交付概要\n\n- 文档中心从三栏治理中心 → 两栏「目录树浏览 + Markdown 阅读」。\n- 投影 O2 改名 `document-browser-projection.ts` / `projectDocumentBrowser`，只产目录分组，删 coverage/health/unbound 聚合，不留兼容层。\n- 档位筛选为主（只标 历史/归档）；parseError 克制 per-doc 小标记。\n- 后端零改动；无 DB / API / 依赖变更。\n\n## 执行阶段（单 PR 内）\n\n1. 投影 rename + slim → 2. 页面 / CSS 两栏重写 → 3. 测试改写（补负向断言）→ 4. 快照重生成 + 全量验证。\n\n## 负向验收（防回归治理心智）\n\n页面不出现 `文档覆盖` / `健康度` / `未绑定文档` / `覆盖缺口` / `governancePane`。"
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-documents-browser-redesign",
+      "order": 1,
+      "title": "文档中心两栏目录树浏览器重写",
+      "summary": "DocumentsPage 三栏治理中心 → 两栏目录树浏览器；投影改名 projectDocumentBrowser 只分组删聚合；档位筛选 + per-doc 标记；配套测试/快照改写。纯前端原子改动。",
+      "spec_section_md": "## 任务概述\n\n把 Console「文档中心」从三栏治理中心重写为 **A 两栏目录树浏览器**（左 = docs 目录折叠树 + 搜索 + 档位筛选，右 = MarkdownViewer 阅读），移除中栏全部聚合。纯前端原子改动，后端零改动。承接技术设计 `docs/03_开发计划/文档中心ui界面第二次重构-b65923-技术设计.md`。\n\n## 任务分解（单 PR，按 4 阶段执行，每阶段后跑 tsc，末尾统一全量验证）\n\n1. **投影 rename + slim**：`web/src/lib/document-governance-projection.ts` → `document-browser-projection.ts`；`projectDocumentGovernance` → `projectDocumentBrowser`；返回只剩 `{ groups: { directory, documents }[] }`（按 **full parent directory** 分组、组内 path 升序、组间 directory 升序）；删除 `coverage/coverageSummary/parseErrors/unbound` 及 `CoverageRow/CoverageSummary` 等类型；**不留旧 export 兼容层**。\n2. **页面 + CSS 两栏重写**：`DocumentsPage.tsx` 删 `governancePane` 整段 + `coverageTarget` + 聚合解构；左栏加 tier 筛选（全部/生效中/历史/归档，过滤 `doc.governance.tier`）+ per-doc 档位标记（**仅 历史/归档 贴小标，生效中不贴**）+ parseError ⚠ 克制小标记；右栏 `readerPane` 不动，仅改空态文案去掉「或中栏覆盖卡」；`DocumentsPage.module.css` grid 三栏 → 两栏（`260px minmax(0,1fr)`），删 `gov/coverage/health/gapCount` 样式，加 tier 筛选/标记样式；loading skeleton 去中栏。\n3. **测试改写**：`document-governance-projection.spec.ts` → `document-browser-projection.spec.ts`，改测 按 directory 分组 + 组内 path 排序 + 多级/嵌套目录兜底（`docs/.ccb/state` 不丢）+ 空输入；`DocumentsPage.spec.tsx` 重写——**保留**（点击导航 `/documents/:id`、搜索 title/path、阅读器空态/加载/详情），**新增负向断言**（无 `governancePane`；页面不出现 `文档覆盖`/`健康度`/`未绑定文档`/`覆盖缺口`；同目录不同 tier 合并为一个目录组；tier 筛选生效；parseError 仅 per-doc 出现；空态文案不再提「中栏覆盖卡」）。\n4. **快照 + 全量验证**：重生成 `tests/__snapshots__/e12-acceptance-snapshots.spec.tsx.snap`，核对仅含 DocumentsPage 相关 diff（无意外 DOM 变化）。\n\n## 验收标准\n\n- `pnpm --filter ccb-console-web build`（tsc --noEmit）通过\n- `pnpm --filter ccb-console-web test`（vitest run）通过；targeted 覆盖：`DocumentsPage.spec.tsx`、`document-browser-projection.spec.ts`、`e12-acceptance-snapshots.spec.tsx`\n- **负向断言/grep 成立**：页面渲染不含 `文档覆盖`/`健康度`/`未绑定文档`/`覆盖缺口`/`governancePane`\n- e12 快照 diff **仅涉及 DocumentsPage** 结构（无其它组件 DOM 漂移）\n- **实机冒烟**（rebuild + 重启 server，肉眼）：两栏布局、目录折叠树、搜索、tier 筛选、点击文档右栏阅读、空态文案、历史/归档标记、parseError 小标记\n\n## 边界 / 护栏（不做项）\n\n- 后端 `deriveDocumentGovernance` / `document.routes` / indexer document-map **不碰**（per-doc governance 字段保留，被 list route + document-map 消费）\n- **不留兼容层**；不保留旧 `projectDocumentGovernance`\n- 目录树 MVP = full parent directory 分组，**不做递归树组件**\n- parseError 克制：**不出现** 健康度区 / 计数 / 聚合列表 / 大红卡，仅 per-doc 小标记\n- 档位只标 历史/归档，生效中（默认）不贴标\n- 无新增依赖；无 DB / schema / API 变更\n\n## 依赖\n\n无（原子任务，单 PR 内闭环）。",
+      "priority": "medium",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    }
+  ],
+  "requirement_id": "cmpv7qw8ze4204ec112b65923",
+  "carrier_task_id": "cmpv7qw8ze4204ec112b65923",
+  "review_history": [
+    {
+      "at": "2026-06-01T14:23:08.509Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-06-01T15:16:26.046Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-06-01T15:16:26.152Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-06-01T15:16:26.258Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-06-01T15:16:26.152Z",
+  "approved_by": "user",
+  "consumed_at": "2026-06-01T15:16:26.258Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "e12dc65d138414643e1d2f0172d5b5a8a4f08e0148ad4dd8f99b99975af1bacf"
+}

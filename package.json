@@ -1,0 +1,23 @@
+{
+  "name": "su-ccb-workspace",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.25.0",
+  "scripts": {
+    "dev:web": "pnpm --filter ccb-console-web dev",
+    "dev:server": "pnpm --filter ccb-console-server dev",
+    "generate:validators": "node scripts/generate-schema-validators.mjs",
+    "generate:capability-policy": "node scripts/generate-capability-outcome-policy.mjs",
+    "build": "pnpm run generate:validators && pnpm run generate:capability-policy && pnpm --filter ccb-console-web build && pnpm --filter ccb-console-server build",
+    "test": "pnpm --filter ccb-console-web test && pnpm --filter ccb-console-server test",
+    "lint:schema-ownership": "pnpm --filter ccb-console-server lint:schema-ownership",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "husky": "^8.0.3",
+    "lint-staged": "^16.2.7"
+  },
+  "lint-staged": {
+    "apps/ccb-console/web/**/*.{ts,tsx,css,module.css}": "sh -c 'pnpm --filter ccb-console-web test --run'"
+  }
+}

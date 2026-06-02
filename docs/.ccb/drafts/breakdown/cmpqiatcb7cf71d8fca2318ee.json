@@ -1,0 +1,101 @@
+{
+  "schema_version": "breakdown-draft-v0.1",
+  "status": "consumed",
+  "carrier_task_key": "文档中心治理重构",
+  "base_task_revision": null,
+  "generated_at": "2026-05-29T06:50:09.716Z",
+  "updated_at": "2026-05-29T07:29:44.412Z",
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot1_claude",
+    "ccb_job_id": "job_6f347a0d43a4"
+  },
+  "epic": {
+    "title": "文档中心治理重构(文档治理中心)",
+    "summary": "把文档中心从按 doc_type 扁平筛选重构为文档治理中心:documents API additive 加 governance 投影 + 客户端派生覆盖度/健康度 + 三栏 UI。无 DB migration、无新依赖、纯 additive。Claude 独立实施全链。",
+    "spec_outline_md": "## 交付概要\n- 方向:**文档治理中心**(健康度/覆盖度),不与 Requirements/Tasks 看板重叠;覆盖度仅代表\"文档是否存在\",**非\"交付状态\"**。\n- 4 片水平切(沿数据流缝,线性依赖,owner 全 = claude):pr1 抽共用 builder + indexer 重构 → pr2 documents API governance → pr3 web 类型分层 + 客户端派生 → pr4 三栏 UI。\n- 共享约束:① 无 DB migration / 无 Prisma 关系 ② 无新增重依赖(复用现有组件) ③ list/detail 类型分层(`governance` 仅 list,拆 `DocumentBaseView`) ④ 派生规则单一来源(builder 共用,`document-map.json` 缓存语义不变) ⑤ `healthFlags.parseError` 不暴露原文。\n- 文件占用无并发冲突且本线性:pr1=`document-governance.ts`(new)+`project-indexer.ts`;pr2=`document.routes.ts`;pr3=`types/document.ts`+`console-api.ts`+`document-governance-projection.ts`(new);pr4=`DocumentsPage.tsx`+`.module.css`。\n- 协商:Codex 任务拆分 consult `job_9300cf37bab0`,确认 4 片不合并、点破 `DocumentDetailView` 继承传染(governance 须 list-only)、强化 pr1 characterization test + pr2 防 N+1 / 404 行为锁定。\n\n## 不做项\nDB migration、Prisma 关系、正文编辑、看板状态流转、树/图重依赖、agent 专用 UI、`stale` 健康度、独立 e2e snapshot 片。"
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-server-governance-builder",
+      "order": 1,
+      "title": "server:抽 governance 纯 builder + indexer 重构(缓存语义不变)",
+      "summary": "新增 deriveDocumentGovernance 纯 builder,重构 buildDocumentMapEntries 调用它;characterization test 锁定 document-map.json 输出语义不变。",
+      "spec_section_md": "## 目标\n把 document-map 派生规则抽成单一可复用纯函数,供 indexer(写 cache)与后续 documents route(pr2)共用,杜绝规则分叉;重构后 `document-map.json` 输出语义不变。\n\n## 范围\n- `[NEW] apps/ccb-console/server/src/indexer/document-governance.ts`:`deriveDocumentGovernance`(吃归一化最小 doc 形 → `{ tier, requirementId, entityStatus, taskId, healthFlags }`)+ 类型;命名归一(`requirement_id`→`requirementId`、`task_id`→`taskKey`)集中此处。\n- `[REFACTOR] project-indexer.ts`:`buildDocumentMapEntries` / `deriveDocumentMapTier` / `deriveDocumentMapEntityStatus` 改调共用 builder。\n\n## 验收\n- **characterization test 先行**:固定 fixture 跑 scan,parse `document-map.json`,对 normalized JSON 做 `deepEqual`(排除顶层 `generated_at`),断言 `documents[]`、`dev_task_paths_by_task_id`、tier 排序、`null` 字段保留。\n- 覆盖漂移点:`undefined` 丢字段、`task_id` fallback(dev_task)、tier 排序、缺失/非法 `updated`、parse_error 文档、未绑定 requirement 的 `entityStatus`。\n- builder 单测:`requirement_id` 缺失 / 未绑定 / 各 tier / 各 entityStatus 分支。\n- `pnpm --filter ccb-console-server typecheck` + vitest 全绿;onboarding-status / reconcile 既有测试不回归。\n\n## 边界\n- 不动 Prisma schema、不动 API route(pr2)、不引依赖。\n- 仅重构 + 抽函数,对外行为不变。\n\n## 依赖\n无(基础片)。",
+      "priority": "medium",
+      "implementation_owner": "claude",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr2-server-documents-governance-api",
+      "order": 2,
+      "title": "server:documents list API additive 加 governance 投影",
+      "summary": "扩展 GET /documents 每项 additive 加 governance,复用 pr1 builder,从 DB Document + 单次 requirement ctx 适配;list-only 不碰 detail。",
+      "spec_section_md": "## 目标\n让 `GET /api/projects/:projectId/documents` 每个 list 项 additive 携带 `governance`,供前端派生覆盖度/健康度。\n\n## 范围\n- `[MODIFY] document.routes.ts` list 分支:取 `project.localPath` 构造 resolver;一次性 `findMany({ where:{projectId}, select:{id,status} })` 取全量 requirement 状态 ctx(**防 N+1**);对每个 document parse `frontmatterJson` → 调 pr1 `deriveDocumentGovernance` → 注入 `governance`。\n- `governance` 形:`{ tier, requirementId, entityStatus, taskId, healthFlags:{parseError} }`;`healthFlags.parseError` 由 `parseStatus` 派生,**不暴露 `parseError` 原文**。\n- 类型分层:`governance` **仅挂 list 响应**;detail 路由不变(配合 pr3 `DocumentBaseView`)。\n\n## 验收\n- 集成测:list 返回 `governance` 字段且形正确;既有字段形状不回归。\n- **cache 缺失但 DB 有文档**仍返回 `governance`(不依赖磁盘 cache)。\n- pr1(parsed requirement frontmatter)与 pr2(DB `Requirement.status`)同一 fixture 两路 `entityStatus` 结果一致。\n- 不存在 `projectId` 的既有行为(返回空列表)**不被悄悄改成 404**,除非测试显式锁定该变更。\n- `pnpm --filter ccb-console-server typecheck` + vitest 全绿。\n\n## 边界\n- 仅 additive,不改既有 `DocumentView` 字段、不碰 detail 阅读链路、不引依赖、不动 schema。\n\n## 依赖\npr1(`deriveDocumentGovernance` builder)。",
+      "priority": "medium",
+      "implementation_owner": "claude",
+      "dependencies": [
+        "pr1-server-governance-builder"
+      ],
+      "include": true
+    },
+    {
+      "section_id": "pr3-web-governance-projection",
+      "order": 3,
+      "title": "web:数据层类型分层 + 客户端治理派生",
+      "summary": "拆 DocumentBaseView(governance 仅 list)、fetchDocuments 透传、新增 document-governance-projection(分组/覆盖度/健康度派生)。",
+      "spec_section_md": "## 目标\n前端类型分层 + 把 list `governance` 派生成左栏分组、覆盖度、健康度数据,供 pr4 UI 消费。\n\n## 范围\n- `[MODIFY] web/src/types/document.ts`:拆 `DocumentBaseView` 公共形;`DocumentView = DocumentBaseView + governance`(list);`DocumentDetailView = DocumentBaseView + { frontmatter, content }`(**不带 governance**)。\n- `[MODIFY] console-api.ts`:`fetchDocuments` 透传 `governance`(无新请求);`fetchDocumentDetail` 不变。\n- `[NEW] web/src/lib/document-governance-projection.ts`:从 `documents[]` 派生 ① 按目录 + tier 分组 ② 覆盖度聚合(按 `requirementId` 判 `technical_design` / `dev_task` 是否存在 → 有设计/有任务/缺口)③ 健康度(`parseError`)+ 未绑定(`requirementId=null`)分组;mirror `node-board-config` 的 config-driven 派生风格。\n\n## 验收\n- projection 单测:有设计 / 有任务 / 缺口 / 未绑定 / `parseError` 各场景分组与计数正确;**覆盖度仅判\"文档存在\",不掺交付状态**。\n- 类型分层不波及 detail:detail mocks / preview drawer / reconcile reader 无需 `governance`,`tsc` 绿。\n- `pnpm --filter ccb-console-web test` + `tsc --noEmit` 全绿。\n\n## 边界\n- 纯数据/派生层,不改 UI 组件(pr4)。\n- 不引树/图库。\n\n## 依赖\npr2(API `governance` 形状)。",
+      "priority": "medium",
+      "implementation_owner": "claude",
+      "dependencies": [
+        "pr2-server-documents-governance-api"
+      ],
+      "include": true
+    },
+    {
+      "section_id": "pr4-web-documents-governance-ui",
+      "order": 4,
+      "title": "web:DocumentsPage 三栏治理 UI 重写",
+      "summary": "三栏(左 目录/档位、中 覆盖度+健康度/未绑定、右 保留阅读器),消费 pr3 projection;更新 e2e snapshot。",
+      "spec_section_md": "## 目标\n把 `DocumentsPage` 从扁平列表重写为三栏文档治理中心。\n\n## 范围\n- `[REWRITE] DocumentsPage.tsx` + `DocumentsPage.module.css`:\n  - **左**:按 docs 目录 + 档位(生效中/历史/归档)分组导航 + 搜索(取代扁平 doc_type chips);可折叠用本地 state 轻实现,**不引库**。\n  - **中**:覆盖度卡(每需求 有设计? 有任务? 缺口高亮)+ 健康度面板(`parseError`)+ **未绑定文档一等分组**。\n  - **右**:保留 `MarkdownViewer` 阅读器,从任意文档/缺口跳转 `/documents/:documentId`。\n  - 复用 `Card` / `Badge` / `EmptyState` / `Skeleton`。\n- 更新 pr7 改过的 filter chip e2e/acceptance snapshot(**本片内,不独立成片**)。\n\n## 验收\n- 组件测:三栏渲染、缺口高亮、parse 异常面板、未绑定分组、选中跳阅读器。\n- 文案统一\"文档覆盖\",**不出现\"进度/完成度/交付状态\"等混淆词**。\n- e2e snapshot 更新且语义正确;`pnpm --filter ccb-console-web test` + `tsc` 全绿。\n\n## 边界\n- 不重造 Requirements/Tasks 看板状态流转(链路只读跳转)。\n- 不引树/图重依赖;不做正文编辑。\n\n## 依赖\npr3(projection)。",
+      "priority": "medium",
+      "implementation_owner": "claude",
+      "dependencies": [
+        "pr3-web-governance-projection"
+      ],
+      "include": true
+    }
+  ],
+  "requirement_id": "cmpqiatcb7cf71d8fca2318ee",
+  "carrier_task_id": "cmpqiatcb7cf71d8fca2318ee",
+  "review_history": [
+    {
+      "at": "2026-05-29T06:50:09.730Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-05-29T07:29:44.142Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "物化前置审查:Console materialize 请求 job_24863d37c930;Codex 物化前强协商 job_5a6f89996497 结论【可物化】"
+    },
+    {
+      "at": "2026-05-29T07:29:44.220Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "用户经 Console materialize 确认该 revision 可进入交付;Codex drift 确认无阻断"
+    },
+    {
+      "at": "2026-05-29T07:29:44.412Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-05-29T07:29:44.220Z",
+  "approved_by": "user",
+  "consumed_at": "2026-05-29T07:29:44.412Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "ffbf787f0dcb2f5e29013ba2c7018e40faca5a97f7c5582be3add24ff642a62a"
+}

@@ -1,0 +1,201 @@
+{
+  "schema_version": "breakdown-draft-v0.1",
+  "status": "consumed",
+  "carrier_task_key": "docs-driven-architecture-migration",
+  "base_task_revision": null,
+  "generated_at": "2026-05-27T12:30:21.187Z",
+  "updated_at": "2026-05-27T12:57:50.143Z",
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot3_claude"
+  },
+  "epic": {
+    "title": "docs 文档驱动架构迁移",
+    "summary": "把真相从 .ccb 上移到人读文档,.ccb 降为索引+协调,plugin/indexer 读目录契约;实体与文档合一。落地 ADR-0037。",
+    "spec_outline_md": "## docs 文档驱动架构迁移(ADR-0037)\n- 真相=人读文档;.ccb=索引/协调;DB=投影\n- 目录契约 docs-structure-contract.yaml 为结构/落点真相,plugin 与 indexer 共读\n- 合一:需求/任务=人读文档(带 frontmatter 状态),.ccb 只索引\n- 执行序 A1→(G1/B1/C1/D1)→B2/C2→C3→R1/K1/O1→E1"
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-contract-resolver",
+      "order": 1,
+      "title": "契约 schema + resolver",
+      "summary": "给目录契约定 schema,写 plugin+Console 共用解析器",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "priority": "high",
+      "include": false,
+      "spec_section_md": "## A1 契约 resolver\n- 给 docs-structure-contract.yaml 定 schema(校验+版本)\n- 写 resolver:输入 doc_type → 输出 目录/产物落点/字段规则\n- plugin lib 与 Console indexer 共用同一份,结果一致\n- 产出:resolver 模块 + schema + 单测"
+    },
+    {
+      "section_id": "pr2-schema-validators",
+      "order": 2,
+      "title": "schema/validator 重生成",
+      "summary": "subtask-spec/breakdown-draft/requirement-md frontmatter 校验随新模型更新",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "priority": "high",
+      "include": true,
+      "spec_section_md": "## G1 schema/validator 重生成\n- requirement-md frontmatter:status 枚举对齐 kernel\n- breakdown-draft/subtask-spec validator 随合一模型更新\n- generate:validators 链路跑通\n- 产出:更新 schema + generated validator + 测试"
+    },
+    {
+      "section_id": "pr3-indexer-auto-index",
+      "order": 3,
+      "title": "indexer 自动索引 + inferDocumentKind 读契约",
+      "summary": "扫 frontmatter 生成 00_文档地图 + .ccb/index 缓存",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "priority": "high",
+      "include": true,
+      "spec_section_md": "## B1 indexer 自动索引\n- inferDocumentKind 改读目录契约(不靠路径子串);docs/02_需求设计 正确识别\n- 扫各文档 frontmatter → 生成 00_文档地图(派生:位置+绑定实体状态)\n- 生成 .ccb/index 缓存;移除对 4 个旧 yaml 的依赖\n- 产出:indexer 改造 + 索引生成 + 测试"
+    },
+    {
+      "section_id": "pr4-skill-read-entry",
+      "order": 4,
+      "title": "su-* 技能读取入口/产物描述对齐",
+      "summary": "SKILL.md 读取入口改总览+地图+契约",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr3-indexer-auto-index"
+      ],
+      "priority": "medium",
+      "include": true,
+      "spec_section_md": "## B2 技能入口对齐\n- su-flow/su-resume/su-status 等 SKILL.md 读取入口=00_项目总览+00_文档地图+契约\n- 各技能产物路径描述改为按契约定位\n- 产出:SKILL.md 文案更新 + 一致性检查"
+    },
+    {
+      "section_id": "pr5-path-resolver-converge",
+      "order": 5,
+      "title": "路径收敛走 resolver",
+      "summary": "硬编码 .ccb 路径收敛到 resolver",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "priority": "high",
+      "include": true,
+      "spec_section_md": "## C1 路径收敛\n- 把 plugin lib + Console 硬编码的 docs/.ccb 路径收敛到 resolver(pr1)\n- 替换:requirement-analysis/subtask/reconcile/slot-health/evidence-registry/project-indexer 等\n- 产出:统一路径入口 + 回归测试"
+    },
+    {
+      "section_id": "pr6-merge-requirement",
+      "order": 6,
+      "title": "合一·需求",
+      "summary": "需求本体落人读文档 docs/02,.ccb 只索引",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr5-path-resolver-converge"
+      ],
+      "priority": "high",
+      "include": true,
+      "spec_section_md": "## C2 合一·需求\n- createRequirement/requirement-analysis/requirement-edit/sync 产/读人读文档 docs/02\n- 需求 frontmatter 带 status(drafting…cancelled);.ccb 只存索引指针\n- 迁移现存需求;旧 requirement-template 标 superseded\n- 产出:需求合一 + 迁移脚本 + 测试"
+    },
+    {
+      "section_id": "pr7-merge-task",
+      "order": 7,
+      "title": "合一·任务/拆分",
+      "summary": "materialize/Task 投影改人读任务文档 docs/03",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr5-path-resolver-converge",
+        "pr6-merge-requirement"
+      ],
+      "priority": "high",
+      "include": true,
+      "spec_section_md": "## C3 合一·任务(最大块)\n- materialize 产人读开发任务文档 docs/03,不再写 .ccb/specs/active\n- 子任务状态(current_node/status/node_substate)入文档 frontmatter\n- Task 投影认 dev_task;牵连 .ccb/state、dispatch/status/resume 逐一对齐\n- 产出:任务合一 + 投影 + 测试"
+    },
+    {
+      "section_id": "pr8-runtime-safety-nets",
+      "order": 8,
+      "title": "运行时安全网迁移",
+      "summary": "reconcile/slot-health/evidence 改读新路径",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr5-path-resolver-converge"
+      ],
+      "priority": "high",
+      "include": true,
+      "spec_section_md": "## R1 运行时安全网\n- reconcile 扫描范围改新结构\n- slot-health 活跃需求来源改人读文档\n- evidence-registry state 路径校验对齐新落点\n- 产出:三处安全网迁移 + 测试"
+    },
+    {
+      "section_id": "pr9-kernel-manifest-paths",
+      "order": 9,
+      "title": "kernel/manifest 路径迁移",
+      "summary": "state-schema/capabilities/primitive 对齐新结构",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "priority": "medium",
+      "include": true,
+      "spec_section_md": "## K1 内核/manifest 路径\n- state-schema:ADR 路径 + project index 源改新结构\n- capabilities/global:artifact.spec/adr 落点对齐\n- primitive load_project_index 改读自动索引\n- 产出:kernel/manifest 路径迁移"
+    },
+    {
+      "section_id": "pr10-su-init-scaffold",
+      "order": 10,
+      "title": "su-init 新脚手架实装",
+      "summary": "按新 project-scaffold 实装",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "priority": "medium",
+      "include": true,
+      "spec_section_md": "## D1 su-init 脚手架\n- 实装新 project-scaffold:建 docs/00-99 + 从 templates/docs/** 拷模板\n- 拷 docs-structure-contract.yaml 到项目 .ccb\n- 建瘦身 .ccb(index/events/locks/drafts/schemas/config)\n- 产出:su-init 改造 + 干跑验证"
+    },
+    {
+      "section_id": "pr11-onboarding-agents",
+      "order": 11,
+      "title": "onboarding + 生成 AGENTS/CLAUDE + 清旧入口",
+      "summary": "onboarding/根 CLAUDE/AGENTS 改新入口",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr3-indexer-auto-index"
+      ],
+      "priority": "medium",
+      "include": true,
+      "spec_section_md": "## O1 onboarding/启动入口\n- project-onboarding 路由不再要求 architecture/modules.yaml ready\n- 同步 skills/su-init/references 的 claude-md/codex-md 副本\n- 更新根 CLAUDE.md/AGENTS.md 到新读取入口\n- 产出:onboarding + 启动入口对齐"
+    },
+    {
+      "section_id": "pr12-cleanup-scripts-fixtures",
+      "order": 12,
+      "title": "脚本/事件schema/夹具清理",
+      "summary": "export/verify/event-journal/hooks/夹具清理",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr3-indexer-auto-index",
+        "pr6-merge-requirement",
+        "pr7-merge-task",
+        "pr10-su-init-scaffold"
+      ],
+      "priority": "medium",
+      "include": true,
+      "spec_section_md": "## E1 收尾清理\n- export-db-requirements/verify-task-projection 脚本改新路径\n- event-journal schema plan_spec_path/linked_spec_id 处理\n- plugin-hooks 路径分类对齐\n- 测试夹具更新 + 全量回归\n- 产出:清理 + 绿灯"
+    }
+  ],
+  "requirement_id": "cmpmv55uy7d2673077860d06a",
+  "carrier_task_id": "cmpmv55uy7d2673077860d06a",
+  "review_history": [
+    {
+      "at": "2026-05-27T12:30:21.191Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-05-27T12:57:49.646Z",
+      "actor": "ai",
+      "action": "edited"
+    },
+    {
+      "at": "2026-05-27T12:57:49.727Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-05-27T12:57:49.766Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-05-27T12:57:50.143Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-05-27T12:57:49.766Z",
+  "approved_by": "user",
+  "consumed_at": "2026-05-27T12:57:50.143Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "01dfecb840056c326d6941e7eeff491092f48e444bb712c9c079fab6163441af"
+}

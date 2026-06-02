@@ -1,0 +1,66 @@
+{
+  "schema_version": "breakdown-draft-v0.1",
+  "status": "consumed",
+  "carrier_task_key": "首页优化",
+  "base_task_revision": null,
+  "generated_at": "2026-05-27T05:07:13.414Z",
+  "updated_at": "2026-05-29T09:47:57.244Z",
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot1_claude",
+    "ccb_job_id": "job_b5080cf9b0ae"
+  },
+  "epic": {
+    "title": "首页数据概览优化",
+    "summary": "把 /overview 从 9 区块信息流收敛为以需求为主的数据数字盘：需求 3 数字（活跃/需关注/已交付）+ 任务与文档紧凑计数 + 轻量系统健康（保留 ADR-0012 drift 信号）。纯前端，单原子改动。",
+    "spec_outline_md": "## 交付概要\n- 需求升为主区：活跃 / 需关注 / 已交付 3 张大数字卡（复用 classifyRequirementTab）。\n- task/文档降为次要紧凑计数；移除最近列表 / 活动流 / 任务节点分布图。\n- 系统健康瘦身但保留 ADR-0012 active-drift 红色 CTA。\n- 纯前端，无后端 / schema 改动；单原子任务无需多片拆分。"
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-overview-data-first",
+      "order": 1,
+      "title": "首页重写为以需求为主的数据数字盘",
+      "summary": "重写 OverviewPage 为 3 段（需求主区 3 数字 / 任务文档次要 / 系统健康轻量），精简 module CSS，更新 e12 首页基线断言与快照。",
+      "spec_section_md": "## 目标\n把 /overview 从 9 区块收敛为数据为主、需求优先的数字盘。\n## 范围\n- OverviewPage.tsx 重写：需求 3 数字（活跃/需关注/已交付，复用 classifyRequirementTab）+ 任务/文档紧凑计数 + 轻量系统健康。\n- OverviewPage.module.css 精简，移除废弃区块样式。\n- 保留 ADR-0012 active-drift 红色 CTA（→ /tasks?projection=stale）。\n- 更新 e12-acceptance-snapshots 首页基线断言 + 重生成快照。\n## 验收\n- tsc --noEmit 通过；vitest 全绿；首页只剩 3 段、移除区块为 0。\n## 依赖\n无（原子任务）。",
+      "priority": "medium",
+      "implementation_owner": "claude",
+      "dependencies": [],
+      "include": true
+    }
+  ],
+  "requirement_id": "cmpmwpuy8765c189497e7489a",
+  "carrier_task_id": "cmpmwpuy8765c189497e7489a",
+  "review_history": [
+    {
+      "at": "2026-05-27T05:07:13.419Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-05-27T05:07:13.503Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-05-27T05:09:40.714Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "用户指示「拆分」确认通过；实现已交付并验证（tsc --noEmit + 222 测试），回填物化"
+    },
+    {
+      "at": "2026-05-27T05:09:40.836Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-05-29T09:47:57.244Z",
+      "actor": "ai",
+      "action": "edited"
+    }
+  ],
+  "approved_at": "2026-05-27T05:09:40.714Z",
+  "approved_by": "user",
+  "consumed_at": "2026-05-27T05:09:40.836Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "aeac5e1379a20ab23883a221ee9994de688360bad447474072917bb2ce0d4ca4"
+}

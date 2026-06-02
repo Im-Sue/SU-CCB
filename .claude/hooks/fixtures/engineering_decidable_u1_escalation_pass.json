@@ -1,0 +1,6 @@
+{
+  "tool_name": "Write",
+  "cwd": "<PROJECT_ROOT>",
+  "file_path": "docs/.ccb/state/f7-u1-escalation.md",
+  "content": "---\ntask_id: f7-u1-escalation\nescalation_reason: U1_kernel_canonical_direction\n---\n"
+}

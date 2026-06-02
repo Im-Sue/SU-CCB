@@ -1,0 +1,68 @@
+{
+  "schema_version": "breakdown-draft-v0.1",
+  "status": "consumed",
+  "carrier_task_key": "需求详情页解绑 slot 按钮（状态覆盖 + 确认披露 + busy 内联强制释放）",
+  "base_task_revision": null,
+  "generated_at": "2026-05-26T08:53:22.475Z",
+  "updated_at": "2026-05-26T10:24:24.682Z",
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "ccb_claude",
+    "cx_agent": "ccb_codex",
+    "ccb_job_id": "job_ba8c25aad3a6"
+  },
+  "epic": {
+    "title": "需求详情页解绑 slot 按钮（状态覆盖 + 确认披露 + busy 内联强制释放）",
+    "summary": "只要需求绑定了 slot（bound/busy/unhealthy/recovering）就在详情页显示「解绑」按钮；非 busy 普通 release，busy 内联 force（reason+确认）；复用既有 releaseSlot API，纯前端，不碰 /new、不动后端/schema/依赖。",
+    "spec_outline_md": "## 交付概要\n\n- 单前端子任务（Codex 协商 `job_ba8c25aad3a6` 确认：改动集中在 `RequirementDetailPage.tsx` 同一渲染分支 + 同一 release handler/modal 状态 + 同一 spec，拆分合并成本大于隔离收益）。\n- 纯前端：复用既有 `releaseSlot` API；后端 `slot.routes.ts:151` 仅 `busy` 态要求 `force+reason+confirm`，其余态 `{confirm:true}` 即可，服务层无额外状态拦截（已核验）。\n- 不新增后端端点 / schema / 依赖；`/new` 上下文清理**解耦**给独立需求 c75fdb（当前 `status: planning`，未落地；横切共享机制，SlotsPage/绑定同样需要），本任务复用既有 `releaseSlot`、行为与 SlotsPage release 一致；c75fdb 落地后须覆盖本解绑入口（详见子任务 TODO，含前端编排 / 后端统一两种情形）。\n\n## 拆分反思（4 锚点）\n\n- **同意**：Codex 确认单任务合理（同组件 / 同 handler / 同 spec，拆分合并成本 > 隔离收益）、后端仅 `busy` 特判（纯前端成立）。\n- **不同意 / 保留**：busy 确认强度——Codex 倾向照搬 SlotsPage 的 typed-confirm（输入 `RELEASE <slotId>`）；本拆分按用户原话\"给提示 + 人工确定\"取**轻确认**（reason + 警告 + 确认按钮），保留安全底线，差异已写入 spec 供用户最终定夺。\n- **盲点**：起初以为\"只改几行分支\"，Codex 指出需新增 modal / reason draft / 错误态 + 导入 `Input` + CSS，已据此调整工作量（~0.5d）与验收。\n- **下一步**：用户审阅 draft → `/ccb:su-materialize-requirement` 物化 → 派 Codex 实施。",
+    "estimated_total_days": 0.5
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-detail-unbind-slot",
+      "order": 1,
+      "title": "详情页解绑 slot 入口：状态覆盖 + 改名 + 确认披露 + busy 内联强制释放",
+      "summary": "扩展 RequirementDetailPage 渲染分支让所有绑定态显示「解绑」按钮，改名，普通解绑加确认+再占用披露，busy 内联 force（reason+确认），更新测试。",
+      "spec_section_md": "## 目标\n\n修复需求详情页「Slot 运行位置」面板解绑入口的状态覆盖与文案 / 确认语义：只要该需求绑定了 slot 就显示「解绑」按钮，并补齐二次确认、副作用披露与 busy 态内联强制释放。\n\n## 范围（全部在 `RequirementDetailPage.tsx` + `RequirementDetailPage.spec.tsx` + `RequirementDetailPage.module.css`）\n\n- **渲染分支扩展**（`:994-1018`）：`requirementSlot` 非空且 `state ∈ {bound, busy, unhealthy, recovering}` 时显示「解绑」按钮；`draining` 不显示（保留「打开 Slots」链接）。\n- **文案**：「释放 slot」→「解绑 slot」，与「绑定 slot」对称。\n- **普通解绑（bound / unhealthy / recovering）**：点击弹二次确认（danger modal），文案须披露\"释放后该 slot 可能被队列中其它需求立即占用\"；确认后调 `releaseSlot(projectId, slotId, { confirm: true })`，刷新面板。\n- **busy 内联强制释放**：点击弹 danger modal，含警告\"该 slot 有 agent 正在运行，解绑会中断其工作\"；**必填 reason**；确认后调 `releaseSlot(projectId, slotId, { confirm: true, force: true, reason })`。复用 `SlotsPage.tsx:131-167` 的 forceDraft 逻辑形态；reason 输入复用 `components/ui/Input`（详情页当前未导入，需新增导入）。\n- 新增 modal / draft state、reason / 确认错误提示、loading 态恢复、少量 `module.css`。\n\n## 关键决策与边界\n\n- **unhealthy / recovering 走普通 release（`{confirm:true}`）**，**有意区别于 SlotsPage**（SlotsPage 把 unhealthy 也走 force UI）。这是用户拍板\"非 busy 普通解绑\"的结果，须在代码注释 / PR 描述里写明此差异。\n- **busy 确认强度**：reason 必填 + 警告 + 显式「确认解绑」按钮；**不要求输入 \"RELEASE <slotId>\" 字符串**（按用户原话\"给提示 + 人工确定\"取轻确认）。安全底线必须满足：reason 非空校验、cancel 不调用 API、确认前不发请求、danger 视觉。〔Codex 建议照搬 SlotsPage 的 typed-confirm 以保跨页一致；本任务按用户拍板取轻确认，若后续要统一可另开需求。〕\n- **不碰 `/new`（解耦，留 TODO）**：完整解绑语义上应在逻辑解绑前对 slot 组全部 agent 发 `/new` 清理上下文，但该清理属独立需求 **c75fdb**（`需求绑定/解绑slot的上下文清理`，当前 `status: planning`，**尚未落地**），且为横切共享机制（SlotsPage 释放、绑定动作同样需要）。本前端任务与之**解耦**，只复用既有 `releaseSlot`，行为与 SlotsPage release 一致（当前全链路均无 `/new`，本任务不引入新 gap）。\n- 不新增后端端点 / schema / 依赖。\n\n## 验收（轻量测试 — 按用户要求不做穷举）\n\n测试保持轻量、只聚焦行为变化，不穷举每个状态 / 错误分支：\n\n- **必做（否则现有套件会红）**：更新现有 busy 态测试——原断言\"无释放按钮 + 去 SlotsPage 链接\"，改为断言显示「解绑 slot」并走 force modal；同步更新含\"释放 slot\"的 snapshot。\n- **核心路径各 1 例**：\n  - bound：点「解绑 slot」→ 弹确认（文案含再占用披露）→ 调 `{confirm:true}`。\n  - busy：点「解绑 slot」→ force modal → 填 reason → 调 `{confirm:true, force:true, reason}`；空 reason 不发请求。\n- **轻量守卫**：draining 不显示「解绑 slot」（一条断言）。\n- `unhealthy / recovering` 与 bound 共用普通 release 路径，**不单独写用例**。\n- cancel / API 失败 / loading 恢复等分支**不强制写测试**，实现层保证 cancel 不调 API、错误不崩即可（必要时人工验证）。\n\n## 依赖与后续\n\n- 依赖：无（可立即派工；与 c75fdb 解耦，详见下方 TODO）。\n- 后续协调：b5c2d5 替换 `slotGuidancePanel` 为内嵌终端时，**必须迁移本解绑入口**（应写入 b5c2d5 的 T4 约束）。\n- **TODO / c75fdb 协调**：c75fdb（解绑前发 `/new` 清理上下文）落地后须覆盖本解绑入口。若 c75fdb 在后端 release API 统一实现，本入口无需改动即自动覆盖；若 c75fdb 最终采用前端编排 `/new`，则必须回头在本入口集成（解绑前发 `/new` 再 `releaseSlot`）。本任务先行交付、不阻塞，也不假定 c75fdb 已完成。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    }
+  ],
+  "requirement_id": "cmpmdz8n12azw9p19sicoaigj",
+  "carrier_task_id": "cmpmdz8n12azw9p19sicoaigj",
+  "review_history": [
+    {
+      "at": "2026-05-26T08:53:22.482Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-05-26T10:24:24.510Z",
+      "actor": "ai",
+      "action": "edited"
+    },
+    {
+      "at": "2026-05-26T10:24:24.580Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-05-26T10:24:24.614Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "用户拍板：按钮先做（详情页解绑入口），/new 上下文清理解耦给 c75fdb 并保留 TODO/协调点；已修正草案措辞标注 c75fdb 仍为 planning 未落地。"
+    },
+    {
+      "at": "2026-05-26T10:24:24.682Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-05-26T10:24:24.614Z",
+  "approved_by": "user",
+  "consumed_at": "2026-05-26T10:24:24.682Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "8241789fe0a742abba2f4f65e61bb4ae6f57b2da0c74c9a0500807bb6e46fa2e"
+}

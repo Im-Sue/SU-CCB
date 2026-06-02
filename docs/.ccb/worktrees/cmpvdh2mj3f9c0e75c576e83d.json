@@ -1,0 +1,12 @@
+{
+  "schema_version": "requirement-worktree-v0.1",
+  "requirement_id": "cmpvdh2mj3f9c0e75c576e83d",
+  "status": "discarded",
+  "path": "../SU-CCB-req-cmpvdh2mj3f9c0e75c576e83d",
+  "branch": "ccb/req-cmpvdh2mj3f9c0e75c576e83d",
+  "confirmed_target_branch": "v1.0-plugin-sovereignty",
+  "base_sha": "ef2aaea594427e882be27cecedf5497178a67209",
+  "created_at": "2026-06-02T03:02:40.829Z",
+  "updated_at": "2026-06-02T06:38:22.590Z",
+  "discarded_at": "2026-06-02T06:38:22.590Z"
+}
