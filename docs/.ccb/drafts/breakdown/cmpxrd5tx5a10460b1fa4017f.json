@@ -1,0 +1,61 @@
+{
+  "schema_version": "breakdown-draft-v0.2",
+  "status": "consumed",
+  "carrier_task_key": "slot-requirements-fab",
+  "base_task_revision": null,
+  "generated_at": "2026-06-03T08:26:55.053Z",
+  "updated_at": "2026-06-03T08:34:10.672Z",
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot1_claude",
+    "ccb_job_id": "job_544ecd90b03b"
+  },
+  "plan": {
+    "title": "绑定 slot 的需求快捷入口",
+    "summary": "在 SU-Oriel web 右下角新增只读悬浮入口，点开列出当前 project 绑定 slot 的需求、点击跳详情页；单前端子任务，不改后端/依赖。",
+    "spec_outline_md": "## 绑定 slot 的需求快捷入口(技术设计 绑定slot需求快捷入口-a4017f-技术设计.md)\n- 单子任务 pr1：SlotRequirementsFab 组件 + deriveBoundRequirementItems 纯函数 + App.tsx 挂载 + Toast CSS 变量避让\n- owner：claude(web 前端)\n- 与 ea509d(slot-2)在 App.tsx / 右下角的协调：靠 --floating-action-reserved-bottom 共享变量 + right-edge stack 解耦，执行期检查并复用，不设硬依赖"
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-slot-requirements-fab",
+      "order": 1,
+      "title": "绑定 slot 的需求快捷入口(SlotRequirementsFab)",
+      "summary": "右下角只读悬浮入口，点开懒加载 slots、列绑定 slot 的需求、点击跳详情页；含竞态/空态/错误态/收起/Toast 避让；不改后端/依赖。",
+      "spec_section_md": "### 任务概述\n在 SU-Oriel web 新增「绑定 slot 的需求」全局快捷入口(SlotRequirementsFab)：右下角常驻悬浮钮，点开懒加载当前 project 的 slots 投影、列出 requirement!=null 的占用需求，点击跳 /requirements/:id。纯前端只读，不改后端/接口/依赖。承接技术设计 绑定slot需求快捷入口-a4017f-技术设计.md。\n\n### 任务分解(前端)\n- 纯函数 deriveBoundRequirementItems(SlotProjectionView)：filter requirement!=null(排除 idle/main)、排除 queued、按 requirementId 聚合(同需求多 slot 合一条，保留多 slot/state chip)；可单测。\n- 组件 SlotRequirementsFab.tsx：单例；读 useProjectStore().selectedProjectId(空则不渲染)；收起态悬浮钮，点开 fetchSlots 懒加载本地 state；面板列表(title + slot/state chip)、空态「暂无绑定 slot 的需求」、错误态+重试、loading；点项 navigate(/requirements/:id) 收起；详情页当前项标「当前」并禁点；请求竞态(记 projectId/requestId，旧响应丢弃)。\n- 样式 SlotRequirementsFab.module.css：fixed 右下角；z-index 高于页面内容、低于 drawer(60)/modal(100)/palette(140)/toast(200)，避开 50(SlidePanel 占用)；移动端 max-width/max-height + viewport-safe；复用 design tokens，动画参考 Toast。\n- 挂载 App.tsx：ConsoleLayout 内 <ToastViewport/> 同级加 <SlotRequirementsFab/>。\n- Toast 避让(机制必须落地，不能只写「引入变量」)：CSS 变量 --floating-action-reserved-bottom 必须定义在 Toast 的祖先 / :root，FAB 自身 module root 影响不了同级 ToastViewport。**采用**：ToastViewport 接收 reserved offset(prop/style)，由 ConsoleLayout 据 selectedProjectId 是否非空传入(会多改 Toast.tsx，但副作用少、可测)；**兜底**：FAB 用 effect set/clear document.documentElement.style.setProperty('--floating-action-reserved-bottom', ...)。默认 0，无 FAB 不影响现状。\n- 文案避开「推进中」(用「绑定 slot 的需求 / Slot 中需求」)，避免与 canonical planning 混淆。\n\n### 验收标准\n- 有选中 project 且存在绑定 slot 的需求 → 右下角显示入口，点开列出全部 requirement!=null 占用需求(含 unhealthy/recovering/draining)，排除 main 与 queued。\n- 同一需求占多 slot → 列一条 + 多个 slot/state chip。点列表项 → 跳对应 /requirements/:id 且面板收起。\n- 无选中 project → 入口不渲染；有 project 但无绑定需求 → 点开显示空态。\n- fetch 失败 → 面板内错误态 + 重试可用(不只 toast)。\n- 收起：再次点击 FAB 收起；切 project 时关闭或清空旧面板(点外部 / Escape 可选，不强制)。\n- 点开后切 project → 旧响应不串入当前列表。\n- 入口不遮挡 Toast(Toast 经 CSS 变量避让生效)；drawer/modal 打开时入口被覆盖；移动端面板不溢出。\n- 单测 deriveBoundRequirementItems；组件测点开取数 / 导航 / 空态 / 错误态 / 无 project 不渲染 / 当前项禁点。不新增运行时依赖，不改 slots 接口 / schema。\n\n### 边界 / 不做项\n不改后端 / 接口 / schema；不跨 project 聚合；不做 slot 绑定 / 释放 / 取消；不按生命周期(planning/delivering)筛选；不含 queued 需求；不建通用右下角 dock 框架(仅留 --floating-action-reserved-bottom 薄约定供 ea509d 跟随)。\n\n### 执行约束 / 与 ea509d 的协调(非硬依赖)\n- ea509d(slot-2「main-agent 快捷入口」)也会改 App.tsx 的 ConsoleLayout 挂载 + 右下角定位。不设硬依赖，作执行约束处理：\n  - 开工前检查 App.tsx / Toast.module.css / 右下角 FAB 目录是否已有 ea509d 改动。\n  - ea509d 已落地 → 复用既有 --floating-action-reserved-bottom / right-edge stack offset，不新增第二套变量。\n  - 本任务先落地 → ea509d 后续沿用本任务的变量 + right-edge 向上堆叠约定。\n  - App.tsx import / 挂载并发冲突不能完全靠设计规避，执行期需 rebase / 人工合并。\n\n### 依赖 / Owner\n依赖：无(复用现有 fetchSlots / useProjectStore / react-router)。owner：claude(web 前端，执行期在 claude slot 直接实施)。",
+      "priority": "medium",
+      "implementation_owner": "claude",
+      "dependencies": [],
+      "include": true
+    }
+  ],
+  "requirement_id": "cmpxrd5tx5a10460b1fa4017f",
+  "carrier_task_id": "cmpxrd5tx5a10460b1fa4017f",
+  "review_history": [
+    {
+      "at": "2026-06-03T08:26:55.058Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-06-03T08:34:10.439Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "user approved via su-materialize-requirement"
+    },
+    {
+      "at": "2026-06-03T08:34:10.530Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-06-03T08:34:10.672Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-06-03T08:34:10.530Z",
+  "approved_by": "user",
+  "consumed_at": "2026-06-03T08:34:10.672Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "6e2bb3b8e0f94bea2cca252eb3c380947c3eef37e6b287117f088223495fe87b"
+}
