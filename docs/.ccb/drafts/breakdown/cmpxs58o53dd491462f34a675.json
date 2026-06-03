@@ -1,0 +1,88 @@
+{
+  "schema_version": "breakdown-draft-v0.2",
+  "status": "consumed",
+  "carrier_task_key": "detail-artifact-reading-modal",
+  "base_task_revision": null,
+  "generated_at": "2026-06-03T10:05:31.811Z",
+  "updated_at": "2026-06-03T10:44:28.995Z",
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot3_claude",
+    "cx_agent": "slot3_codex",
+    "ccb_job_id": "job_e692b45e02d9"
+  },
+  "plan": {
+    "title": "需求详情页产物阅读交互优化",
+    "summary": "AI 解析 / 技术设计阅读由侧边栏改弹窗；AI 解析展示完整需求 md 正文（经新增只读端点）；共享 Modal 补 a11y + reader 尺寸。3 切：后端端点 / 共享 Modal / 详情页整合，执行序 pr1∥pr2→pr3。",
+    "spec_outline_md": "## 拆分大纲（对应技术设计 优化需求详情页产物阅读交互-34a675-技术设计.md）\n\n- pr1 后端只读端点 + service（owner codex，无依赖）\n- pr2 共享 Modal a11y + reader 尺寸（owner claude，无依赖；改全局弹窗焦点行为）\n- pr3 详情页两处阅读 → Modal + AI 取完整 md（owner claude，依赖 pr1 + pr2）\n\n执行序：pr1 ∥ pr2 → pr3；需求内默认串行。真正风险在测试 / 契约文件，不在 PR 数量。\n\n## 协商与 4 锚点反思\n\n- 协商：slot3_codex 执行可行性复核（job_ef0d1d00405a），达成 3 切共识。\n- 我同意：3 切主线对——后端契约 / 共享 UI 基础件 / 详情页整合分开。\n- 我被纠正：① \"文件零重叠\"不准——pr2 必改 `Modal.module.css`；pr3 还需更新 console-api mock 的 App 级测试（app-redesign / e12-acceptance-snapshots / task-detail-v2-acceptance），否则缺 mock export 直接炸；② pr2 是全局焦点行为变更，非\"零行为变更\"；③ pr3 验收漏 `mdHash` 重拉 + AI 迟到响应丢弃。均已并入对应子任务。\n- 我的盲点：低估测试 / 契约文件扇出；`extractMarkdownBody` 在 edit + reindex 各有一份。\n- 接下来：pr1 显式只复用 edit service 版本、不动 reindex 既有重复（技术债，本批不收敛）；生成 draft 后停在用户审查门，不主动 materialize。"
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-requirement-md-readonly-endpoint",
+      "order": 1,
+      "title": "后端只读需求 md 端点 + service",
+      "summary": "新增按 requirementId 读取完整需求 md 正文的只读端点，复用 findRequirementMarkdown，读盘即时绕开 documents 投影 stale。",
+      "spec_section_md": "## pr1 后端只读需求 md 端点\n\n### 任务概述\n为 AI 解析弹窗提供「按 requirementId 读取完整需求 md 正文」的只读后端能力，复用服务端既有定位器，读盘即时（绕开 documents 投影 stale）。\n\n### 任务分解\n- `requirement-edit.service.ts`：把私有 `extractMarkdownBody` 导出；新增 `loadRequirementMarkdownBody(prisma, projectId, requirementId)` —— 先校验 requirement ∈ project（同 `loadRequirementMdHash` 模式），再 `findRequirementMarkdown` 读盘，返回 `{ path: relativePath, content: extractMarkdownBody(content) }`（body-only，去 frontmatter）。\n- `requirement.routes.ts`：注册 `GET /api/projects/:projectId/requirements/:requirementId/markdown`，调 service，HTTP 状态映射：`200 { path, content }`；需求不存在 / md 缺失 → `404 { message }`。\n- 补 server 单测。\n\n### 验收标准\n- [ ] 命中：返回去 frontmatter 的 body-only 正文 + 相对 path。\n- [ ] 需求不属于该 project / md 文件缺失 → 404。\n- [ ] `extractMarkdownBody` 去 frontmatter 单测绿。\n- [ ] 不改 DB / schema、不动编辑 / reindex / hash 既有逻辑。\n\n### 边界 / 不做项\n- 不消除 `requirement-reindex.service.ts` 里 `extractMarkdownBody` 的既有重复实现（既有技术债，不在本 PR 范围；如需收敛另开清理任务）。本 PR 仅复用 edit service 版本。\n- 只读：不写盘、不改状态。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr2-modal-a11y-reader",
+      "order": 2,
+      "title": "共享 Modal 可达性 + reader 尺寸",
+      "summary": "Modal 补初始聚焦 / focus trap / 焦点恢复 + 新增 reader 尺寸，全局焦点行为修复，供两处阅读弹窗用。",
+      "spec_section_md": "## pr2 共享 Modal 可达性 + reader 尺寸\n\n### 任务概述\n补齐共享 `Modal` 的键盘可达性（对齐现有 `DetailDrawer` 能力），并新增长文阅读尺寸，供详情页两处阅读弹窗使用。**这是对所有 Modal 使用方生效的全局焦点行为变更**（预期内的 a11y 修复）。\n\n### 任务分解\n- `Modal.tsx`：打开时默认聚焦关闭按钮（不假设首个可聚焦是编辑器，规避 EasyMDE fullscreen）；focus trap（Tab / Shift+Tab 回环）；关闭后恢复 previousFocus；新增可选 `initialFocus` prop；新增 `reader`（近全屏、内容区可滚）size。\n- `Modal.module.css`：新增 `reader` size 样式。\n- 新增 `Modal.spec.tsx`。\n\n### 验收标准\n- [ ] 初始聚焦落在关闭按钮 / dialog。\n- [ ] focus trap 在弹窗内回环；关闭恢复触发前焦点。\n- [ ] `reader` size 渲染正确、长内容可滚。\n- [ ] 回归：编辑 / 确认 / 批量 / 解绑等既有 Modal 调用方在焦点行为变更后仍正常（跑 web Modal 相关全量测试）。\n\n### 边界 / 不做项\n- 保留既有 sm/md/lg/xl 与 ESC / 遮罩关闭语义。\n- 明确：本 PR 改变所有 Modal 的焦点行为（全局），非\"零行为变更\"，需覆盖回归。",
+      "priority": "high",
+      "implementation_owner": "claude",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr3-detail-reading-modal",
+      "order": 3,
+      "title": "详情页两处阅读改弹窗 + AI 取完整 md",
+      "summary": "AI 解析 / 技术设计阅读由侧边栏改 Modal；AI 解析经 pr1 端点展示完整需求 md；技术设计保留状态机仅换容器。",
+      "spec_section_md": "## pr3 详情页两处阅读改弹窗 + AI 取完整 md\n\n### 任务概述\n把需求详情页「AI 解析」「技术设计」两个产物的阅读从侧边栏（`DetailDrawer`）改为弹窗（`Modal size=\"reader\"`）；AI 解析弹窗展示完整需求 md 正文（经 pr1 端点），技术设计弹窗保留现有取文状态机仅换容器。\n\n### 任务分解\n- `RequirementDetailPage.tsx`：`drawer` 状态改 `artifactModal`；两处 `DetailDrawer` → `Modal size=\"reader\"`；AI 解析新增 `RequirementMarkdownState`，打开时 lazy 调 `fetchRequirementMarkdown` → `MarkdownViewer(rewriteRequirementAssetUrls(content))`，覆盖 loading / ready / empty / error / 404；`requirement.mdHash` 变化时重拉；迟到响应丢弃（沿用设计文档现有 requestId/seq 模式）；技术设计阅读 effect 触发条件由 `drawer===\"design\"` 改 `artifactModal===\"design\"`，内容逻辑不变。\n- `console-api.ts`：新增 `fetchRequirementMarkdown(projectId, requirementId)`。\n- 测试：更新 `RequirementDetailPage.spec.tsx`（drawer→modal 断言、AI 取文态、mdHash 重拉、AI 迟到响应丢弃）；更新 mock 整个 `console-api` 且 import `App` 的测试的 mock export：`app-redesign.spec.tsx`、`e12-acceptance-snapshots.spec.tsx`、`task-detail-v2-acceptance.spec.tsx`（补 `fetchRequirementMarkdown` mock，否则缺 export 直接炸）。\n\n### 验收标准\n- [ ] AI 解析 / 技术设计阅读均为弹窗，开 / 关 / ESC / 焦点正常。\n- [ ] AI 解析渲染完整需求 md（ready / empty / error / 404 态）。\n- [ ] `mdHash` 变化时 AI md 重拉；关闭 / 切换时迟到响应被丢弃（有测试）。\n- [ ] 技术设计弹窗沿用既有 idle/loading/ready/not-indexed/stale/not-found/error/empty 态。\n- [ ] 全屏阅读按钮 / 拆分草案 / 子任务行为不变。\n- [ ] App 级测试（app-redesign / e12-acceptance-snapshots / task-detail-v2-acceptance）因 console-api mock 补齐而通过。\n\n### 边界 / 不做项\n- 不动「全屏阅读」按钮逻辑、拆分草案、子任务交互、`DetailDrawer` 组件本体。\n- 依赖 pr1（端点）+ pr2（reader size / a11y），串行在二者之后。",
+      "priority": "high",
+      "implementation_owner": "claude",
+      "dependencies": [
+        "pr1-requirement-md-readonly-endpoint",
+        "pr2-modal-a11y-reader"
+      ],
+      "include": true
+    }
+  ],
+  "requirement_id": "cmpxs58o53dd491462f34a675",
+  "carrier_task_id": "cmpxs58o53dd491462f34a675",
+  "review_history": [
+    {
+      "at": "2026-06-03T10:05:31.827Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-06-03T10:44:28.646Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "用户授权物化 (su-materialize-requirement),自动 begin_review"
+    },
+    {
+      "at": "2026-06-03T10:44:28.743Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "用户授权物化,记为 user 批准"
+    },
+    {
+      "at": "2026-06-03T10:44:28.995Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-06-03T10:44:28.743Z",
+  "approved_by": "user",
+  "consumed_at": "2026-06-03T10:44:28.995Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "4d33a31290f1bfc3d852f5bf18ae9dec4ec336c1b61ed23be1feb0a6b9be13c6"
+}
