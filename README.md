@@ -106,29 +106,29 @@ SU-CCB 由 **4 个各自独立的 git 仓库**协作组成（均在 GitHub `Im-S
 
 ## 架构
 
-```mermaid
-flowchart LR
-  kernel["protocol-kernel<br/>su-ccb-claude-plugin/references/kernel/"]
-  plugin["claude-plugin<br/>su-ccb-claude-plugin/"]
-  codex["codex-skills<br/>su-ccb-codex-skills/"]
-  hub["docs hub<br/>SU-CCB · docs/.ccb/"]
-  oriel["SU-Oriel console<br/>Fastify + Prisma + React"]
+一句话：**用户从一个入口提需求，Claude 和 Codex 在协议约束下分工协作，结果落成可审计的文档，控制台可选地把它画出来。** 分四层看：
 
-  kernel -->|"source-of-truth: nodes / guards / transitions"| plugin
-  plugin -->|"paired execute / consult / doc skills"| codex
-  hub -->|"spec / state / decisions / index（业务真相）"| oriel
-  oriel -->|"只读投影 + 触发（不写业务真相）"| hub
+```mermaid
+flowchart TD
+  user([用户]) -->|"/ccb:su-flow 唯一入口"| collab
+
+  subgraph collab["① 协作层 · 谁来做"]
+    claude["Claude<br/>决策 · 审查"] <-->|"协商 / 回抛 / 精简回执"| codex["Codex<br/>执行 · 验证"]
+  end
+
+  collab -->|"都遵循"| kernel["② 协议层 · 按什么规则做<br/>protocol-kernel：7 节点 + 审批门 + 转移规则"]
+  kernel -->|"产出落成"| data["③ 数据层 · 结果落哪<br/>docs/ 人读真相 + docs/.ccb/ 状态·决策·索引"]
+  data -.->|"可选 · 只读投影 + 触发"| view["④ 视图层 · 怎么看<br/>SU-Oriel 控制台（不写真相）"]
 ```
 
-组件说明：
-
-| 组件 | 仓库 / 路径 | 责任 |
+| 层 | 做什么 | 在哪个仓 |
 |---|---|---|
-| protocol-kernel | `su-ccb-claude-plugin/references/kernel/` | 节点 manifest、transition、guard、lint 与协议真相源 |
-| claude-plugin | `su-ccb-claude-plugin/` | Claude 侧 skills / 命令、项目初始化、schema generators |
-| codex-skills | `su-ccb-codex-skills/` | Codex 侧 execute / consult / doc 能力 |
-| SU-Oriel console | `SU-Oriel`（独立仓，目录 `su-oriel/`） | 本地 API、索引、Prisma 数据层、任务投影与管理台 UI |
-| docs hub | 本仓 `docs/.ccb/` | 当前项目 CCB 工作区：spec、state、decision、index、config |
+| **① 协作层** | Claude 决策/审查 ⇄ Codex 执行/验证 | `su-ccb-claude-plugin`（Claude skills）+ `su-ccb-codex-skills`（Codex skills） |
+| **② 协议层** | 节点、审批门、转移规则 —— 整套协作的真相源 | `su-ccb-claude-plugin/references/kernel/` |
+| **③ 数据层** | spec、状态、决策、索引 —— 业务真相落在人读文档 | 本仓 `SU-CCB`：`docs/` + `docs/.ccb/` |
+| **④ 视图层** | 只读投影 + 触发（可选，不写业务真相） | `SU-Oriel`（`su-oriel/`，Fastify + Prisma + React） |
+
+> 真相源在**协议层**（kernel）和**数据层**（docs），控制台只是**可选的一层视图** —— 没有它，整套协作照样靠文件系统、git 和编辑器跑得通。
 
 ## 三种使用角色
 
