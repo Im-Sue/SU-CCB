@@ -1,11 +1,17 @@
 {
   "schema_version": "requirement-worktree-v0.1",
   "requirement_id": "cmpxs58o53dd491462f34a675",
-  "status": "ready",
+  "status": "archived",
   "path": "../SU-CCB-req-cmpxs58o53dd491462f34a675",
   "branch": "ccb/req-cmpxs58o53dd491462f34a675",
   "confirmed_target_branch": "main",
   "base_sha": "f64368adf7ca8d18bb9b2142513bd1bfe44738e6",
   "created_at": "2026-06-03T11:13:59.133Z",
-  "updated_at": "2026-06-03T11:13:59.133Z"
+  "updated_at": "2026-06-03T14:51:08.193Z",
+  "archived_at": "2026-06-03T14:51:08.193Z",
+  "archive": {
+    "target_branch": "main",
+    "warnings": [],
+    "note": "manual archive: integrated via su-oriel merge 1a9ade0 + submodule bump (84e013f), pushed to origin; worktree removed --force (worktree su-oriel had dirty test db from Prisma-guarded db:prepare)"
+  }
 }
