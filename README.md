@@ -142,7 +142,18 @@ flowchart TD
 
 ## 运行依赖与环境
 
-- **底层运行时**：SU-CCB 构建在 [SeemSeam/claude_codex_bridge](https://github.com/SeemSeam/claude_codex_bridge) 之上 —— 它提供 Claude ↔ Codex 的多 agent 桥接运行时：`ccb` CLI、`ccbd` 守护进程、ask / dispatch 派工、slot / window 多 agent 编排。本文上面讲的**协作层**（Claude 决策 / Codex 执行、协商、回抛、精简回执）都跑在它上面。
+- **底层运行时（必装）**：SU-CCB 构建在 [SeemSeam/claude_codex_bridge](https://github.com/SeemSeam/claude_codex_bridge) 之上 —— 它提供 Claude ↔ Codex 的多 agent 桥接运行时：`ccb` CLI、`ccbd` 守护进程、ask / dispatch 派工、slot / window 多 agent 编排。本文上面讲的**协作层**（Claude 决策 / Codex 执行、协商、回抛、精简回执）都跑在它上面。**先装它，SU-CCB 才能跑**：
+
+  ```bash
+  # 从 Releases 下载 ccb-*.tar.gz 后
+  tar -xzf ccb-*.tar.gz && cd ccb-* && ./install.sh install
+  # 或源码安装
+  git clone https://github.com/SeemSeam/claude_codex_bridge.git && cd claude_codex_bridge && ./install.sh install
+  # 已装时更新：ccb update
+  ```
+
+  bridge 前置依赖：Python 3.10+、`tmux`、至少一个 agent CLI（Claude / Codex）。
+
 - **环境支持**：目前仅支持 **WSL 和 macOS**。原生 Windows 不受支持（bridge 运行时、`node-pty` 等原生模块依赖 Unix 环境）—— Windows 用户请在 **WSL** 内使用。
 
 ## 上手
