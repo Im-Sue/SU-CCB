@@ -1,0 +1,100 @@
+{
+  "schema_version": "breakdown-draft-v0.2",
+  "status": "consumed",
+  "carrier_task_key": "main-agent-terminal-fab",
+  "base_task_revision": null,
+  "generated_at": "2026-06-03T08:53:22.071Z",
+  "updated_at": "2026-06-03T09:17:08.117Z",
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot2_claude",
+    "ccb_job_id": "job_53d5496d7167"
+  },
+  "plan": {
+    "title": "main agent 组终端快捷入口",
+    "summary": "全局悬浮入口→弹窗内嵌 main 组(main_claude/main_codex)双 pane 实时终端，复用 slot 终端 substrate；4 片全栈，方案 Opt1+，需求页零改、默认可写。",
+    "spec_outline_md": "## main agent 组终端快捷入口 — 拆分计划\n承接技术设计 `main-agent组终端快捷入口-ea509d-技术设计.md`(方案 Opt1+「并行入口 + 抽公共核」)。4 片，owner 均 ccb_codex。\n\n### 切片与依赖\n- pr1 后端·agent-group 寻址 + 平行守卫(无依赖)\n- pr2 后端·WS 共享核 + agent-terminal WS + audit additive(依赖 pr1)\n- pr3 前端·抽 substrate + 需求页零改(无依赖，可与 pr1/pr2 并行)\n- pr4 前端·MainTerminalPanel + 全局 launcher + Modal 变体(依赖 pr2 + pr3)\n- 依赖图：`{pr1,pr3}` 并行 → pr2 → pr4。文件集无交叠(pr1=service+routes / pr2=ws+input / pr3=Surface+Panel+前端 ws+types+console-api / pr4=新文件+Modal+App)。\n\n### 共享协议契约(pr2/pr3/pr4 引用同一份，避免前后端各写一套)\n- target union：`{kind:\"requirement\", projectId, requirementId}` | `{kind:\"agentGroup\", projectId, group}`。\n- HTTP：`GET /api/projects/:projectId/agent-terminal/:group` → `SlotTerminalDescriptor {slotId, sessionName, panes:[{role,target,paneIndex}]}`(复用现有类型)。\n- WS：`/api/agent-terminal/ws?projectId=&group=&pane=`；消息复用现有 `ready·frame·error`(s→c) 与 `input·paste`(c→s)。\n- requirement 端点(`/requirements/:rid/slot-terminal`、`/api/slot-terminal/ws?...requirementId...`)**外部契约冻结**。\n- 安全：agent WS 同 requirement WS 的 Origin 白名单 + 只读铁律(拒 resize/attach/写控制) + 每条 input 写前 guard。\n\n### Codex 协商收紧(job_0b78bc2a363e)\n- pr1 必须抽**候选解析 helper**：`resolveSlotPanes` 的 first-pick(break)会吞重复 role，故 strict 校验须在候选层做，不能在 descriptor 层(否则「拒多 runtime」不可实现)。\n- pr2 验收为「外部契约不变」非「字节不变」(共享核必改 ws.ts)；补 Origin / 拒控制命令 / 每写 guard。\n- pr3「需求页零改」客观化：旧 URL 字符串级一致 + 现有测试全过 + DOM 行为不变。\n- pr4 补 Modal 滚动层断言 + e2e 用 mock WS(真协议由 pr2 集成测覆盖)。\n\n### 与兄弟需求 a4017f 协调\na4017f(已 consumed，owner=claude，右下角「绑定 slot 需求快捷入口」)已立 `--floating-action-reserved-bottom` + 右缘堆叠约定并假设 ea509d 堆其上方。pr4 复用该变量、落实用户「分占不同角」、App.tsx 执行期 rebase；不新增第二套右下角框架。\n\n### 用户审查门\ndraft 生成后停在 review，等用户确认 / `/ccb:su-revise-breakdown` / materialize；**本节点不主动 materialize**。"
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-backend-agent-group-resolver",
+      "order": 1,
+      "title": "后端·agent-group 寻址 + 平行守卫",
+      "summary": "新增 resolveAgentGroupTerminal(allowlist{main}+候选层 strict role 唯一性/agent 名校验)+assertTargetBelongsToAgentGroup+matchPane+GET /agent-terminal/:group；requirement 路径首选语义零改。",
+      "spec_section_md": "### 任务概述\n后端新增「按 agent-group(仅 main)寻址」的终端 descriptor 解析与平行写入守卫，复用 main 的 tmux pane 解析，但**不污染**现有 requirement 路径。承接技术设计 `main-agent组终端快捷入口-ea509d-技术设计.md` §三/§七/§八。本片只动 service + routes，不动 ws/input（在 pr2）。\n\n### 任务分解(后端)\n- `slot-terminal.service.ts`:\n  - 抽内部候选解析 helper（如 `collectPaneCandidatesByRole`）：返回每 role 的**全部**候选 pane（**不在此处 break 去重**），让 requirement 路径与 agent-group 路径共用底层 list-panes + runtime.json 解析。\n  - `resolveRequirementTerminal` / `resolveSlotPanes` 保持**首选(first-pick)**语义不变 —— requirement 路径行为零变化（现有测试全过）。\n  - 新增 `resolveAgentGroupTerminal({projectId, group})`：① `group` 过 `AGENT_GROUP_WINDOWS={\"main\"}` allowlist，非 main 抛 forbidden；② `findProject`；③ 用候选 helper 取 main(window_name=\"main\")的候选 pane；④ **strict 校验**：每 role(claude/codex)恰一候选 pane，>1 或缺失即抛 —— 这是「role 唯一性拒多 runtime」的真实落点（**不能在 descriptor 层校**，因为首选语义已把重复吞掉）；⑤ 校验候选 runtime agent 身份(window_name=\"main\" + provider，且 runtime agent_name ∈ {main_claude, main_codex})；⑥ 返回 `{slotId:\"main\", sessionName, panes:[claude,codex]}`(复用 `SlotTerminalDescriptor` 类型)。\n  - 新增 `assertTargetBelongsToAgentGroup({projectId, group, role, target})`：重解析 agent-group descriptor，比对 `target ∈ panes`(role+target 双匹配)，不符抛 forbidden。\n  - 抽私有 `matchPane(descriptor, role, target)` 供 requirement / agent-group 两守卫共用。\n- `slot-terminal.routes.ts`: 新增 `GET /api/projects/:projectId/agent-terminal/:group` → `resolveAgentGroupTerminal`。\n\n### 验收标准\n- 单测 `resolveAgentGroupTerminal`：① 非 main group 被 allowlist 拒；② main window 出现 >1 个 claude(或 codex)runtime 时 strict 校验**抛错**（用候选 helper 在去重前校验，证明非 descriptor 层假校验）；③ 正常 main 解析出 claude/codex 两 pane(target=runtime pane_id)。\n- 单测 `assertTargetBelongsToAgentGroup`：不属于 main panes 的 target 抛 forbidden；合法 target 返回 pane。\n- 回归：`resolveRequirementTerminal` / `resolveSlotPanes` 行为不变 —— 现有 slot-terminal service 单测全过(first-pick 语义保留)。\n- 集成：`GET /agent-terminal/main` 返回 descriptor；`GET /agent-terminal/<非 main>` 被拒。\n\n### 边界·不做项\n- 不动 `slot-terminal.ws.ts` / `slot-terminal.input.ts`(pr2)。\n- 不改 requirement 路由 / resolver 的首选语义。\n- 不开放任意 window 浏览(allowlist 仅 main)。\n- 只 capture-pane / send-keys 语义；本片不实际写入(守卫供 pr2 用)。\n\n### 依赖·Owner\n依赖：无。owner：ccb_codex。\n> 协议契约见 plan.spec_outline_md「共享协议契约」，pr2/pr3/pr4 引用同一份。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr2-backend-ws-shared-core-audit",
+      "order": 2,
+      "title": "后端·WS 共享核 + agent-terminal WS + audit additive",
+      "summary": "抽共享 WS handler 核+subscription resolver 泛化 target union+新增 /agent-terminal/ws 薄路由(不复制大函数)+WS 加固(Origin/拒控制/每写 guard)；audit additive contextKind/contextId。",
+      "spec_section_md": "### 任务概述\n复用现有 slot-terminal WS plumbing，暴露 main 终端读写通道；audit 兼容非 requirement context。承接技术设计 §四/§七/§八。**红线：共享核不复制 WS 大函数**；保留现有 WS 加固（Origin / 拒控制命令 / 只读铁律）。\n\n### 任务分解(后端)\n- `slot-terminal.ws.ts`:\n  - 抽共享 handler 核：把现有 `/api/slot-terminal/ws` 的 socket 生命周期、frame pump 接线、input queue(per-conn 串行)、错误/关闭处理抽成与 target 无关的复用核。\n  - subscription resolver 泛化为 target union `{kind:\"requirement\", projectId, requirementId}` | `{kind:\"agentGroup\", projectId, group}`：requirement 分支走 `resolveRequirementTerminal`+`assertTargetBelongsTo`；agentGroup 分支走 `resolveAgentGroupTerminal`+`assertTargetBelongsToAgentGroup`(pr1)。\n  - 新增薄路由 `GET /api/agent-terminal/ws?projectId=&group=&pane=`，复用共享核（**不复制大函数**）。\n  - 保留 WS 加固到新端点：Origin 白名单(精确匹配 / fail-closed，防 CSWSH)、拒绝 resize / request_write / release_write / 任何改 client 尺寸或 attach 的控制消息(只读铁律)、每条 input 写前走 agent-group guard。\n- `slot-terminal.input.ts`:\n  - `SlotTerminalInputAuditEvent` additive 加 `contextKind`(\"requirement\"|\"agent-group\") + `contextId`；`recordInput` 文件名按 context(`<contextKind>-<contextId>.jsonl`，main → `agent-group-main.jsonl`)。\n  - requirement 路径**保留** `requirementId` 字段与原文件名(`<requirementId>.jsonl`)兼容 —— 不破坏现有测试 / 日志格式。writer(sendInput/sendPaste)零改。\n\n### 验收标准\n- 集成：`/api/agent-terminal/ws?group=main&pane=claude` 帧推 + 输入回显 + 每条 input 写前 agent-group guard 生效。\n- 集成：agent WS 同 requirement WS 一样 ① 启用 Origin 白名单(非法 Origin 拒)；② 拒 resize / request_write / release_write 等控制消息(只读铁律)。\n- 单测/集成：audit 对 main 写 `agent-group-main.jsonl` 且含 contextKind/contextId；requirement 写入仍落 `<requirementId>.jsonl` 且事件含 requirementId(向后兼容)。\n- 回归：requirement WS **外部可观察契约不变**(URL/query/`ready·frame·error·input·paste` 消息形态)，现有 requirement WS 集成测试全过。（注：共享核重构必然改 ws.ts 内部，故验收是「契约不变」**非「字节不变」**。）\n\n### 边界·不做项\n- 不复制 WS 大函数(共享核)。\n- 不改 pr1 的 service resolver / guard。\n- 不引入全局写锁(单人取舍；多连接写交错为已知残余风险，回执列明)。\n\n### 依赖·Owner\n依赖：pr1-backend-agent-group-resolver(用 resolveAgentGroupTerminal + assertTargetBelongsToAgentGroup)。owner：ccb_codex。\n> 协议契约见 plan.spec_outline_md「共享协议契约」。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr1-backend-agent-group-resolver"
+      ],
+      "include": true
+    },
+    {
+      "section_id": "pr3-frontend-terminal-substrate",
+      "order": 3,
+      "title": "前端·抽 substrate + 需求页零改",
+      "summary": "抽 TerminalPaneTabs/TerminalSurface/createTerminalClient+buildTerminalWsUrl+fetchTerminalDescriptor 吃 target union；SlotTerminalPanel 改薄壳传 {kind:requirement}；需求页 URL/测试/DOM 客观零变化。",
+      "spec_section_md": "### 任务概述\n把终端的渲染/传输/寻址从硬绑 `requirementId` 抽成可按 `target` 复用的 substrate，**需求详情页行为零变化**。承接技术设计 §二/§八。本片是受保护的前端重构，**不引入任何 main 专用 UI**(在 pr4)、不动后端。\n\n### 任务分解(前端)\n- 抽 substrate(requirement-agnostic)：\n  - `TerminalPaneTabs`(claude/codex tab 切换) + `TerminalSurface`(=旧 `SlotTerminalSurface` 抽 target，xterm 渲染/粘贴/右键/写入目标标注) + `createTerminalClient` + `buildTerminalWsUrl` + `fetchTerminalDescriptor`，全部吃 `SlotTerminalTarget` 判别联合而非裸 `requirementId`。\n  - `useXtermTerminal` / `SlotTerminalFrameRenderer` 零改(纯渲染)。\n- `types/slot-terminal.ts` + `lib/console-api.ts`: 加 `SlotTerminalTarget` 联合 + `fetchTerminalDescriptor(target)`；requirement target 生成的 HTTP/WS URL 与旧**完全一致**。\n- `SlotTerminalPanel.tsx`: 改为薄壳 —— 保留其 requirement-specific UI(已绑定/未绑定 slot、绑定动作、fallback 文案)，内部调 substrate 传 `{kind:\"requirement\", projectId, requirementId}`。\n\n### 验收标准(客观化)\n- 现有 `SlotTerminalPanel` 测试**全过**。\n- requirement 的 descriptor fetch URL 仍是旧 `/api/projects/:pid/requirements/:rid/slot-terminal`；WS URL/query 仍是旧 `/api/slot-terminal/ws?projectId=&requirementId=&pane=`(**字符串级一致**)。\n- 需求详情页 DOM：写入目标红字标注、claude/codex 切 tab 时关旧 WS、绑定/未绑定文案 —— 行为不变。\n- substrate 单测：`buildTerminalWsUrl` / `fetchTerminalDescriptor` 对 requirement target 产出旧 URL；对 agentGroup target 产出 `/api/agent-terminal/ws?group=` 形态(为 pr4 备好，但本片不挂 main UI)。\n\n### 边界·不做项\n- 不动 xterm / FrameRenderer。\n- 不新增 MainTerminalPanel / launcher(pr4)。\n- 不动后端；不改 requirement 的外部 URL 契约。\n\n### 依赖·Owner\n依赖：无(可与 pr1/pr2 并行)。owner：ccb_codex。\n> 必须与 pr2 引用**同一** plan.spec_outline_md「共享协议契约」(target union / WS query / descriptor 解析规则)，避免前后端各写一套。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr4-frontend-main-launcher",
+      "order": 4,
+      "title": "前端·MainTerminalPanel + 全局 launcher + Modal 变体",
+      "summary": "MainTerminalPanel(target=agentGroup:main+fallback+无 bind+默认可写)+MainTerminalLauncher(挂 ConsoleLayout,复用 a4017f --floating-action-reserved-bottom)+Modal contentClassName+App 挂载；e2e 用 mock WS。",
+      "spec_section_md": "### 任务概述\n全局悬浮入口 → 弹窗内嵌 main 双 pane 终端(默认可写)，端到端打通。承接技术设计 §二/§四。复用 pr3 substrate + pr2 端点。\n\n### 任务分解(前端)\n- `MainTerminalPanel.tsx`(新)：薄壳，调 pr3 substrate 传 `{kind:\"agentGroup\", projectId, group:\"main\"}`；main fallback 文案(「main 会话未启动，请在 ccb 启动后重试」)；**无** bind/release 动作(main 是 coordination lane)；默认可写 + 沿用写入目标红字标注。\n- `MainTerminalLauncher.tsx`(新)：全局悬浮单例，挂 ConsoleLayout；读 `useProjectStore().selectedProjectId`(空则不渲染)；用 `fetchSlots(projectId).main.state` 做可连指示；点击开 Modal 装 MainTerminalPanel；Modal 关则断 WS(MainTerminalPanel unmount)。\n- `Modal.tsx`(改)：加 additive `contentClassName?`，传入可覆盖 `.content` 的 `max-height/overflow/padding`，让终端自管单滚动层。\n- `App.tsx(ConsoleLayout)`(改)：`<ToastViewport/>` 同级挂 `<MainTerminalLauncher/>`。\n- **与 a4017f 的右下角协调**(执行约束，非硬依赖)：a4017f(已 consumed，owner=claude)已立 `--floating-action-reserved-bottom` CSS 变量 + 右缘堆叠约定，并假设 ea509d 在其上方堆叠。本片：① 开工前检查 App.tsx / Toast / 右下角 FAB 现状；② **复用** a4017f 的 `--floating-action-reserved-bottom`，不新增第二套变量；③ 落实用户「分占不同角」—— main launcher 用 right-edge 向上堆叠 offset(在 a4017f FAB 之上)或独立角位，二者不抢同一像素 / z-index；④ App.tsx 挂载并发冲突执行期 rebase / 人工合并。\n\n### 验收标准\n- e2e(前端流程用 **mock WS**，避免依赖本机 main tmux)：悬浮入口 → 点击开 Modal → main claude/codex 双 pane 显实时帧 → 输入回显(默认可写 + 写入目标红字标注) → 关 Modal 断 WS。\n- main 未起：descriptor 404 → MainTerminalPanel 显 fallback，不连 WS。\n- Modal 滚动层：terminal 容器有**稳定非零高度**；modal content 用无 padding / 无纵向滚动变体 —— 无双滚动层回归。\n- 与 a4017f FAB 共存：两入口不重叠、不抢 z-index；复用 `--floating-action-reserved-bottom`(无 main 入口时 offset 不变)。\n- 后端真实协议行为由 pr2 集成测覆盖(本片前端测用 mock WS)。\n\n### 边界·不做项\n- 不改 a4017f 入口 / 需求详情页。\n- 写入沿用 pr2 的 agent-terminal WS 通道(不另起写路径)。\n- 不建通用右下角 dock 框架(仅复用 a4017f 既有薄约定)。\n\n### 依赖·Owner\n依赖：pr2-backend-ws-shared-core-audit(agent-terminal 端点/WS) + pr3-frontend-terminal-substrate(substrate)。owner：ccb_codex。\n> 残余风险(回执列明)：本机多 session 前缀撞车(继承现状，不扩大)；多窗口写 main pane 交错(单人取舍，无全局锁)。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr2-backend-ws-shared-core-audit",
+        "pr3-frontend-terminal-substrate"
+      ],
+      "include": true
+    }
+  ],
+  "requirement_id": "cmpxp7yyc6ff3ff4e15ea509d",
+  "carrier_task_id": "cmpxp7yyc6ff3ff4e15ea509d",
+  "review_history": [
+    {
+      "at": "2026-06-03T08:53:22.077Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-06-03T09:17:07.641Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "user approved via su-materialize-requirement"
+    },
+    {
+      "at": "2026-06-03T09:17:07.756Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "user approved via su-materialize-requirement"
+    },
+    {
+      "at": "2026-06-03T09:17:08.117Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-06-03T09:17:07.756Z",
+  "approved_by": "user",
+  "consumed_at": "2026-06-03T09:17:08.117Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "b83ac26ce80783efeb6d8c6b8c0dfe5c30d9aee1bc46b64a0a23dc6bd9ab5ca0"
+}
