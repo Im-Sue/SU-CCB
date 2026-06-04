@@ -1,0 +1,68 @@
+{
+  "schema_version": "breakdown-draft-v0.2",
+  "status": "consumed",
+  "carrier_task_key": "slot-terminal-vertical-scroll-718db0",
+  "base_task_revision": null,
+  "generated_at": "2026-06-04T08:59:03.853Z",
+  "updated_at": "2026-06-04T09:44:17.233Z",
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot3_claude",
+    "cx_agent": "slot3_codex",
+    "ccb_job_id": "job_353f0c5d2771"
+  },
+  "plan": {
+    "title": "需求详情页终端布局问题修复（保留历史）",
+    "summary": "修共享 SlotTerminalSurface：host 外滚看全超高 pane 底部 + 保留 xterm scrollback 历史（D3 用户拍板保留历史）。1 切，owner=claude（web-UI 亲自实施 + 浏览器实测定稿滚动条机制）；连带修好 MainTerminalPanel。",
+    "spec_outline_md": "## 拆分大纲（对应技术设计 `需求详情页的终端布局问题-718db0-技术设计.md` v1.2，机制 Opt-1a'）\n\n- **pr1** slot 终端超高 pane 纵向可滚动性修复（保留历史·Opt-1a'）：host 外滚看全当前屏底部 + 隐藏 native 条、滚轮仲裁入历史、保留 scrollback；owner=claude（web-UI），无依赖。\n- **1 切理由**：CSS + renderer 双底部 follow + surface wheel 仲裁都围绕同一 shared surface、强耦合、须一起落才可验证；拆开只造同文件重叠的人为串行依赖（Codex 执行可行性协商 job_353f0c5d2771 同此判断）。\n\n## 协商与 4 锚点反思\n\n- **执行可行性协商**（slot3_codex · job_353f0c5d2771，完成）：确认 1 切；**纠正我把「用户未否决」当「已接受 D3」**（scrollback:0 是能力删减须用户拍板）→ 用户否决、要求保留历史；补 wasAtBottom 须 resize 前测 + scrollToBottom 条件化。\n- **机制修订协商**（slot3_codex · job_866cf3d43c0f，完成）：定稿 **Opt-1a'**——单一可见 host 条 + capture-phase wheel 仲裁入历史 + 隐藏 xterm native `.scrollbar.vertical`；跟随改**双底部**；提示 `scrollback:1000` 可能小于 initial 历史窗口须核对。已并入 pr1 spec + 技术设计 v1.2。\n- **我同意**：1 切；保留历史核心；Opt-1a' 单条优于两条并存；双底部 + resize 前测。\n- **我保留**：owner=claude（亲自实施 + 浏览器定稿仲裁体感）；renderer 快照模型不动；两条并存仅回退。\n- **我的盲点**：D3 当默认偷渡能力删减（Codex 纠正）；低估 xterm6 native 条随外滚移位、滚轮被 SmoothScrollableElement 抢、scrollback 深度可能不足。\n- **接下来**：draft（status=draft）停审查门、不主动 materialize；实施按 Opt-1a'，强制浏览器实测仲裁 + 双场景。\n"
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-slot-terminal-vertical-scroll",
+      "order": 1,
+      "title": "slot 终端超高 pane 纵向可滚动性修复（保留历史·Opt-1a'）",
+      "summary": "host 外滚看全当前屏底部 + 隐藏 native 条、滚轮仲裁入历史、保留 scrollback；修共享 SlotTerminalSurface（连带 MainTerminalPanel），owner=claude，浏览器实测定稿仲裁体感。",
+      "spec_section_md": "## pr1 slot 终端超高 pane 纵向可滚动性修复（保留历史·Opt-1a'）\n\n### 任务概述\n修共享组件 `SlotTerminalSurface`（需求详情页 SlotTerminalPanel + main agent 组 MainTerminalPanel 复用）：左右 split 使 tmux pane 变高、`frame.rows` 翻倍后，当前屏高于固定 host、底部被裁且无可达外层滚动条。目标＝**既能滚到当前 pane 底部，又保留 xterm scrollback 上翻历史**（D3 用户拍板：历史核心）。机制定稿 **Opt-1a'**（协商 job_866cf3d43c0f）。owner=claude，web-UI 我亲自实施 + 浏览器实测定稿仲裁体感。\n\n### 任务分解（Opt-1a'：单一可见 host 条 + 滚轮仲裁入历史）\n- **CSS（`SlotTerminalSurface.module.css`）**：`.terminalHost{overflow-y:auto}`（原 hidden）承载当前屏外滚；`.xterm{height:auto; min-height:100%}` 使 host 能滚到底；**隐藏 xterm6 原生 `.xterm-scrollable-element > .scrollbar.vertical`**（单一可见 host 条）。**保留 `scrollback`**（不置 0）。\n- **renderer（`SlotTerminalFrameRenderer.ts`）**：构造增 `scrollHost?: HTMLElement`；跟随＝**双底部** `historyAtBottom && hostAtBottom`，**必须在 `resize()` 之前测**（Codex 纠正：resize 后 scrollHeight 变会误判离底）；仅双底部成立才写后条件 `terminal.scrollToBottom()` + `host.scrollTop=scrollHeight`，二者不无条件执行（否则破坏保留的历史位置）。\n- **surface（`SlotTerminalSurface.tsx`）**：`new SlotTerminalFrameRenderer(terminal, containerRef.current)`；在 `.terminalHost` 挂 **capture-phase wheel 仲裁**——上滚：host 未到顶先滚 host，到顶后 `terminal.scrollLines(-n)` 入历史；下滚：历史未到底先 `scrollLines(+n)` 回 live，回 live 后滚 host 到底；**若 pane 应用启用 mouse tracking 则不强拦截**（避免破坏应用内滚动）。\n- **scrollback 深度（`useXtermTerminal.ts`）**：核对 `scrollback:1000` 是否够大覆盖后端 initial capture 历史窗口；历史既为核心，必要时调大或对齐后端 capture 深度。\n- **specs**：更新 `SlotTerminalFrameRenderer` spec（双底部 + resize 前测 + 条件贴底 + 缺 host 兜底）；保持现有 surface / useXtermTerminal spec 绿。\n\n### 验收标准\n- [ ] 单测：renderer 注入 mock scrollHost + mock buffer——双底部为真（resize 前测）→ 写后 host 贴底 + scrollToBottom；任一不在底 → 不动；缺 host 退回条件 scrollToBottom 不抛。\n- [ ] 回归：现有 SlotTerminalSurface 复制 / 粘贴 / 右键、useXtermTerminal spec 全绿。\n- [ ] 手动·浏览器（关键验收，逐条走查，**需求详情页 + MainTerminalPanel 双场景各验**）：\n  1. 左右 split 造比右栏高的 pane → **能滚到最底部**看最新输出 / prompt；\n  2. **上翻历史可用** —— 滚轮 / PageUp 进历史、能看到更早输出（scrollback 未丢）；\n  3. 双底部时新帧**自动贴底**；离底时**不被弹回**；\n  4. 滚轮仲裁顺滑（trackpad / 快速滚动 / 缝合点不抖）；\n  5. 横向滚动保留；选区复制对齐；粘贴正常；窄视口（移动端）不破。\n\n### 边界 / 不做项\n- 不改后端 / WS 协议 / tmux resize 主权（WS READ_ONLY）。\n- 不动 ai-cli `EmbeddedTerminal`（FitAddon 自适应，不在本 bug）。\n- **不改 renderer 快照模型**（resize 到 pane_rows + live 帧 H+2J 全清重绘不动；不引入 stream/diff）。\n- **不删 scrollback / 不砍历史**（D3 用户否决置 0）。\n- 两条并存（Opt-1b）仅作 Opt-1a' 体感不佳时的快速回退，不作正式方案。\n",
+      "priority": "high",
+      "implementation_owner": "claude",
+      "dependencies": [],
+      "include": true
+    }
+  ],
+  "requirement_id": "cmpy6y7oe23104eb766718db0",
+  "carrier_task_id": "cmpy6y7oe23104eb766718db0",
+  "review_history": [
+    {
+      "at": "2026-06-04T08:59:03.859Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-06-04T09:12:59.571Z",
+      "actor": "ai",
+      "action": "edited"
+    },
+    {
+      "at": "2026-06-04T09:44:17.009Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "用户对话确认手动驱动物化：Console expected_hash a0740d56 为幽灵 hash、与真实草案 27f00e0b 不符且走不通"
+    },
+    {
+      "at": "2026-06-04T09:44:17.105Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "用户审批当前 v1.2 草案（Opt-1a' 保留历史 · 1 子任务 · owner=claude）"
+    },
+    {
+      "at": "2026-06-04T09:44:17.233Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-06-04T09:44:17.105Z",
+  "approved_by": "user",
+  "consumed_at": "2026-06-04T09:44:17.233Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "ae5eafde5d1f1a02c4b4402f155c9694f59e23318121af35e43fa4751f7b3056"
+}

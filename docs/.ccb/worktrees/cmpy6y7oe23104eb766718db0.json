@@ -1,0 +1,11 @@
+{
+  "schema_version": "requirement-worktree-v0.1",
+  "requirement_id": "cmpy6y7oe23104eb766718db0",
+  "status": "ready",
+  "path": "../SU-CCB-req-cmpy6y7oe23104eb766718db0",
+  "branch": "ccb/req-cmpy6y7oe23104eb766718db0",
+  "confirmed_target_branch": "main",
+  "base_sha": "3ec27cdf4784342a6a4a34fee8b7bb5663baa7ce",
+  "created_at": "2026-06-04T09:52:00.075Z",
+  "updated_at": "2026-06-04T09:52:00.075Z"
+}
