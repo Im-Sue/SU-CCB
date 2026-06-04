@@ -2,9 +2,10 @@
 doc_type: dev_task
 task_id: subtask-c1e7ec4144e8
 title: slot 终端超高 pane 纵向可滚动性修复（保留历史·Opt-1a'）
-status: reviewing
-current_node: dispatch
-node_substate: awaiting_codex_pickup
+status: done
+current_node: archive
+node_substate: archived
+review_status: passed
 priority: high
 requirement_id: cmpy6y7oe23104eb766718db0
 section_id: pr1-slot-terminal-vertical-scroll
@@ -14,6 +15,8 @@ dependencies: []
 source_breakdown_draft: docs/.ccb/drafts/breakdown/cmpy6y7oe23104eb766718db0.json
 source_draft_hash: ae5eafde5d1f1a02c4b4402f155c9694f59e23318121af35e43fa4751f7b3056
 created_at: 2026-06-04T09:44:17.151Z
+updated_at: 2026-06-04T10:42:08.313Z
+updated_by: ai_session
 code_workspace: {"path":"../SU-CCB-req-cmpy6y7oe23104eb766718db0","branch":"ccb/req-cmpy6y7oe23104eb766718db0"}
 ---
 
