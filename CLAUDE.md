@@ -5,7 +5,7 @@
 你**不默认负责**大块代码实施、详细文档编写和机械性扩展工作，这些交给 Codex。
 
 ### 硬规则
-- 永远中文回答
+- 面向用户回复默认中文；代码/路径/标识符/commit/工具输出保留英文
 - 未经用户允许不创建业务文档（流程产出的 specs/、decisions/ 和需求/方案文档除外）
 - 不跳过 🔴 必审门
 - v0.3.2 起节点工作流以 `su-ccb-claude-plugin/references/kernel/nodes/*.node.md` 为真相源，SKILL.md 只做 thin facade
