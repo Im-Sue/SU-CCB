@@ -1,0 +1,62 @@
+{
+  "schema_version": "breakdown-draft-v0.2",
+  "status": "consumed",
+  "carrier_task_key": "console-reply-language-zh",
+  "base_task_revision": null,
+  "generated_at": "2026-06-04T10:45:00.612Z",
+  "updated_at": "2026-06-04T13:15:58.472Z",
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot1_claude",
+    "cx_agent": "slot1_codex",
+    "ccb_job_id": "job_4dea3995f34f"
+  },
+  "plan": {
+    "title": "Claude 回复语言一致性（中文默认）",
+    "summary": "打开 ccbd 既有 CCB_REPLY_LANG 开关，让本项目 Claude provider agent 面向用户回复默认中文；单子任务跨仓（su-oriel launcher + 主仓 CLAUDE.md），payload.language 记 follow-up。",
+    "spec_outline_md": "## 交付目标\n让 Console 触发的 Claude provider agent 面向用户回复稳定默认中文（代码 / 路径 / commit / 工具输出保留英文）。\n\n## 切片（1 个子任务）\n- `pr1-ccb-reply-lang-zh`（owner=ccb_codex，high）：su-oriel launcher 注入规范化 `CCB_REPLY_LANG=zh` + Vitest 单测 + 主仓 CLAUDE.md 措辞校准。跨仓单原子任务，回执分列两 repo 状态。\n\n## 共享约束\n- 不碰仓外 ccbd 源码；不动 codex agent；payload.language 记 follow-up。\n- 改后需重启对应 project ccbd 才生效（验收前提）。\n\n## Follow-up（不在本轮）\n- payload `language:\"中文\"` 死契约：后续变 reserved / documented 或按入口消费。",
+    "estimated_total_days": null
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-ccb-reply-lang-zh",
+      "order": 1,
+      "title": "打开 CCB_REPLY_LANG 默认中文 + 校准 CLAUDE.md 措辞",
+      "summary": "su-oriel launcher 注入规范化 CCB_REPLY_LANG=zh（+Vitest 单测）+ 主仓 CLAUDE.md 措辞校准；跨仓单原子任务。",
+      "spec_section_md": "### 任务概述\n打开 ccbd 既有的 `CCB_REPLY_LANG` 开关，让本项目所有 Claude provider agent 面向用户的自然语言回复默认中文；代码、路径、commit、工具原始输出保留英文。这是需求 9dd2ae 的完整交付。\n\n**跨仓变更**：核心改动在 `su-oriel` 子模块（git submodule），CLAUDE.md 在主仓（superproject）——同一子任务内两个 git 边界，回执必须分别列出两个 repo 的状态。\n\n### 任务分解\n1. **su-oriel · launcher env 注入**（核心行为改动）\n   - 文件 `su-oriel/server/src/modules/anchor-lifecycle/ccbd-launcher.service.ts` 的 `buildTmuxLaunchCommand()`（现 env 前缀 `env -u TMUX -u TMUX_PANE CCB_NO_ATTACH=1 CCB_SKIP_STARTUP_UPDATE_CHECK=1`）。\n   - 追加 `CCB_REPLY_LANG=<规范化值>`。取值规范化（可内联，**不必导出私有 helper**）：`raw = process.env.CCB_REPLY_LANG ?? process.env.CCB_LANG ?? \"\"`；`norm = lower(trim(raw))`；`en` 当 `norm ∈ {en, english}`；否则（`zh / cn / chinese / 空 / auto / 非法`）→ `zh`。合法显式值优先。\n2. **su-oriel · 单测**（Vitest；扩展现有 spec 经 `start()` 捕获 launch command，无需导出私有函数）\n   - 默认（无 env）→ `CCB_REPLY_LANG=zh`\n   - `CCB_REPLY_LANG=en` → `en`；空 / `auto` / 非法 → `zh`；`cn` / `chinese` → `zh`\n   - `CCB_LANG` fallback：`CCB_REPLY_LANG` 未设 + `CCB_LANG=en` → `en`；`CCB_LANG=cn/chinese` → `zh`\n   - 优先级：`CCB_REPLY_LANG=en` + `CCB_LANG=zh` → `en`\n   - 每个 env 用例必须 restore / delete `process.env.CCB_REPLY_LANG` 与 `process.env.CCB_LANG`，避免污染同进程 Vitest\n3. **root · CLAUDE.md 措辞校准**\n   - 现「永远中文回答」（粗口径）改为：「面向用户回复默认中文；代码 / 路径 / 标识符 / commit / 工具输出保留英文」，与验收口径一致。\n\n### 验收标准\n**自动（硬门）**：\n- [ ] launcher 单测全绿（默认 / 覆盖 / 回落 / 归一 / `CCB_LANG` fallback / 优先级）\n- [ ] su-oriel typecheck 通过\n\n**手动 / 门控（回执须注明是否已跑、结果如何）**：\n- [ ] **kill 并重启对应 project 的 ccbd 守护进程后**，从 Console 发一条指令，Claude 面向用户回复为中文；回复中的代码块 / 路径仍英文（只刷新 Console 或复用旧 daemon 不算）\n- [ ] `CCB_REPLY_LANG=en` + 重启 daemon → 回复英文\n\n### 边界 / 不做\n- 不改仓外 ccbd 源码（`prompt.py` / `control_plane_env` 不碰）\n- 不动 codex agent 行为\n- 不删除 / 消费 payload `language`（follow-up，本轮不落地）\n- 不为「严格 Console-only」改协议加 per-message route option\n- **不把主仓现有未跟踪 / 已改的无关文档草稿混入本任务交付**（仅交付本任务的 su-oriel 代码 + 测试 + 根 CLAUDE.md）\n\n### 依赖 / 执行注意\n- 依赖 ccbd 既有 `CCB_REPLY_LANG` 契约（`prompt.py:_language_hint`，已核验；传播链 `launcher env → control_plane_env allowlist → ccbd worker → prompt wrapper`）\n- 单子任务，无内部并发冲突，无前置依赖\n- su-oriel 是 submodule：按既有 worktree 流程实施，husky 缺失用 `--no-verify`；本任务不要求 push，若提交需分别处理子模块仓与主仓\n- **生效前提**：改后必须重启对应 project ccbd，否则旧 worker 不受影响（验收易误判）",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    }
+  ],
+  "requirement_id": "cmpzb7fxf8d099992749dd2ae",
+  "carrier_task_id": "cmpzb7fxf8d099992749dd2ae",
+  "review_history": [
+    {
+      "at": "2026-06-04T10:45:00.617Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-06-04T13:15:58.203Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-06-04T13:15:58.292Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-06-04T13:15:58.472Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-06-04T13:15:58.292Z",
+  "approved_by": "user",
+  "consumed_at": "2026-06-04T13:15:58.472Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "071c14ae70e0f1b25ae33cdd9ad6c18f4312df4eae991638d7127ebac15c7443"
+}
