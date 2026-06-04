@@ -1,0 +1,63 @@
+{
+  "schema_version": "breakdown-draft-v0.2",
+  "status": "consumed",
+  "carrier_task_key": "requirement-detail-subtask-reader",
+  "base_task_revision": null,
+  "generated_at": "2026-06-04T08:34:41.870Z",
+  "updated_at": "2026-06-04T08:46:49.791Z",
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot2_claude",
+    "cx_agent": "slot2_codex",
+    "ccb_job_id": "job_18fb9be5a8b6"
+  },
+  "plan": {
+    "title": "需求详情子任务阅读弹窗",
+    "summary": "需求详情页子任务点击由跳转任务详情页改为打开只读 reader 弹窗内联展示该子任务 canonical dev_task md 正文；后端新增项目级 body-only 取文端点（按 Task.primaryDocumentId 解析 + 候选降级 + 路径 containment）。1 个全栈子任务，owner ccb_codex。",
+    "spec_outline_md": "## 拆分大纲（对应技术设计 需求详情里的子任务交互效果-560b82-技术设计.md）\n\n- pr1「子任务阅读弹窗 — 全栈」（owner ccb_codex，无依赖）：后端项目级只读端点 + canonical dev_task 解析 + helper 抽中立 lib；前端子任务点击改 reader 弹窗 + 类型泛化。单一内聚交付单元。\n\n执行序：单任务；任务内「后端端点 + helper → 前端接线」串行。\n\n## 切法取舍\n1 全栈 vs 2 切（BE 契约→FE）：同 owner(ccb_codex) 下选 1 全栈——BE/FE 同属一个 reader 特性、零文件重叠、拆开只增端点契约等待与两轮回执、无并行收益。Codex 执行者视角 high-confidence 同意。\n\n## 协商与 4 锚点反思\n- 协商：slot2_codex 执行可行性复核（job_18fb9be5a8b6），共识 1 全栈子任务。\n- 我同意的：1 全栈切片对（同 owner 无并行收益）；spec 已够实施；后端 service 测独立于 route、route 仅测 200/404。\n- 我被纠正的：① 「ai/design/subtask 三 reader 共用 MarkdownReaderState」不准——design reader 用独有 `DesignDocumentState`(not-indexed/stale/documentId)，**不合并**；`MarkdownReaderState` 仅 AI requirement + subtask 共用。② 前端 mock 扇出必须进 spec：新增 `fetchTaskMarkdown` 后须补 `RequirementDetailPage`/`app-redesign`/`e12-acceptance-snapshots`/`task-detail-v2-acceptance` 四处手写 console-api mock（App 级测试静态 import RequirementDetailPage）。③ helper 抽取回归要覆盖 requirement.routes.spec（re-export）+ requirement-reindex 既有路径测试。④「不跳转」用 `/tasks/:taskId` 哨兵 route 断言更硬。均已并入 spec。\n- 我的盲点：低估前端 console-api mock 的静态 import 扇出（34a675 同款教训复现）；以及把 design state 误纳入泛化类型的过度重构风险。\n- 接下来：生成 draft（status=draft）→ **停在用户审查门**，不主动 materialize。\n"
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-subtask-doc-reader",
+      "order": 1,
+      "title": "子任务阅读弹窗 — 全栈",
+      "summary": "需求详情页子任务点击改只读 reader 弹窗读 canonical dev_task md；后端新增项目级 body-only 端点（primaryDocumentId + taskKey 守卫 + 候选降级 + resolveProjectPath containment）；helper 抽中立 lib；前端复用 reader 状态机 + Modal，类型泛化 MarkdownReaderState（不并 design state）。",
+      "spec_section_md": "## 子任务阅读弹窗 — 全栈\n\n### 任务概述\n需求详情页（RequirementDetailPage）点击子任务，由「navigate(`/tasks/:id`) 跳转任务详情页」改为「打开只读 reader 弹窗，内联展示该子任务 canonical dev_task markdown 正文」。复用现有 Modal(size=\"reader\") + MarkdownViewer + requirement reader 状态机基座；后端新增一个项目级 body-only 取文端点（按 canonical dev_task 解析）。全程 additive，不动任务详情页/其它入口。设计真相源：`docs/03_开发计划/需求详情里的子任务交互效果-560b82-技术设计.md`。\n\n### 任务分解\n\n后端：\n1. 共享 helper 抽中立 lib：\n   - [NEW] `server/src/lib/markdown.ts` — 导出 `extractMarkdownBody`（从 requirement-edit.service.ts 提取）。\n   - [NEW] `server/src/lib/project-path.ts` — 导出 `resolveProjectPath`（从 requirement-reindex.service.ts:564 提取，路径 containment 守卫）。\n   - [MODIFY] `requirement-edit.service.ts` — `extractMarkdownBody` 改为从 `lib/markdown` re-export，**保持原导出名**（requirement.routes.spec.ts 仍从此处 import，re-export 不能破）。\n   - [MODIFY] `requirement-reindex.service.ts` — `resolveProjectPath` 改为从 `lib/project-path` import，移除局部副本。\n2. [NEW] `server/src/modules/task/task-markdown.service.ts` — `loadTaskMarkdownBody(prisma, projectId, taskId)` + `TaskMarkdownNotFoundError`：\n   - `task = prisma.task.findFirst({ where:{ id:taskId, projectId }, include:{ project:true } })`；无 → 抛 NotFound。\n   - canonical 候选列表：`primary = task.primaryDocumentId ? document.findFirst({ where:{ id:task.primaryDocumentId, projectId, kind:\"dev_task\", taskKey:task.taskKey } }) : null`；`fallback = document.findMany({ where:{ projectId, taskKey:task.taskKey, kind:\"dev_task\", NOT:{ id:{ in:已选 id } } }, orderBy:{ path:\"asc\" } })`。primary 在前。\n   - 逐候选：`resolveProjectPath(task.project.localPath, doc.path)` 守卫（越界/绝对路径 → 跳过该候选）+ `readFile`；首个成功 → `return { path: doc.path, content: extractMarkdownBody(raw) }`（body-only）。\n   - 所有候选失败（无候选 / 全部越界或 ENOENT）→ 抛 `TaskMarkdownNotFoundError`。\n3. [MODIFY] `server/src/modules/task/task.routes.ts` — 注册 `GET /api/projects/:projectId/tasks/:taskId/markdown`：try `loadTaskMarkdownBody` → `200 { path, content }`；catch `TaskMarkdownNotFoundError` → `404 { message:\"任务文档不存在或尚未进入索引\" }`。\n\n前端：\n4. [MODIFY] `web/src/lib/console-api.ts` — 新增 `fetchTaskMarkdown(projectId, taskId): Promise<{ path, content }>`（GET `.../tasks/:taskId/markdown`，复用 RequirementMarkdownView 形态或等价类型）。\n5. [MODIFY] `web/src/pages/requirements/RequirementDetailPage.tsx`：\n   - 子任务按钮 onClick：`navigate(`/tasks/${task.id}`)` → `setSubtaskReader(task)`（按钮视觉/结构不变）。\n   - 新增 state：`subtaskReader: TaskView|null`；`subtaskMarkdownState: MarkdownReaderState`；`subtaskMarkdownRequestSeqRef`。\n   - effect([subtaskReader])：null → 重置 idle；否则 seq-ref 守卫下 `fetchTaskMarkdown(projectId, subtaskReader.id)` → loading/ready/empty/error；`ConsoleApiError.status===404` → not-found。迟到响应（关闭后或切到另一子任务）按 seq-ref 丢弃。\n   - `renderTaskMarkdownContent(state)`：镜像 renderRequirementMarkdownContent，但：empty → 「任务文档正文为空」；not-found → 「任务文档不存在或尚未进入索引」；ready → `MarkdownViewer(state.content)`（**不做** rewriteRequirementAssetUrls 资产重写）。\n   - `<Modal open={subtaskReader!==null} onClose={()=>setSubtaskReader(null)} size=\"reader\" title={subtaskReader ? `任务文档 · ${subtaskReader.title}` : \"任务文档\"}>{renderTaskMarkdownContent(subtaskMarkdownState)}</Modal>`。\n   - 类型改名：`RequirementMarkdownState` → `MarkdownReaderState`。**仅 AI requirement reader（aiMarkdownState）与本 subtask reader 共用此类型；技术设计 reader 的 `DesignDocumentState`（含 not-indexed/stale/documentId 等独有态）不动、不合并。**\n\n### 验收标准\n\n行为：\n- [ ] 点击子任务：**不发生路由跳转**（在 RequirementDetailPage.spec.tsx 的 renderPage 加 `/tasks/:taskId` 哨兵 route，点击后断言仍在需求页、任务页哨兵不出现），就地打开 reader 弹窗渲染该子任务 dev_task 正文。\n- [ ] 快速点击 A→B：只显示 B 的内容（A 的迟到响应被 seq-ref 丢弃）。\n- [ ] 404 → 弹窗内「任务文档不存在或尚未进入索引」；空 body → 「任务文档正文为空」；loading 态显示；ESC/遮罩关闭 + 焦点恢复正常。\n- [ ] 任务详情页/其它入口、AI 解析/技术设计 reader 行为均不变。\n\n后端单测（`task-markdown.service`，**独立于 route**）：\n- [ ] primary 命中返回 body-only（去 frontmatter）。\n- [ ] primary 脏指向同项目其它 taskKey → 不读它、降级 fallback。\n- [ ] primary 文件 ENOENT → 降级 fallback。\n- [ ] `doc.path` 越界（`../` / 绝对路径）→ 该候选判失败，不读盘。\n- [ ] 无任何可读 dev_task 文档 → NotFound。\n- [ ] body 空 → 返回空 content。\n\n后端 route 测（`task.routes.spec.ts`，仅 200/404）：\n- [ ] 200 `{ path, content }`；task 跨 project / 无可读文档 → 404。\n\n回归（helper 抽取）：\n- [ ] `requirement.routes.spec.ts` 仍从 requirement-edit.service.ts import `extractMarkdownBody`，re-export 后绿。\n- [ ] `requirement-reindex.service.ts` 的既有设计路径/草稿路径测试绿（resolveProjectPath 抽取后）。\n\n前端 mock 扇出（**必补**，否则无关 App 测试因缺 export 静态 import RequirementDetailPage 而炸）：\n- [ ] 给以下手写 `vi.mock(\"../lib/console-api.js\")` 的测试补 `fetchTaskMarkdown` mock：`RequirementDetailPage.spec.tsx`、`app-redesign.spec.tsx`、`e12-acceptance-snapshots.spec.tsx`、`task-detail-v2-acceptance.spec.tsx`。\n\n验证命令（双栈 + tsc）：\n- [ ] `cd su-oriel && pnpm --filter su-oriel-server test`（task/requirement 相关）+ `pnpm --filter su-oriel-server typecheck`。\n- [ ] `cd su-oriel && pnpm dev:web` 对应 web 包 `test`（RequirementDetailPage/App 相关）+ web tsc/build。\n- [ ] 实机冒烟：rebuild + 起 server/web，需求详情页点子任务 → 弹窗渲染 dev_task 正文、ESC/焦点、不跳转。\n\n### 边界 / 不做项\n- 不动任务详情页 TaskDetailPage、`/tasks/:id` 路由及其它入口（看板/迭代/我的工作/活动流/命令面板）。\n- **不合并**技术设计 reader 的 `DesignDocumentState`。\n- 只读：不提供编辑/流转/工作区操作。\n- 不消除 indexer/template-conformance 里 `extractMarkdownBody` 的其余复制（既有技术债，本任务只抽 requirement-edit 一处 + 新建中立 lib；如需收敛另开任务）。\n- 不做相对图片资产解析（与现有 reader 同限制）。\n- 无 schema 变更、无新依赖、无 migration。\n\n### 依赖\n- 无外部/跨任务依赖。任务内顺序：先后端端点 + helper，再前端接线（同一交付单元内串行）。\n\n### 建议 owner\n`ccb_codex`（全栈实施）。Claude 任务后审查。\n",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    }
+  ],
+  "requirement_id": "cmpy6tq9ub50045ca16560b82",
+  "carrier_task_id": "cmpy6tq9ub50045ca16560b82",
+  "review_history": [
+    {
+      "at": "2026-06-04T08:34:41.875Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-06-04T08:46:49.484Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "用户 /ccb:su-materialize-requirement 授权；payload expected_hash 与盘上不符(Console 投影滞后)，按 ADR-0037 以盘上 draft 为真相驱动审查流"
+    },
+    {
+      "at": "2026-06-04T08:46:49.603Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "用户经 Console materialize 命令批准当前 draft"
+    },
+    {
+      "at": "2026-06-04T08:46:49.791Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-06-04T08:46:49.603Z",
+  "approved_by": "user",
+  "consumed_at": "2026-06-04T08:46:49.791Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "1cc16632ec4f9447249744de23f2d0e2663cc9d8577315adbf98e10a86060266"
+}
