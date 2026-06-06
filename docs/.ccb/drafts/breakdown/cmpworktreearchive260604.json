@@ -1,0 +1,105 @@
+{
+  "schema_version": "breakdown-draft-v0.2",
+  "status": "consumed",
+  "carrier_task_key": "worktree-archive-layering",
+  "base_task_revision": null,
+  "generated_at": "2026-06-04T16:10:02.515Z",
+  "updated_at": "2026-06-06T08:12:35.502Z",
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot2_claude",
+    "cx_agent": "slot2_codex",
+    "ccb_job_id": "job_cd3d15a2eb9f"
+  },
+  "plan": {
+    "title": "per-需求 worktree 归档分层修复 + 合并后预览式归档",
+    "summary": "修 ADR-0036 子任务级归档漂移 bug(A) + 合并后预览式归档交互(B)。4 子任务串行：PR1 worktree lib 全 split 地基 + A 修复 + finalize 解耦；PR2 B 交互(merged 暂停+手动归档+reopen)；PR3 Console rollup；PR4 ADR+副本 sync。owner 均 ccb_codex。",
+    "spec_outline_md": "## 交付目标\n修 ADR-0036 子任务级归档漂移 bug（A，多子任务串行第 2 个 `ensure` 撞 `already archived`）+ 合并后预览式归档交互（B）。依据技术设计 `docs/03_开发计划/per-需求worktree-归档分层修复与预览式归档-260604-技术设计.md`（consult `job_32f2decc1cf9` 共识）。\n\n## 切片（4 子任务，串行，owner 均 ccb_codex）\n- `pr1-worktree-lifecycle-split`（plugin，high）：worktree lib 全 split 地基（merge/cleanup/reopen + discard guard + canonical-sync-commit + 幂等/recovery + state 字段）+ **finalize evidence 解耦（dev_task_requirement_terminal，Codex 要求前移本 PR）** + A 修复 wiring（子任务 archive 停碰 worktree、su-batch 尾全-done-gate merge→cleanup→finalize）+ 测试。**bug A 在此修复。**\n- `pr2-merged-preview-manual-archive`（plugin，high）：插入 merged 预览暂停（su-batch 尾改 merge-only）+ 手动归档命令（cleanup+finalize）+ reopen 命令（复用实施分支返工）+ node manifests/skill 文案同步。**实现 B。**\n- `pr3-console-rollup-canonical`（su-oriel，medium）：progress-aggregation 不凭全子任务 archive 算 delivered、严绑 canonical + spec。\n- `pr4-adr-distribution-sync`（docs，medium）：修订 ADR-0036 + 同步 plugin distribution kernel 副本/指针；**不 carry 运行时 manifest**。\n\n## 共享约束 / 顺序\n- 先 A（PR1，bug 修复随地基落地，低风险）后 B（PR2，仅插暂停+加入口，不返工地基）—— 用户拍板。\n- 3 git 边界：su-ccb-claude-plugin(submodule)、su-oriel(submodule)、主仓 docs+plugin 副本。\n- PR1↔PR2 共改 `su-batch` SKILL + `archive/batch` node manifest（**串行**，PR2 依赖 PR1，非并发冲突）。\n- 串行执行（共享 per-需求 worktree），execution_order = PR1→PR2→PR3→PR4。\n\n## 不做（follow-up）\n- Console UI「归档」按钮 + `RequirementDetailPage.tsx:250`「仅 delivered 可归档」文案改。\n- remote push；payload.language 消费。",
+    "estimated_total_days": null
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-worktree-lifecycle-split",
+      "order": 1,
+      "title": "worktree 生命周期 lib 全 split 地基 + A 归档漂移修复 + finalize 解耦",
+      "summary": "拆 merge/cleanup/reopen + discard guard + canonical-sync-commit + 幂等/recovery + state 字段 + dev_task_requirement_terminal evidence；子任务 archive 停碰 worktree、su-batch 尾全-done-gate merge→cleanup→finalize；补多子任务串行测试。bug A 在此修复。",
+      "spec_section_md": "### 任务概述\n建 worktree 生命周期 lib 全 split 地基，并落地需求 A 的归档漂移 bug 修复 + finalize evidence 解耦。把最大风险的状态机/证据契约一次测透，PR2/3/4 在其上增量。\n- **bug 根因**：worktree per-需求共享，但 merge+删分支放在每个子任务 archive（`archive.node.md` 第7点 + `su-batch` 第8点组合），`ensure` 对非 `ready` fail-fast（`lib/worktree/index.mjs:314`）→ 多子任务串行第 2 个 `ensure` 撞 `already archived`。\n- **依据**：技术设计 §2/§3/§4.1/§4.2/§4.4/§4.5。\n\n### 任务分解\n1. **`lib/worktree/index.mjs` 状态机 + 拆函数**：拆旧 `archiveRequirementWorktree` →\n   - `mergeRequirementWorktree`（只吃 `ready`→`merged`；merge 回 target、**保留** worktree+分支）\n   - `cleanupRequirementWorktree`（只吃 `merged`→`archived`；branch tip 须为 target 祖先后再 remove + `branch -d`）\n   - `reopenRequirementWorktree`（只吃 `merged`→`ready`；不碰 git，校验 worktree+分支在 + worktree clean，dirty→escalation）\n   - `discardRequirementWorktree` **补 guard**：只允 `ready→discarded`（现完全不看 status）\n   - 旧 `archiveRequirementWorktree` 留 compat wrapper(merge+cleanup)\n   - state 新增 optional：`status` 枚举加 `merged`；`merged_branch_sha`/`target_sha_after_merge`/`merged_at`/`reopened_at`。**schema_version 不 bump**（零迁移）。\n2. **canonical-sync-commit（§4.1）**：merge 前只 `git add` 本需求 CCB-owned allowlist（本 req dev_task paths + `docs/02` 本 req md + `docs/00_文档地图.md` + `docs/.ccb/events/journal.jsonl` + `docs/.ccb/worktrees/<req>.json` + `docs/.ccb/drafts/breakdown/<req>.json`）→ commit；**allowlist 外 dirty → escalation `canonical_dirty_outside_allowlist`**。不 broad add 目录。\n3. **幂等/recovery（§4.2/§4.5）**：merge 时 branch tip 已是 target 祖先 → no-op 补写 `merged`；否则 merge，冲突 `merge --abort`+escalation。cleanup 时 git 实况已清而 state 未写 → 补写 `archived`。\n4. **finalize evidence 解耦（§4.4，Codex 要求前移本 PR）**：`lib/capability-outcome` 新增 evidence check `dev_task_requirement_terminal`（requirement 域，扫全部非 cancelled dev_task 终态，**不查 `batch_authorization_completed`**）；`capability-outcome-policy.yaml` finalize policy additive 接受；regen `generated-policy.mjs`。\n5. **wiring（A 修复）**：子任务 archive 停止调 worktree 收尾、只写 done（`status:done/current_node:archive/review_status:passed`）；`su-batch` 尾部新 helper `isRequirementFullyTerminal`（扫全部 dev_task 按 `requirement_id` 聚合，全非 cancelled done+archive+passed、无未物化 approved follow-up）→ 真则 `merge→cleanup→finalize`（用新 evidence）。\n6. **测试**：`worktree.test.mjs` 补多子任务串行（ensure→done→ensure 复用 noop）、`ready→merged→archived`、discard guard、sync-commit allowlist、cleanup ancestor、merge/cleanup recovery；`evidence-registry` `dev_task_requirement_terminal` 单测。\n\n### 验收标准\n- [ ] 多子任务串行：`ensure→(子任务 done 不碰 worktree)→ensure` 复用 noop，不再撞 `already archived`。\n- [ ] **跨多 batch 全需求 done → finalize 成功**（不再卡 `batch_authorization_completed` scope）。\n- [ ] canonical-sync-commit：allowlist 内提交、allowlist 外 dirty→escalation（测试覆盖）。\n- [ ] cleanup ancestor 校验、merge/cleanup recovery 重入（测试覆盖）。\n- [ ] 全 lib + evidence 测试绿；plugin typecheck 过。\n- [ ] `reopen` 函数已实现但**命令入口未启用**（PR2 接）——回执须注明「函数存在、入口未启用」。\n\n### 边界 / 不做\n- 不引入 merged 预览暂停（su-batch 尾此 PR 仍 `merge→cleanup→finalize` 背靠背）；不做手动归档/reopen 命令入口（PR2）。\n- 不碰 Console/su-oriel（PR3）；不碰 ADR/分发副本（PR4）。\n- node manifest 仅改 A 行为必需处（子任务 archive 不碰 worktree）；B 语义文案 PR2。\n\n### 依赖 / 执行注意\n- 无前置依赖。**最大子任务**，验收须覆盖 recovery/allowlist-dirty/finalize-evidence（Codex 风险1，否则回执不可信）。\n- 与 PR2 共改 `su-batch` SKILL / `archive.node.md`（串行，PR2 依赖本 PR）。\n- plugin 是 submodule：按既有 worktree 流程；本 PR 改 kernel 真相源，分发副本 sync 留 PR4。\n- 别在主仓跑 server test（`db:prepare` 清 dev.db）。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr2-merged-preview-manual-archive",
+      "order": 2,
+      "title": "B 交互：merged 预览暂停 + 手动归档命令 + reopen",
+      "summary": "su-batch 尾改 merge-only(进 merged 停) + 手动归档(cleanup+finalize) + reopen 命令(复用实施分支返工) + node manifests/skill 文案同步。仅插暂停+加入口，不返工 PR1 地基。",
+      "spec_section_md": "### 任务概述\n在 PR1 全 split 地基上插入「合并后预览暂停」并加用户入口，实现需求 B：su-batch 尾改 merge-only（进 `merged` 停）、手动归档命令（cleanup+finalize）、reopen 命令（复用实施分支返工）。依据技术设计 §4.3/§4.4/§4.5、§三决策5，及用户拍板（复用实施分支 + 显式 reopen）。\n\n### 任务分解\n1. **`su-batch` 尾部改 merge-only**：从 PR1 的 `merge→cleanup→finalize` 背靠背改为**只 merge**（进 `merged`，requirement 保持 `delivering`），不 cleanup、不 finalize。\n2. **手动归档命令（`su-archive` 需求级模式）**：requirement `delivering+merged` → `cleanupRequirementWorktree`（成功）→ `requirement.finalize`（delivered，用 PR1 的 `dev_task_requirement_terminal` evidence + `requirement_finalize_expected_hash`）。**支持 `archived` + 仍 `delivering` 的 finalize-only recovery 重入**（cleanup 成功但 finalize CAS 失败不卡死）。\n3. **reopen 命令 / skill 入口**：`merged→ready`（接 PR1 `reopenRequirementWorktree`），返工后再走 su-batch / merge。\n4. **node manifests + skill 文案**：`archive.node.md` / `batch.node.md` 同步（归档上提需求级、finalize 移手动、merged/reopen 语义）；`su-archive` / `su-quick-archive` SKILL 调用点改（禁子任务级 worktree 收尾、需求级手动归档入口）。\n5. lib 只补命令入口需要的薄封装，**不重构 PR1 核心**。\n\n### 验收标准\n- [ ] autonomous-batch 全需求 done → 进 `merged`、requirement 仍 `delivering`、worktree+分支**保留可预览**。\n- [ ] 手动归档命令 → cleanup+finalize → requirement `delivered`、worktree+分支删除。\n- [ ] cleanup 成功但 finalize 失败 → 重入 finalize-only 不卡死。\n- [ ] reopen → 在实施分支追加 commit → 再 merge 幂等（祖先 no-op / 真合并两路）。\n- [ ] manifest/skill 文案与新行为一致；相关测试绿。\n\n### 边界 / 不做\n- **不做** Console UI「归档」按钮 + `RequirementDetailPage.tsx:250`「仅 delivered 可归档」文案改（follow-up；仅在 manifest 记「勿作唯一真相」提示）。\n- 不重构 PR1 lib 核心（只加入口）。不碰 rollup（PR3）、ADR/副本（PR4）。\n\n### 依赖 / 执行注意\n- 依赖 **PR1**（`merge`/`cleanup`/`reopen` 函数 + `dev_task_requirement_terminal` evidence）。\n- 与 PR1 共改 `su-batch` SKILL + `archive.node.md`（串行，本 PR 在 PR1 之后；非并发冲突）。\n- plugin submodule worktree 流程；分发副本 sync 留 PR4。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr1-worktree-lifecycle-split"
+      ],
+      "include": true
+    },
+    {
+      "section_id": "pr3-console-rollup-canonical",
+      "order": 3,
+      "title": "Console rollup 严绑 canonical（不凭子任务 archive 算 delivered）",
+      "summary": "progress-aggregation.ts 全子任务 archive 但 canonical 非 delivered 时算 delivering、delivered 只镜像 canonical + spec。",
+      "spec_section_md": "### 任务概述\n修 Console rollup 语义漂移：`progress-aggregation.ts` 不再仅凭「全子任务 archive」算 `delivered`，`delivered` 严绑 canonical `Requirement.status`。依据技术设计 §三决策（claim4 收窄：web 已用 canonical、无 UI 误报，但投影层 `rollupStatus` 会提前 delivered）/§五。\n\n### 任务分解\n1. `su-oriel/server/src/modules/task/progress-aggregation.ts`：`computeRequirementAggregation` 的 `computedStatus` 逻辑——全子任务 `currentNode==archive` 但 canonical 非 `delivered` 时算 `delivering`（**不算 `delivered`**）；`delivered` 只镜像 canonical。\n2. 补/改 `progress-aggregation.spec.ts`：全 archive + canonical `delivering` → `delivering`；canonical `delivered` → `delivered`。\n3.（可选，非必须）派生标签「已合并待归档」仅子任务级展示，不改 canonical（按 §三决策5）。\n\n### 验收标准\n- [ ] 全子任务 archive 但 requirement canonical=`delivering`（merged 待归档）→ rollup **不报 `delivered`**。\n- [ ] canonical=`delivered` → rollup `delivered`。\n- [ ] spec 绿；su-oriel typecheck / web 不回归。\n\n### 边界 / 不做\n- 不碰 plugin lib/manifest；不改 canonical 写入路径（rollup 只读派生）；不做 UI 按钮。\n\n### 依赖 / 执行注意\n- 依赖 **PR1**（语义前提）。**独立于 PR2 可实施**（canonical-bound 在 A 阶段 finalize→delivered 与 B 阶段 merged+delivering 都正确）；建议 PR2 后校验最终语义。\n- su-oriel 是 submodule；勿在主仓跑 server test（`db:prepare` 清 dev.db）。",
+      "priority": "medium",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr1-worktree-lifecycle-split"
+      ],
+      "include": true
+    },
+    {
+      "section_id": "pr4-adr-distribution-sync",
+      "order": 4,
+      "title": "ADR-0036 修订 + plugin 分发副本/指针同步",
+      "summary": "修订 ADR-0036(merged/reopen/手动归档,merged 非终态) + 同步 kernel 真相源到分发副本/submodule 指针。不 carry 运行时 manifest。",
+      "spec_section_md": "### 任务概述\n固化决策与分发：修订 ADR-0036（新增 `merged` 中间态、`merged→ready` reopen、合并后预览式手动归档；`merged` 非终态）+ 同步 plugin distribution kernel 副本 / submodule 指针。**不 carry 任何运行时 manifest 修正**（那些随 PR1/PR2 行为改）。依据技术设计 §八/变更记录，及 Codex 明确（PR4 只做 ADR/主仓文档/分发副本/指针）。\n\n### 任务分解\n1. `docs/06_决策记录/ADR-0036-*.md`：修订记录新状态机（`missing→ready→merged→archived` + `ready→discarded` + `merged→ready` reopen）、合并后预览式手动归档、`finalize` 绑手动 cleanup 之后、canonical-sync-commit allowlist 决策；标注 amends 关系（merged 不再近终态）。\n2. **plugin distribution kernel 副本同步**：主仓 `references/kernel/` 真相源（worktree/evidence/manifest 改动）→ 下游 distribution snapshot hard-copy 一致。\n3. submodule 指针 bump（如涉及）。\n\n### 验收标准\n- [ ] ADR-0036 反映最终设计，与技术设计/代码一致。\n- [ ] kernel 真相源与分发副本一致（无漂移）。\n- [ ] **仅文档/副本/指针，无运行时 manifest 行为改动混入**。\n\n### 边界 / 不做\n- 不改任何 lib/manifest 运行时行为（PR1/PR2 已做）；不碰 Console。\n\n### 依赖 / 执行注意\n- 依赖 **PR1+PR2+PR3 定稿**（最后做）。\n- 跨主仓 + plugin submodule；回执分列两 repo 状态。",
+      "priority": "medium",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr1-worktree-lifecycle-split",
+        "pr2-merged-preview-manual-archive",
+        "pr3-console-rollup-canonical"
+      ],
+      "include": true
+    }
+  ],
+  "requirement_id": "cmpworktreearchive260604",
+  "carrier_task_id": "cmpworktreearchive260604",
+  "review_history": [
+    {
+      "at": "2026-06-04T16:10:02.521Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-06-06T08:12:34.954Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "Console su-materialize-requirement received (job_a31b32e9526d); begin review for materialization"
+    },
+    {
+      "at": "2026-06-06T08:12:35.052Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "user approval carried by Console materialize command (expected_hash 052a21ce...); consult job_be9a4317bbcd: draft executable, no code drift"
+    },
+    {
+      "at": "2026-06-06T08:12:35.502Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-06-06T08:12:35.052Z",
+  "approved_by": "user",
+  "consumed_at": "2026-06-06T08:12:35.502Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "0d9d990c7e64a4f3fbee2476deb0e7adac5d696afba2fc3dd0557b74752a53ba"
+}
