@@ -3,8 +3,8 @@ doc_type: dev_task
 task_id: subtask-a49275357378
 title: ProjectSlotTopology 纯计算服务 + Prisma schema 两字段
 status: reviewing
-current_node: dispatch
-node_substate: awaiting_codex_pickup
+current_node: implementation
+node_substate: implementing
 priority: high
 requirement_id: cmmq2a2x3p25029cbd6d21ff1
 section_id: pr1-slot-topology-schema
@@ -14,6 +14,8 @@ dependencies: []
 source_breakdown_draft: docs/.ccb/drafts/breakdown/cmmq2a2x3p25029cbd6d21ff1.json
 source_draft_hash: d59d78137cdefb29c8589355c4c91fd32b4027006f16872f1b8e9e594060343a
 created_at: 2026-06-06T15:09:08.542Z
+updated_at: 2026-06-06T15:21:58.467Z
+updated_by: slot3_claude
 code_workspace: {"path":"../SU-CCB-req-cmmq2a2x3p25029cbd6d21ff1","branch":"ccb/req-cmmq2a2x3p25029cbd6d21ff1"}
 ---
 

@@ -4,7 +4,7 @@ title: BUG：cleanup 含 submodule 的 worktree 必拒 + git 异常未包装 esc
 doc_type: requirement
 created: 2026-06-06T10:05:00.000Z
 updated: 2026-06-06T10:05:00.000Z
-status: planning
+status: delivered
 source: archive-reflection (req cmpworktreearchive260604 收尾实战)
 parent_epic: v1.0 plugin sovereignty
 references:

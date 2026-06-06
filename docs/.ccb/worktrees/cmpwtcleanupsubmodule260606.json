@@ -1,11 +1,45 @@
 {
   "schema_version": "requirement-worktree-v0.1",
   "requirement_id": "cmpwtcleanupsubmodule260606",
-  "status": "ready",
+  "status": "archived",
   "path": "../SU-CCB-req-cmpwtcleanupsubmodule260606",
   "branch": "ccb/req-cmpwtcleanupsubmodule260606",
   "confirmed_target_branch": "main",
   "base_sha": "4973e3cf4f87da3f31e1a63da6728082228fc749",
   "created_at": "2026-06-06T13:47:02.866Z",
-  "updated_at": "2026-06-06T13:47:02.866Z"
+  "updated_at": "2026-06-06T15:04:30.934Z",
+  "merged_branch_sha": "e1c035aabacbb59afb8525042fcee4a3294bbd03",
+  "target_sha_after_merge": "f14b3f26ec6facbcc1d38a4644634f2ff1a30d7d",
+  "merged_at": "2026-06-06T14:05:34.759Z",
+  "merge": {
+    "target_branch": "main",
+    "warnings": [],
+    "canonical_sync": {
+      "status": "committed",
+      "committed": true,
+      "commitSha": "70c8d707673eed3c7a84c6e4ebdceb0eb7b4423a",
+      "paths": [
+        "docs/.ccb/events/journal.jsonl",
+        "docs/00_文档地图.md",
+        "docs/.ccb/drafts/breakdown/cmpwtcleanupsubmodule260606.json",
+        "docs/.ccb/worktrees/cmpwtcleanupsubmodule260606.json",
+        "docs/03_开发计划/cleanup-删除段结构化-submodule-force-重试-escalation-包装-locale-固定-b25402-开发任务.md"
+      ],
+      "allowlist": [
+        "docs/02_需求设计/bug-worktree-cleanup-submodule-260606-需求.md",
+        "docs/03_开发计划/cleanup-删除段结构化-submodule-force-重试-escalation-包装-locale-固定-b25402-开发任务.md",
+        "docs/00_文档地图.md",
+        "docs/.ccb/events/journal.jsonl",
+        "docs/.ccb/worktrees/cmpwtcleanupsubmodule260606.json",
+        "docs/.ccb/drafts/breakdown/cmpwtcleanupsubmodule260606.json"
+      ]
+    },
+    "merge_stdout": "Merge made by the 'ort' strategy.\n su-ccb-claude-plugin | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n",
+    "merge_stderr": ""
+  },
+  "archived_at": "2026-06-06T15:04:30.934Z",
+  "archive": {
+    "target_branch": "main",
+    "branch_sha": "e1c035aabacbb59afb8525042fcee4a3294bbd03"
+  }
 }
