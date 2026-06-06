@@ -1,11 +1,48 @@
 {
   "schema_version": "requirement-worktree-v0.1",
   "requirement_id": "cmq23elzh081b0a36b7726299",
-  "status": "ready",
+  "status": "archived",
   "path": "../SU-CCB-req-cmq23elzh081b0a36b7726299",
   "branch": "ccb/req-cmq23elzh081b0a36b7726299",
   "confirmed_target_branch": "main",
   "base_sha": "a67e26c72041b919bc82c2b226d63094318e809b",
   "created_at": "2026-06-06T12:31:19.485Z",
-  "updated_at": "2026-06-06T12:31:19.485Z"
+  "updated_at": "2026-06-06T14:00:34.133Z",
+  "merged_branch_sha": "e85e620cad04da784950b33045b1e2492c92162e",
+  "target_sha_after_merge": "ba4797c80508f514c5b0d15d02a84d6504379ff9",
+  "merged_at": "2026-06-06T13:08:57.103Z",
+  "merge": {
+    "target_branch": "main",
+    "warnings": [],
+    "canonical_sync": {
+      "status": "committed",
+      "committed": true,
+      "commitSha": "4b6ba9a5e261658eb16960fba9cd2dabb7ca2fbc",
+      "paths": [
+        "docs/.ccb/events/journal.jsonl",
+        "docs/00_文档地图.md",
+        "docs/03_开发计划/lib-候选发现接口升级-detectarchitecturecandidates-测试全向量-e2f1fd-开发任务.md",
+        "docs/03_开发计划/skill-三模式分层生成规程改写-1db492-修订注记-1f82d5-开发任务.md",
+        "docs/03_开发计划/契约三副本-scope-注释同步-架构模板-frontmatter-说明-c05308-开发任务.md",
+        "docs/.ccb/worktrees/cmq23elzh081b0a36b7726299.json"
+      ],
+      "allowlist": [
+        "docs/02_需求设计/su-init-架构生成支持多源码根多子项目分层生成-726299-需求.md",
+        "docs/03_开发计划/lib-候选发现接口升级-detectarchitecturecandidates-测试全向量-e2f1fd-开发任务.md",
+        "docs/03_开发计划/skill-三模式分层生成规程改写-1db492-修订注记-1f82d5-开发任务.md",
+        "docs/03_开发计划/契约三副本-scope-注释同步-架构模板-frontmatter-说明-c05308-开发任务.md",
+        "docs/00_文档地图.md",
+        "docs/.ccb/events/journal.jsonl",
+        "docs/.ccb/worktrees/cmq23elzh081b0a36b7726299.json",
+        "docs/.ccb/drafts/breakdown/cmq23elzh081b0a36b7726299.json"
+      ]
+    },
+    "merge_stdout": "Merge made by the 'ort' strategy.\n docs/.ccb/docs-structure-contract.yaml                                 | 3 +++\n ...236\\204-1db492-\\346\\212\\200\\346\\234\\257\\350\\256\\276\\350\\256\\241.md\" | 2 ++\n 2 files changed, 5 insertions(+)\n",
+    "merge_stderr": ""
+  },
+  "archived_at": "2026-06-06T14:00:34.133Z",
+  "archive": {
+    "target_branch": "main",
+    "branch_sha": "e85e620cad04da784950b33045b1e2492c92162e"
+  }
 }
