@@ -2,9 +2,10 @@
 doc_type: dev_task
 task_id: subtask-fc433baac395
 title: Console 取消 UX：去 danger + 原因输入 + 级联影响文案 + 终态反馈
-status: reviewing
-current_node: dispatch
-node_substate: awaiting_codex_pickup
+status: done
+current_node: archive
+node_substate: archived
+review_status: passed
 priority: medium
 requirement_id: cmpzllxw73320bc3428913778
 section_id: pr1-console-cancel-ux
@@ -14,6 +15,8 @@ dependencies: []
 source_breakdown_draft: docs/.ccb/drafts/breakdown/cmpzllxw73320bc3428913778.json
 source_draft_hash: acb5232bfcd1c86c58b5b511afaca3f63f1ac749fd999d0c2a1edba3f6c421b1
 created_at: 2026-06-06T09:05:52.211Z
+updated_at: 2026-06-06T10:15:13.063Z
+updated_by: ccb_claude
 code_workspace: {"path":"../SU-CCB-req-cmpzllxw73320bc3428913778","branch":"ccb/req-cmpzllxw73320bc3428913778"}
 ---
 
