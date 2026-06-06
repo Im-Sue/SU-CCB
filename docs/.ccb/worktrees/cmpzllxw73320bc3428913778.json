@@ -1,11 +1,48 @@
 {
   "schema_version": "requirement-worktree-v0.1",
   "requirement_id": "cmpzllxw73320bc3428913778",
-  "status": "ready",
+  "status": "archived",
   "path": "../SU-CCB-req-cmpzllxw73320bc3428913778",
   "branch": "ccb/req-cmpzllxw73320bc3428913778",
   "confirmed_target_branch": "main",
   "base_sha": "92da57ff1227423d2ef6a08053b51e1d5910315c",
   "created_at": "2026-06-06T09:55:46.971Z",
-  "updated_at": "2026-06-06T09:55:46.971Z"
+  "updated_at": "2026-06-06T12:56:10.577Z",
+  "merged_branch_sha": "e5caacdb07c65acdded6f500edd3128c0b937bd5",
+  "target_sha_after_merge": "a67e26c72041b919bc82c2b226d63094318e809b",
+  "merged_at": "2026-06-06T12:28:20.827Z",
+  "merge": {
+    "target_branch": "main",
+    "warnings": [],
+    "canonical_sync": {
+      "status": "committed",
+      "committed": true,
+      "commitSha": "a4db7349df6b94bf115c3d3f9076be5177328b9f",
+      "paths": [
+        "docs/.ccb/events/journal.jsonl",
+        "docs/00_文档地图.md",
+        "docs/03_开发计划/console-server-运行态闭环-双-gate-supersede-reconcile-释放-slot-e2e--a40964-开发任务.md",
+        "docs/03_开发计划/console-取消-ux-去-danger-原因输入-级联影响文案-终态反馈-aac395-开发任务.md",
+        "docs/03_开发计划/plugin-kernel-取消硬化核心-cancel-lib-编排-guards-policy-registry-枚举-81c00b-开发任务.md",
+        "docs/.ccb/worktrees/cmpzllxw73320bc3428913778.json"
+      ],
+      "allowlist": [
+        "docs/02_需求设计/当前ui界面和plugin似乎缺少取消需求的指令-913778-需求.md",
+        "docs/03_开发计划/console-server-运行态闭环-双-gate-supersede-reconcile-释放-slot-e2e--a40964-开发任务.md",
+        "docs/03_开发计划/console-取消-ux-去-danger-原因输入-级联影响文案-终态反馈-aac395-开发任务.md",
+        "docs/03_开发计划/plugin-kernel-取消硬化核心-cancel-lib-编排-guards-policy-registry-枚举-81c00b-开发任务.md",
+        "docs/00_文档地图.md",
+        "docs/.ccb/events/journal.jsonl",
+        "docs/.ccb/worktrees/cmpzllxw73320bc3428913778.json",
+        "docs/.ccb/drafts/breakdown/cmpzllxw73320bc3428913778.json"
+      ]
+    },
+    "merge_stdout": "Merge made by the 'ort' strategy.\n su-ccb-claude-plugin | 2 +-\n su-oriel             | 2 +-\n 2 files changed, 2 insertions(+), 2 deletions(-)\n",
+    "merge_stderr": ""
+  },
+  "archived_at": "2026-06-06T12:56:10.577Z",
+  "archive": {
+    "target_branch": "main",
+    "branch_sha": "e5caacdb07c65acdded6f500edd3128c0b937bd5"
+  }
 }

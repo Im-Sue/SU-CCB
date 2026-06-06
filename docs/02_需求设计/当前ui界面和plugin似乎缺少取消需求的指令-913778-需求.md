@@ -2,7 +2,7 @@
 id: cmpzllxw73320bc3428913778
 title: 当前UI界面和plugin似乎缺少取消需求的指令
 doc_type: requirement
-status: planning
+status: delivered
 created: 2026-06-04T14:36:20.312Z
 analysis_input_hash: e48ce1c4f379a6fe04063d0cec57e0daf12baa594dfa19838e19c212da26c360
 analysis_applied_at: 2026-06-04T16:04:18.328Z
