@@ -1,0 +1,89 @@
+{
+  "schema_version": "breakdown-draft-v0.2",
+  "status": "consumed",
+  "carrier_task_key": "requirement-cancel-closure",
+  "base_task_revision": null,
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot2_claude",
+    "cx_agent": "slot2_codex",
+    "ccb_job_id": "job_575fa0a2a79d"
+  },
+  "plan": {
+    "title": "需求取消指令闭环（L1 UI + L2 硬化 + 级联 + 漂移修复）",
+    "summary": "把已存在但未闭环的取消链路硬化为「墓碑先行·全步幂等可重入·capability 唯一状态写入口」级联操作。3 子任务串行：pr1 Console 取消 UX（claude）；pr2 plugin/kernel 取消硬化核心（ccb_codex，跨需求依赖 260604 PR1）；pr3 Console server 运行态+E2E 冒烟（ccb_codex）。5 个设计拍板项随本 draft 一并审批。",
+    "spec_outline_md": "## 交付目标\n让「取消」成为用户一步发起、即时可见、语义闭环、级联完整、符合状态规范的操作。依据技术设计 `docs/03_开发计划/需求取消指令闭环-913778-技术设计.md` v1.1（设计协商 job_9a23122a78bd + 拆分协商 job_575fa0a2a79d 共识）。\n\n## 切片（3 子任务，串行，共享 per-需求 worktree）\n- `pr1-console-cancel-ux`（su-oriel web，**claude**，medium）：菜单项去 danger + 确认弹窗 reason 输入 + 级联影响文案 + 派出后「取消执行中」banner/终态 toast。\n- `pr2-plugin-cancel-hardening`（plugin+kernel，ccb_codex，high）：[NEW] lib/requirement-cancel 六步编排 + cancel/defer/subtask guard + policy/registry 补齐 + 枚举漂移修复 + SKILL.md 重写 + 单测矩阵。**跨需求依赖 cmpworktreearchive260604 PR1 先合并**（worktree split：cleanupRequirementWorktree + discard guard）。\n- `pr3-console-cancel-runtime`（su-oriel server，ccb_codex，high）：anchor-dispatch 双 gate + supersede + reconcile 释放 slot + superseded 消费方 sweep + generated policy 重生 + **E2E 实机冒烟收尾**。\n\n## 用户拍板项（批 draft = 按建议默认执行；否决任一请 su-revise-breakdown 或回设计）\n| # | 事项 | 建议 |\n|---|------|------|\n| ① | deferred → cancelled 直达（免先复活再取消） | 允许 |\n| ② | 新增 subtask.cancel capability + global.yaml 补注册 cancel/defer/finalize 存量漂移 | 批准 |\n| ③ | requirement.defer 顺带 terminal guard（仅护栏） | 批准 |\n| ④ | 非抢占语义 + cancelled 白名单 409（仅放行 su-cancel 重入/su-reactivate） | 确认 |\n| ⑤ | 退休 disabled requirement.analyze:analyzed policy（否则枚举 sweep 永有 analyzed 残留） | 批准 |\n\n## 共享约束 / 顺序\n- 串行 pr1→pr2→pr3（E2E 冒烟需全部合并；pr3 依赖 pr1 UX + pr2 语义）。\n- **跨需求依赖**：pr2 的 worktree state-aware 步（merged→cleanup）依赖 260604 PR1（现 awaiting_codex_pickup）；若排期被迫并行，fallback=pr2 先落 capability/kernel/cancel core，worktree merged 分支延后补，不自造兼容 helper。\n- 3 git 边界：su-oriel(submodule，pr1/pr3)、su-ccb-claude-plugin(submodule，pr2)、主仓 docs。\n- 历史不 sweep：journal/ADR/state lastTransitionId 均 append-only 保留。\n\n## 不做（设计明确排除）\n- 列表页取消入口；defer/reactivate 的 skill 级全面硬化；job 自动抢占；取消回收站；reactivate transitions 文档化；Console 写业务真相。",
+    "estimated_total_days": null
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-console-cancel-ux",
+      "order": 1,
+      "title": "Console 取消 UX：去 danger + 原因输入 + 级联影响文案 + 终态反馈",
+      "summary": "菜单项 danger→ghost；确认弹窗加 reason 输入与级联影响复述 + slot busy 非抢占提示；payload 带 reason；「取消执行中」banner→投影 cancelled 成功 toast / capability_outcome_rejected 失败 toast；409 错误文案兜底。",
+      "spec_section_md": "### 任务概述\n实现需求 L1：取消按钮普通化 + 原因输入 + 派出后终态反馈，消除「点了没反应」。依据技术设计 §二/§七/§八 L1 组；用户已拍板（去 danger、保留弹窗、原因建议填写允许为空、弹窗确认+原因=must_ask_9 授权）。\n\n### 任务分解\n1. `web/src/pages/requirements/RequirementDetailPage.tsx`：LIFECYCLE_ACTIONS 渲染处（约 :972）su-cancel 菜单项 `variant=\"danger\"` → `\"ghost\"`（与暂缓/复活一致）；确认弹窗确认按钮同步去 danger（用 primary）。\n2. 确认弹窗（约 :1308-1341）：增加级联影响复述文案（需求→cancelled、非终态子任务级联取消、breakdown draft 删除、worktree 不可逆舍弃、slot 释放）+「取消原因」输入框（复用 slot-release 弹窗 Input 模式，约 :1198-1247；placeholder 建议填写、允许为空）。\n3. slot busy 时弹窗附非抢占提示：取消将排队在当前任务之后生效；如需立即中断可到 Slots 页 cancel-current-job。\n4. payload：`handleDispatchLifecycleCommand` 对 su-cancel 携带 `{reason}`（trim 后非空才带）；`web/src/lib/console-api.ts` dispatch 类型对齐。\n5. 终态反馈：沿用 pendingDispatches reconcile（queued/submitted/failed toast）；新增「取消执行中」banner——su-cancel job submitted 后挂起，10s reindex 轮询见投影 status=cancelled → 成功 toast + banner 收敛；fetchEventJournalEvents 见该需求 `capability_outcome_rejected` → 失败 toast + banner 转错误态。\n6. 409 错误文案兜底：dispatch 失败 toast 透出 server message（pr3 未合并时无新 code 也不破坏现有行为，向前兼容）。\n\n### 验收标准\n- [ ] 菜单项与弹窗确认按钮均无 danger 样式；弹窗含级联影响复述 + reason 输入。\n- [ ] 派出 payload 含 reason（空则省略 key）；slot busy 场景出现非抢占提示。\n- [ ] banner 全链路：派出→执行中→投影 cancelled 成功收敛；rejected 事件转失败。\n- [ ] web typecheck/lint/build 过；不触碰 server 代码。\n\n### 边界 / 不做\n- 不碰 su-oriel server 与 plugin（pr3/pr2 范围）；不做列表页取消入口；不改其它 lifecycle 动作样式语义。\n\n### 依赖 / 执行注意\n- 无前置依赖（409 新 code 文案向前兼容 pr3）。su-oriel 是 submodule，按既有需求 worktree 流程；owner=claude 亲自实施。",
+      "priority": "medium",
+      "implementation_owner": "claude",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr2-plugin-cancel-hardening",
+      "order": 2,
+      "title": "plugin/kernel 取消硬化核心：cancel lib 编排 + guards/policy/registry + 枚举漂移修复 + SKILL 重写",
+      "summary": "[NEW] lib/requirement-cancel（六步编排+resumeMode+state-aware worktree+listDevTasksByRequirement）；validateExecutableGuards 增 cancel/defer/subtask 分支；policy 增 subtask.cancel+退休 analyze disabled 条目；global.yaml 补注册；state-schema/lifecycle/transition-table 枚举修复+generated-policy 重生；su-cancel SKILL.md 重写。跨需求依赖 260604 PR1。",
+      "spec_section_md": "### 任务概述\n取消语义闭环核心：状态写全部收口 applyCapabilityOutcome，墓碑先行+全步幂等可重入，级联完整。依据技术设计 §三/§四/§六（v1.1）。\n\n### 任务分解\n1. **[NEW] `lib/requirement-cancel/index.mjs`**：`cancelRequirement({projectRoot,requirementId,reason,sourceActor,dispatchRef})` 六步编排——①resolve+前置（delivered→拒；cancelled→resumeMode 续清理）②append `user_cancel_authorized` 事件（reason/dispatchRef/idempotency_key）→ `applyCapabilityOutcome(requirement.cancel, expectedHash, mustAskRefs:[must_ask_9], evidence:[A file_exists, B journal_event_exists 指向授权事件])` 墓碑③`listDevTasksByRequirement`（新 helper，参考 lib/reconcile 扫描模式）→ status∉{done,cancelled} 逐个 `applyCapabilityOutcome(subtask.cancel, expectedHash)`，CAS_CONFLICT→重读重判④readBreakdownDraft 探测→有则 deleteBreakdownDraft/无则 skip⑤worktree state-aware：ready→discardRequirementWorktree(force) / merged→cleanupRequirementWorktree(260604 PR1) / missing|archived|discarded→skip⑥append `requirement_cancel_cascade_completed` 汇总（cancelled_task_ids/skipped/resumed/issues）。`cancelSubtask` 单任务同构。返回 {ok,noop,resumed,steps,issues}。\n2. **guards**：`validateExecutableGuards` 增分支 + 实现 `requirement_cancel_terminal_protection`（delivered→REJECTED/cancelled→noop）、`subtask_cancel_terminal_protection`（done→REJECTED/cancelled→noop）、defer 镜像 guard（拍板③）；guard-registry.md 注册。\n3. **policy yaml**：+`subtask.cancel:cancelled:subtask`（write_target dev_task，status set:cancelled，must_ask_refs [must_ask_9]）；requirement.cancel/defer 挂新 guard；**删除 disabled `requirement.analyze:analyzed`（拍板⑤）**。\n4. **`capabilities/global.yaml`**：按 requirement.promote 既有样式补注册 requirement.cancel/defer/finalize + subtask.cancel（拍板②）。\n5. **枚举漂移修复**：state-schema.yaml requirement_status `draft→drafting`/`analyzed→planning`；requirement_lifecycle.yaml from/to + transition id 同步重命名；cancel/defer from-list 加 deferred（拍板①）；transition-table.md 对齐；lint_manifest.py 回归；plugin `generated-policy.mjs` 重生。\n6. **`skills/su-cancel/SKILL.md` 重写**：精确 import+调用合约（对齐 su-archive 工程化程度）；错误处置表（GUARD_REJECTED/MUST_ASK_APPROVAL_MISSING/CAS_CONFLICT/LOCK_TIMEOUT）；废除「discard 完成后再写 cancelled」改墓碑先行；末步 best-effort `POST /scan`（Console 缺席容忍）。\n7. **单测矩阵**：guard 矩阵（requirement/subtask/defer × delivered拒/cancelled noop/done拒）；resumeMode 重入；draft/worktree 缺失 skip；worktree 三态分派；CAS 冲突重读重判；授权事件+B evidence 链路；must_ask 缺失拒绝。\n\n### 验收标准\n- [ ] 全新 lib 测试绿 + plugin 既有测试无回归；lint_manifest.py 过。\n- [ ] 取消后 frontmatter status=cancelled 且 journal 含授权/级联/汇总事件链。\n- [ ] 人为中断后重派 su-cancel 可 resumeMode 续清理（测试覆盖）。\n- [ ] sweep 后 kernel/lib/生成产物无 draft/analyzed 残留（journal/ADR/lastTransitionId 历史除外）。\n- [ ] SKILL.md 与 lib 行为一致，无散文式状态写入表述。\n\n### 边界 / 不做\n- 不碰 su-oriel（pr3）；不实现 reactivate transitions 文档化；不做 job 抢占；历史 journal/ADR/state 不 sweep。\n\n### 依赖 / 执行注意\n- **跨需求依赖：cmpworktreearchive260604 PR1 先合并**（提供 cleanupRequirementWorktree + worktree state 语义 + discard guard）。其 dev_task 现为 awaiting_codex_pickup；若排期被迫并行，fallback=先落 capability/kernel/cancel core（步 1①-④⑥+2-7），worktree state-aware（步 1⑤）延后依赖满足后补，不自造兼容 helper。\n- 与 260604 PR1 共改 `lib/capability-outcome`（其加 evidence check、本 PR 加 guard 分支）——串行合并消解冲突。\n- plugin 是 submodule，按既有 worktree 流程；勿在主仓跑 server test（db:prepare 清 dev.db）。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr3-console-cancel-runtime",
+      "order": 3,
+      "title": "Console server 运行态闭环：双 gate + supersede + reconcile 释放 slot + E2E 实机冒烟",
+      "summary": "anchor-dispatch 双 gate（cancel_in_progress / cancelled 白名单 409）+ enqueue 同事务 supersede；reconcile 投影 cancelled→释放 SlotBinding+兜底清 pending；superseded 消费方 sweep；generated policy 重生与 su-oriel 侧枚举 stale sweep；server 测试 + 全链路 E2E 实机冒烟收尾。",
+      "spec_section_md": "### 任务概述\nConsole 运行态闭环与竞态防护：取消排队窗口不再放进新工作，取消落地后 slot/队列资源自动回收；全需求 E2E 实机验证收尾。依据技术设计 §二 gate/reconcile、§七、§五（v1.1）。\n\n### 任务分解\n1. `server/src/modules/anchor-broker/anchor.routes.ts`（withTaskLock 同事务）：①gate-A：同需求存在 pending|submitted 的 su-cancel job 时，新 dispatch→409 `cancel_in_progress`；②gate-B：投影 status=cancelled 且 command∉{su-cancel, su-reactivate}→409 `requirement_cancelled`（白名单保 cleanup 重入与复活）；③enqueue su-cancel 时 supersede 同需求 scope（requirement+其 task ids）pending 非 cancel 队列行→status=`superseded`。\n2. reconcile（投影侧）：requirement 投影为 cancelled→释放 SlotBinding（非 busy 即释；busy 等当前 job 完成后释）+ pending 队列行兜底 supersede。\n3. **superseded 消费方 sweep**：所有只查 pending|submitted|failed 的 UI/worker/reconcile 路径适配新值（防漏展示/误处理）。\n4. `generate:capability-policy` 重生 `server/src/generated/capability-outcome-policy.ts`（基于 pr2 kernel 变更；analyzed 条目随拍板⑤消失）+ su-oriel 侧枚举 stale 引用 sweep（UI legacy alias、测试夹具；breakdown draft 的合法 draft 状态不属修复范围）。\n5. server 测试：双 gate、supersede、reconcile 释放、白名单放行；task.routes.spec.ts:299 既有「enqueue 不写业务状态」断言不回归。\n6. **E2E 实机冒烟（必做收尾）**：rebuild+重启 server，沙盒需求全链路取消（含子任务+draft+worktree）；重入路径（人为中断后重派）；取消排队窗口 gate 验证；盯日志确认投影收敛/slot 释放/banner→toast。\n\n### 验收标准\n- [ ] 双 gate 与白名单行为测试绿；supersede 同事务生效；reconcile 自动释放 slot。\n- [ ] superseded 全消费方 sweep 完成（grep 佐证）；既有断言不回归。\n- [ ] generated policy 与 pr2 kernel 一致；su-oriel 无 stale 枚举残留。\n- [ ] E2E 冒烟回执：全链路取消 + 重入 + 排队窗口三场景日志/截图证据。\n\n### 边界 / 不做\n- Console 不写业务真相（仅触发/投影/自身运行态）；不做自动抢占；不改 plugin（pr2 范围）。\n\n### 依赖 / 执行注意\n- 依赖 **pr1**（banner/UX 联测面）+ **pr2**（cancel 语义与 kernel yaml 重生源）。\n- su-oriel 是 submodule；**勿在主仓跑 server test（db:prepare 清 dev.db）**；E2E 冒烟在隔离环境 rebuild 后执行。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr1-console-cancel-ux",
+        "pr2-plugin-cancel-hardening"
+      ],
+      "include": true
+    }
+  ],
+  "generated_at": "2026-06-06T08:33:16.013Z",
+  "updated_at": "2026-06-06T09:05:52.581Z",
+  "requirement_id": "cmpzllxw73320bc3428913778",
+  "carrier_task_id": "cmpzllxw73320bc3428913778",
+  "review_history": [
+    {
+      "at": "2026-06-06T08:33:16.019Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-06-06T09:00:31.673Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "Console su-materialize-requirement received (job_149f731a630f); begin review for materialization"
+    },
+    {
+      "at": "2026-06-06T09:05:52.094Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "user approval carried by Console materialize command (expected_hash e8ab0dc1...); consult job_c64de8b99d24: draft executable, no code drift"
+    },
+    {
+      "at": "2026-06-06T09:05:52.581Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-06-06T09:05:52.094Z",
+  "approved_by": "user",
+  "consumed_at": "2026-06-06T09:05:52.581Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "acb5232bfcd1c86c58b5b511afaca3f63f1ac749fd999d0c2a1edba3f6c421b1"
+}
