@@ -1,0 +1,63 @@
+{
+  "schema_version": "breakdown-draft-v0.2",
+  "status": "consumed",
+  "requirement_id": "cmpwtcleanupsubmodule260606",
+  "base_task_revision": null,
+  "generated_at": "2026-06-06T13:21:05.642Z",
+  "updated_at": "2026-06-06T13:33:43.450Z",
+  "carrier_task_key": "worktree-cleanup-submodule-260606",
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot2_claude",
+    "cx_agent": "slot2_codex",
+    "ccb_job_id": "job_42a28c20720a"
+  },
+  "plan": {
+    "title": "cleanup 含 submodule worktree 必拒 + escalation 包装",
+    "summary": "cleanupRequirementWorktree 删除段重构为结构化 helper:普通 remove → stderr 精确命中 submodule 硬拒时 --force 重试一次 → 任何最终失败统一 escalated 结构化返回 + journal 事件,不再裸抛 GitCommandError;defaultRunGit 固定 C locale 保证文案匹配稳定。单子任务 direct 修,不拆 PR(需求 right-size 共识 + breakdown consult 双方确认:测试是验收本体不可切,交付面同一不多刀)。",
+    "spec_outline_md": "## 交付目标\n需求级手动归档 cleanup 在 superproject(含 submodule)仓上开箱即用;删除段任何 git 失败按 archive 契约返回 status:\"escalated\"(结构化 reason + journal 事件 + 现场保留),不再裸抛。\n\n## 共享约束(binding)\n- --force 仅豁免 git 的 submodule 保守拒绝,不豁免任何业务前置(merged state + porcelain 干净 + ancestor)\n- 不 -D、不 -f -f;locked worktree 仍 escalated(设计如此)\n- 不动 merge/reopen/discard;不做全 lib Git 异常治理(另立项);Console 零接触\n- 无新依赖、无 schema 变更;事件字段仅 additive\n\n## 切片\n单片 pr1-cleanup-submodule-escalation(lib + 测试一次交付,owner ccb_codex,估 0.5-1 天)。\n\n## 设计真相源\ndocs/03_开发计划/bug-worktree-cleanup-submodule-260606-技术设计.md(D1-D7);spec 与其冲突时升级,不得自行猜测。"
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-cleanup-submodule-escalation",
+      "order": 1,
+      "title": "cleanup 删除段结构化:submodule --force 重试 + escalation 包装 + locale 固定",
+      "summary": "defaultRunGit 固定 C locale;新私有 helper removeWorktreeForCleanup(remove→submodule 硬拒→--force 一次);删除段失败统一 escalated(两 reason)+ 事件 + 现场保留;archived 事件加 removal_forced;真实 submodule 哨兵 + 注入失败 4 组新测试。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "include": true,
+      "spec_section_md": "### 任务概述\nreq cmpworktreearchive260604 交付的 `cleanupRequirementWorktree` 首跑实战暴露两缺陷:git 硬拒删除含 submodule 的 worktree(本仓为 superproject,每个需求手动归档必踩);失败以 `GitCommandError` 裸抛,违反 archive manifest 的 escalated 契约。本任务按技术设计 D1-D7 重构删除段:submodule 硬拒走 `--force` 单次重试,任何最终失败转 `status:\"escalated\"` 结构化返回 + `requirement_worktree_archive_escalated` 事件。\n\n### 任务分解(全部在 su-ccb-claude-plugin 子仓)\n1. `lib/worktree/index.mjs` `defaultRunGit`(:129):execFileAsync 增加 `env: { ...process.env, ...(options.env ?? {}), LC_ALL: \"C\", LANG: \"C\", LANGUAGE: \"C\" }`(locale 三变量兜底覆盖,`options.env` 为前向兼容)。\n2. 模块级常量 `SUBMODULE_REMOVE_REJECTION = /working trees containing submodules cannot be moved or removed/` + 私有 `async function removeWorktreeForCleanup(projectRoot, absolutePath, options)` → `{ removed, forceAttempted, exitCode?, stderr?, stdout? }`:普通 remove(allowFailure)→ 非 0 且 stderr 命中 → `--force` 重试一次(allowFailure);其它非 0 不重试。\n3. cleanup 删除段(:947-954)重构:\n   - targetRecord 分支走 helper,失败 → `escalation(\"cleanup_worktree_remove_failed\", { requirementId, path, branch, forceAttempted, exitCode, stderr, stdout })`(stderr/stdout 各截断 500)+ `appendEscalationEvent` + return;\n   - remove 成功后的 branch 环节(`branchExists`(:952)存在检查 + `git branch -d`)均不得裸抛:branch -d 改 allowFailure、branchExists 的非 0/1 异常 catch,失败统一 → `escalation(\"cleanup_branch_delete_failed\", 同形态 payload)` + 事件 + return,不 `-D`。\n   - helper 命名/位置、截断函数复用或新写等实现细节执行期自决(breakdown consult 确认无需先定死)。\n4. 成功路径 `requirement_worktree_archived` 事件 payload 加 `removal_forced: boolean`——语义为**本次 cleanup 调用是否执行过 --force**(非历史事实;branch 失败重跑后的成功归档无法还原上次 forced,历史仅见前次 escalation event)。additive,不改既有字段。\n5. 测试 `lib/worktree/__tests__/worktree.test.mjs` 新增 4 用例:\n   - T1 真实 submodule 哨兵:独立 sub 仓(绝对路径 source)→ superproject `git -c protocol.file.allow=always submodule add`(cwd=superproject 根)→ 提交 .gitmodules+gitlink → ensure → worktree 内 `git -c protocol.file.allow=always submodule update --init`(cwd=requirement worktree 根)→ merge 前显式 assert porcelain 为空 → commit/merge → cleanup → 断言 archived + worktree 目录无 + `.git/worktrees/<id>`(含 `modules`)无残留 + branch 已删 + journal `requirement_worktree_archived` 含 `removal_forced: true`。\n   - T2 注入 runGit:remove 返回 `{1, submodule 文案}` 且 `--force` 也注入失败 → escalated `cleanup_worktree_remove_failed` + `forceAttempted: true` + journal 事件断言。\n   - T3 注入:remove 返回 `{1, \"is dirty\"}` → 断言注入器未收到 `--force` 调用(记录 args)→ escalated `forceAttempted: false`(精确匹配不误升级)。\n   - T4 注入器对 remove **透传真实 git**(必须真实产生删除副作用,fake success 覆盖不了真实重入),仅对 `branch -d` 注入失败 → escalated `cleanup_branch_delete_failed` + 事件;随后去掉注入真实重跑 cleanup → archived(重入恢复路径回归)。\n\n### 验收标准\n- a. 新增 4 用例 + 既有 18 用例全绿:`node --test lib/worktree/__tests__/worktree.test.mjs`(不扩展全仓测试矩阵)。\n- b. 删除段不裸抛:remove、删除段内 branch 存在检查(:952)、branch -d 三处的任何 git 失败均以 escalated 结构化返回,不向上抛 `GitCommandError`(删除段之前的前置检查与之后的 state/journal IO 不在本范围)。\n- c. escalated 现场保留(分场景):remove 失败 → worktree + branch + merged state 全保留;branch 环节失败 → worktree 已删(物理不可逆,设计如此),保留 branch + merged state,重跑 cleanup 走既有 `hasBranch && !targetRecord` 恢复路径完成归档。\n- d. 不动 merge/reopen/discard 任何行为;不 `-D`、不 `-f -f`。\n- e. 无新增依赖、无 schema 变更;`removal_forced` 为 additive 事件字段。\n\n### 边界与不做\n全 lib Git 异常治理(merge/ensure/reopen/discard 的 locked、corrupt 裸抛)另立项;locked worktree 不自动处理;Console 零接触。\n\n### 引用\n- 需求:docs/02_需求设计/bug-worktree-cleanup-submodule-260606-需求.md\n- 技术设计(真相源):docs/03_开发计划/bug-worktree-cleanup-submodule-260606-技术设计.md\n- consult 链:job_ed7bca245829(需求,Git 2.43 fixture 核验)→ job_b40ac8ff2735(设计)→ job_42a28c20720a(breakdown 可行性,owner 已接)",
+      "dependencies": []
+    }
+  ],
+  "carrier_task_id": "cmpwtcleanupsubmodule260606",
+  "review_history": [
+    {
+      "at": "2026-06-06T13:21:05.645Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-06-06T13:33:43.149Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "user-initiated materialize via Console (job_8ecd30478d67), payload hash a6d92be8 matches on-disk draft"
+    },
+    {
+      "at": "2026-06-06T13:33:43.279Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "approved via Console materialize payload hash a6d92be8; pre-materialize consult satisfied by job_42a28c20720a (same draft content, zero diff since, owner accepted) — no-new-info rule, not re-opened"
+    },
+    {
+      "at": "2026-06-06T13:33:43.450Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-06-06T13:33:43.279Z",
+  "approved_by": "user",
+  "consumed_at": "2026-06-06T13:33:43.450Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "67b6acdd58c12ef06f21bfad86f3edbfc2a5da9cec9a2f14f4e5ccd19b4a00ee"
+}
