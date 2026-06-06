@@ -1,6 +1,6 @@
 {
   "schema_version": "breakdown-draft-v0.2",
-  "status": "draft",
+  "status": "consumed",
   "carrier_task_key": "oriel-dynamic-slots-d21ff1",
   "base_task_revision": null,
   "generated_by": "ai_session",
@@ -109,7 +109,7 @@
     }
   ],
   "generated_at": "2026-06-06T12:14:07.786Z",
-  "updated_at": "2026-06-06T13:39:45.690Z",
+  "updated_at": "2026-06-06T15:09:09.345Z",
   "requirement_id": "cmmq2a2x3p25029cbd6d21ff1",
   "carrier_task_id": "cmmq2a2x3p25029cbd6d21ff1",
   "review_history": [
@@ -122,6 +122,28 @@
       "at": "2026-06-06T13:39:45.690Z",
       "actor": "ai",
       "action": "edited"
+    },
+    {
+      "at": "2026-06-06T15:09:08.344Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "user reviewed revision 29f9cbf8 in Console; materialize directive job_fb233160a78a"
+    },
+    {
+      "at": "2026-06-06T15:09:08.464Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "approval carried by su-materialize-requirement payload expected_hash=29f9cbf8..."
+    },
+    {
+      "at": "2026-06-06T15:09:09.345Z",
+      "actor": "user",
+      "action": "status_changed"
     }
-  ]
+  ],
+  "approved_at": "2026-06-06T15:09:08.464Z",
+  "approved_by": "SuYeJian",
+  "consumed_at": "2026-06-06T15:09:09.345Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "d59d78137cdefb29c8589355c4c91fd32b4027006f16872f1b8e9e594060343a"
 }
