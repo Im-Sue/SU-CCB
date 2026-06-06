@@ -1,0 +1,108 @@
+{
+  "schema_version": "breakdown-draft-v0.2",
+  "status": "draft",
+  "carrier_task_key": "oriel-dynamic-slots-d21ff1",
+  "base_task_revision": null,
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "main_claude",
+    "cx_agent": "main_codex",
+    "ccb_job_id": "job_389cb2639597"
+  },
+  "plan": {
+    "title": "oriel 动态增删 slot（栈式）",
+    "summary": "oriel 按项目动态调整业务 slot 数量：三服务架构（ProjectSlotTopology 纯计算 / ManagedConfigMutationLock 文件写互斥 / SlotResizeService 编排），±1 单步栈式增删，扩容 reload 先行缩容 DB 先行的不对称顺序消撕裂。6 批 review-gated：pr1 地基 → pr2 config 参数化+锁（高风险）→ pr3 调度动态化 → pr4 resize 域逻辑 → pr5 API+集成 → pr6 UI 收尾。",
+    "spec_outline_md": "## 交付目标\noriel 支持运行中按项目 ±1 增删业务 slot（bridge 在线走 ccb reload 不重启项目；离线写 desired 下次生效），存量 3-slot 项目升级零 drift。\n\n## 共享约束（全批 binding，来源：需求 d21ff1 + 技术设计三轮协商）\n- 栈式：编号连续、只尾部增删；min=1、防御上限 16；±1 单步\n- 缩容不删磁盘文件 + 扩回强制全新会话（active 后 context-reset 兜底）\n- 删除资格三重空：SlotBinding idle/无 + 无 pending/submitted queue + 无 active runtime job\n- 数据流单向：DB slotCount → ProjectSlotTopology → config/调度/UI，config 永不反读\n- pr2 golden 锁定：slotCount=3 + 空 overrides 输出与现状字节级一致\n- schema 惯例：slotAgentOverridesJson String?（不用 Prisma Json 类型）\n- 不碰 main 组拓扑；不改 CCB bridge；migration 执行经 dispatch 审批\n- 每批 typecheck + server/web 既有测试全绿\n\n## 依赖图\npr1 → {pr2, pr3}（文件面不交叉）；pr4 ← pr1+pr2；pr5 ← pr3+pr4；pr6 ← pr5"
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-slot-topology-schema",
+      "order": 1,
+      "title": "ProjectSlotTopology 纯计算服务 + Prisma schema 两字段",
+      "summary": "新建 slot-topology 模块（slotIds/agent-window 命名/managed 集合派生，1..16 边界）+ Project.slotCount Int @default(3) + slotAgentOverridesJson String? + migration + 单测。",
+      "spec_section_md": "### 任务概述\n新建 `server/src/modules/slot-topology/` ProjectSlotTopology 纯计算服务：给定 slotCount 派生 slotIds、每 slot 的 agent 名（slotN_claude/slotN_codex）、window 名、managed window/agent 全集与 AGENT_CORE 映射（main 组恒定 + 业务 slot 动态）。无 IO、无状态。同批落 Prisma schema：`Project.slotCount Int @default(3)`、`Project.slotAgentOverridesJson String?`（遵循本仓 String ...Json 列惯例）+ migration（add-column-with-default，非破坏）。\n\n### 任务分解\n1. topology 模块：`slotIds(slotCount)` / `agentNamesForSlot(slotId)` / `managedWindowNames(slotCount)` / `managedAgentNames(slotCount)` / `agentCore(slotCount)`；入参校验 1 ≤ slotCount ≤ 16（防御常量集中此处）。\n2. Prisma schema 两字段 + migration 文件（不在本批执行到共享库，执行点 dispatch 审批）。\n3. 单测：slotCount=3 派生的集合/命名与 managed-config.service.ts 现硬编码常量逐项一致；slotCount=1/4/16 形态正确；0/17 抛错。\n\n### 验收标准\n- topology(3) 集合/命名与现 MANAGED_WINDOW_NAMES/MANAGED_AGENT_NAMES/AGENT_CORE 一致（单测断言，注意是集合一致不是 config 字节级——字节级在 pr2）。\n- 边界行为单测全绿；migration 可应用可回滚；typecheck + 既有测试全绿。\n\n### 边界与依赖\n- 依赖：无。\n- 不改任何现有消费方（managed-config/slot-binding 等本批零接触）；纯新增。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr2-managed-config-param-lock",
+      "order": 2,
+      "title": "managed config 参数化 + signature 动态白名单 + MutationLock + onboarding 惰性模板",
+      "summary": "buildManagedCcbConfig(topology, overrides, options) 改造，collectCoreLines/signature 按 topology 白名单，新建 ManagedConfigMutationLock 并接入全部 config 写入方，onboarding module-level 模板改惰性（编译耦合必须同批），overrides 注入/收割函数。golden 单测锁定存量零 drift。",
+      "spec_section_md": "### 任务概述\nmanaged-config.service.ts 从硬编码白名单改为 topology 驱动：`buildManagedCcbConfig(topology, preservedAgentFields, options)`；`collectCoreLines`/`computeManagedCoreSignature`/`collectPreservedAgentFields` 按 topology 的 window/agent 白名单动态计算。新建 per-project `ManagedConfigMutationLock`，接入全部 config 写入方。本批是存量兼容的根保证批，高风险，golden 测试先行。\n\n### 任务分解\n1. buildManagedCcbConfig 签名与生成逻辑参数化（CLAUDE_AGENT_DEFAULTS 等保留语义不变）。\n2. signature/coreLines/preserved 白名单动态化。\n3. overrides 注入（slotAgentOverridesJson 解析 → 生成时 merge，preserved 优先级与现有 agentDefaults/preserved 关系保持）与收割函数（现 config 指定 slot 的 non-core 字段 → JSON 串），供 pr4 缩容调用。\n4. 新建 ManagedConfigMutationLock（per-project 互斥，进程内即可——server 单实例）；ensureManagedCcbConfig 全调用方接入：slot-tips-projection.syncSlotTips、ProjectCcbdManager.ensureStarted、confirmRestore。\n5. ProjectCcbdManager/status 路径从 DB 读 slotCount 构造 topology（替代隐式常量）。\n6. project-onboarding.routes.ts 的 module-level `CCB_CONFIG_TEMPLATE = buildManagedCcbConfig()` 改为按需惰性生成（本批改签名的编译耦合，必须同批）。\n\n### 验收标准\n- golden 单测：slotCount=3 + 空 overrides 的生成输出与改造前**字节级一致**（先固化现输出为 fixture 再改造）。\n- signature(3) 对现存 config 零 drift 单测；slotCount=4 时 signature/coreLines 含 slot-4 行单测。\n- lock 并发串行单测（两个并发 ensureManagedCcbConfig 串行执行）。\n- overrides 注入/收割 roundtrip 单测；onboarding 与既有 managed-config/project-ccbd/tips 测试全绿。\n\n### 边界与依赖\n- 依赖：pr1。\n- lock 只覆盖 config 写入方；绑定/派发路径的 lock 可见性属 pr5。\n- 不改 slot-binding/anchor-broker（pr3 范围）。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr1-slot-topology-schema"
+      ],
+      "include": true
+    },
+    {
+      "section_id": "pr3-scheduler-dynamic",
+      "order": 3,
+      "title": "调度/派发/投影消费方 SLOT_IDS/isSlotId → topology 动态化",
+      "summary": "六处消费方动态化：slot-binding SLOT_IDS、job-slot-router 写死 agent 名、slot.routes 过滤、anchor-dispatch-worker isSlotId、slot-terminal、取消投影 reconcile。slotCount=4 行为单测验收。",
+      "spec_section_md": "### 任务概述\n调度/派发/投影层全部 slot 集合消费方从硬编码常量改为 topology 驱动，每个调用点明确 projectId → slotCount 取数路径（DB 读取或上游传递，禁止各自缓存常量）。参照 slot-context-reset.service.ts 既有的 project_view 动态枚举模式。\n\n### 任务分解\n1. slot-binding.service.ts：删除 `SLOT_IDS` 常量导出，绑定/释放/恢复路径改 topology（注意 SlotId 类型从字面量联合改 string + 运行时校验）。\n2. job-slot-router：slotN_claude 写死 → topology.agentNamesForSlot。\n3. slot.routes.ts:436 一带 queue/degraded 过滤动态化。\n4. anchor-dispatch-worker.ts:159 isSlotId → topology 判定（slot-4+ 不再落 legacy anchor 分支）。\n5. slot-terminal.service isSlotId 同步。\n6. reconcileCancelledRequirementProjection isSlotId 同步。\n\n### 验收标准\n- slotCount=4 行为单测：第 4 个 requirement 绑定落 slot-4；worker 识别 slot-4 正常派发；slots API 返回 4 lanes；terminal/取消 reconcile 接受 slot-4。\n- slotCount=3 全部既有测试零修改通过（行为兼容）；isSlotId 边界单测（slot-16 接受、slot-17/slot-0/非 slot 拒绝）。\n\n### 边界与依赖\n- 依赖：pr1（与 pr2 文件面不交叉，可在 pr2 review 期间并行实施，按门顺序回执）。\n- 不实现 resize：slotCount 变更本批仅可经 DB 手改（测试场景）。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr1-slot-topology-schema"
+      ],
+      "include": true
+    },
+    {
+      "section_id": "pr4-resize-domain",
+      "order": 4,
+      "title": "reload CLI wrapper + SlotResizeService 域逻辑（不接 HTTP）",
+      "summary": "独立 reload CLI wrapper（行协议解析+容错+fixture）+ SlotResizeService ±1 编排（扩容 config→reload→DB→active-wait→context-reset；缩容 资格三重检查→收割→DB→config→reload；失败逆序回滚；离线 desired 分支）。纯域逻辑 mock 单测锁死。",
+      "spec_section_md": "### 任务概述\n新建 `server/src/modules/slot-resize/`：reload CLI wrapper（独立模块，不混入 CcbdClientService socket client）+ SlotResizeService 编排域逻辑。本批不注册 route、不接 UI——状态机先被单测锁死，pr5 再做集成。\n\n### 任务分解\n1. reload wrapper：spawn `ccb reload`（cwd=projectRoot）；解析行协议（reload_status/plan_class/safe_to_apply/future_safe_to_apply/reload_operation/blocked 前缀行）；未知行容错跳过；无法解析 → 结构化失败 + 原样透出；超时处理。fixture 采用 2026-06-06 本项目实测真实输出（add_window dry-run/published 两套）。\n2. SlotResizeService.grow(projectId)：acquire lock → 校验 slotCount+1 ≤ 16 → 生成 config(topology(N+1)+overrides 注入) → ccbd 在线? wrapper.reload : 离线写 desired → reload 成功 → DB slotCount+1 → project_view retry 等新 agents active → slot-context-reset（复用现有服务，全新会话兜底）→ 失败回滚 config（DB 未动）。\n3. SlotResizeService.shrink(projectId)：acquire lock → 尾部 slot 资格三重检查（SlotBinding 不存在或 idle 且 requirementId=null；无 pending/submitted AnchorDispatchQueue；无 active runtime job）→ 不满足返回结构化原因 → 收割尾部 non-core 字段入 slotAgentOverridesJson → DB slotCount-1 → config → reload（bridge idle 二道防线）→ 失败逆序回滚（DB+config）。\n4. 磁盘 .ccb/agents/slotN_* 全程不删除（已拍板）。\n\n### 验收标准\n- mock wrapper 单测矩阵：grow 成功/reload 被拒回滚/离线 desired/异常回滚；shrink 资格三重矩阵（每重单独不满足 + 全满足）/成功/reload 失败逆序回滚；lock 并发串行。\n- parser fixture 单测：真实输出样本解析正确；畸形输出降级失败。\n- typecheck + 全测试绿。\n\n### 边界与依赖\n- 依赖：pr1（topology/schema）+ pr2（lock/config 参数化/收割函数）。\n- 不注册 route；context-reset/active-wait 的真实时序留 pr5 smoke 验证。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr1-slot-topology-schema",
+        "pr2-managed-config-param-lock"
+      ],
+      "include": true
+    },
+    {
+      "section_id": "pr5-resize-api-integration",
+      "order": 5,
+      "title": "resize API + slots projection 扩展 + 绑定路径 lock 行为 + 后端 smoke",
+      "summary": "注册 POST /slots/resize（±1）、GET /slots projection 返回 slotCount+删除资格摘要（不新增单项目 GET 面）、bind/enqueue/worker 遇 resize lock 等待短超时超时 409、测试项目后端 smoke。",
+      "spec_section_md": "### 任务概述\nresize 能力接入 HTTP 与运行态：route 注册、projection 扩展、绑定路径与 resize lock 的冲突行为落地，并以测试项目完成首次端到端后端 smoke。\n\n### 任务分解\n1. app.ts 注册 `POST /api/projects/:id/slots/resize` body `{direction: \"grow\"|\"shrink\"}`，调 SlotResizeService，返回新拓扑或结构化失败（资格不满足项/bridge 拒绝原因/离线 desired 已记录）。\n2. `GET /api/projects/:id/slots` projection 扩展：slotCount + 尾部 slot 删除资格摘要（三重检查各项布尔）。不新增 `GET /api/projects/:id` 单项目路由（避免扩大 API 面）。\n3. bind/enqueue/worker 路径接入 resize lock 可见性：遇 lock 持有等待短超时（默认 2s，常量可调）→ 超时返回/记录 409 语义（绑定重试由上游既有机制兜底）。\n4. 后端 smoke（测试项目，不动主仓 .ccb/ccb.config）：grow → 绑定需求到新 slot → shrink 被拒（busy）→ 释放 → shrink 成功 → 再 grow；记录执行结果。\n\n### 验收标准\n- route 集成测试：grow/shrink 成功、资格拒绝（结构化原因断言）、离线 desired。\n- lock 冲突行为测试：lock 窗口内绑定等待成功；超时 409。\n- smoke 通过并附记录（pane ready、其他 slot 无中断两个验证点必须显式确认）。\n\n### 边界与依赖\n- 依赖：pr3（调度动态化）+ pr4（域逻辑）。\n- UI 不在本批。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr3-scheduler-dynamic",
+        "pr4-resize-domain"
+      ],
+      "include": true
+    },
+    {
+      "section_id": "pr6-ui-finalize",
+      "order": 6,
+      "title": "SlotsPage UI + API 类型 + lint 参数化 + specs 同步 + 最终 smoke 文档",
+      "summary": "SlotsPage 动态 N lanes + ± 控件 + 缩容确认（列资格）+ 失败 toast + >5 资源提示；API 类型；lint_main_anchor_config.py 参数化；关联 specs 同步；最终手动 smoke 验收文档（含旧会话不恢复验证）。",
+      "spec_section_md": "### 任务概述\n用户可见层与工程收尾：SlotsPage 完整 resize 交互、类型与 lint 跟进、specs 同步、最终验收文档。\n\n### 任务分解\n1. SlotsPage：动态渲染 N lanes；+/- 控件（grow 直接执行、shrink 弹确认对话框列出将回收 slot 与资格三项状态）；失败原因 toast（透出结构化原因）；slotCount>5 时资源开销提示文案（每 slot = claude+codex 双常驻进程）。\n2. API 类型：slotCount/resize 响应/资格摘要的前后端类型对齐。\n3. lint_main_anchor_config.py：slot 数量参数化校验（3/4-slot config 均通过，畸形 config 仍报错）。\n4. 关联 specs 同步：e6d3663 涉及面反向 + slot-topology/slot-resize/mutation-lock 新服务 spec。\n5. 最终 smoke 手动验收文档：步骤（UI grow → 派需求 → UI shrink 被拒 → 释放 → shrink → grow）+ 三验证点（pane ready / **扩回旧会话不恢复**（缩容后扩回检查 pane 无旧对话上下文）/ 其他 slot 无中断）+ 附一次完整执行记录。\n\n### 验收标准\n- web 测试：4-lane 渲染、控件交互、确认对话框、toast。\n- lint 双形态通过；specs 无 stale 引用（grep MANAGED_WINDOW_NAMES/SLOT_IDS 旧常量残留为零）。\n- smoke 文档可独立执行，附执行记录，三验证点显式通过。\n\n### 边界与依赖\n- 依赖：pr5。\n- 不做 slotAgentOverrides 编辑 UI（第一版 YAGNI，已拍板范围外）。",
+      "priority": "medium",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr5-resize-api-integration"
+      ],
+      "include": true
+    }
+  ],
+  "generated_at": "2026-06-06T12:14:07.786Z",
+  "updated_at": "2026-06-06T12:14:07.786Z",
+  "requirement_id": "cmmq2a2x3p25029cbd6d21ff1",
+  "carrier_task_id": "cmmq2a2x3p25029cbd6d21ff1",
+  "review_history": [
+    {
+      "at": "2026-06-06T12:14:07.790Z",
+      "actor": "ai",
+      "action": "created"
+    }
+  ]
+}

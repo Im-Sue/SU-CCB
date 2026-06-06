@@ -1,0 +1,87 @@
+{
+  "schema_version": "breakdown-draft-v0.2",
+  "status": "consumed",
+  "carrier_task_key": "su-init-layered-arch-726299",
+  "base_task_revision": null,
+  "generated_at": "2026-06-06T10:59:24.700Z",
+  "updated_at": "2026-06-06T12:19:21.358Z",
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot1_claude",
+    "cx_agent": "slot1_codex",
+    "ccb_job_id": "job_76803ee658cd"
+  },
+  "plan": {
+    "title": "su-init 多源码根分层架构生成",
+    "summary": "把 su-init 旧项目架构生成的「多源码根→跳过」gate 升级为确定性候选发现 + 三模式分层生成(单份/N 子架构+总架构/仅总架构),scope 元数据做分层身份地基;按「确定性代码 / 声明面 / 执行规程」三个可独立验收交付面切 3 片,pr1∥pr2→pr3。",
+    "spec_outline_md": "## 交付目标\n多源码根/多子项目旧项目不再跳过:lib 枚举候选子系统(证据+置信度),agent 按候选数生成单份 / 每子系统一份+总架构 / 仅总架构;重跑只补缺绝不覆盖。\n\n## 共享约束(全片 binding)\n- missing-only / final-path wx 独占写(禁 temp+rename)/ lib 无 LLM / generated_by+human_verified 信任标记(1db492 拍板沿用)\n- scope frontmatter 必须单行 inline list(Oriel 行级 parser 多行会 partial)\n- 全输出排序,同 fixture 双跑 bit-identical;零新增运行时依赖\n- 总架构只写可证实关联,推不出标「未推断」\n\n## 切片与顺序\n- pr1-lib-candidates(确定性代码+测试,验收闭环)∥ pr2-contract-template(声明面,含 su-oriel 子仓纪律)→ pr3-skill-and-docs(执行规程,等 pr1 真实接口收口)\n- 文件零交叉;pr3→pr1 硬依赖,pr3 soft-after pr2(措辞一致)\n\n## 设计真相源\ndocs/03_开发计划/su-init-架构生成支持多源码根多子项目分层生成-726299-技术设计.md(D1–D9);spec 内枚举与其冲突时升级,不得自行猜测"
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-lib-candidates",
+      "order": 1,
+      "title": "lib 候选发现接口升级(detectArchitectureCandidates)+ 测试全向量",
+      "summary": "删旧单数 gate,新复数候选发现 12 步算法(壳归并/aggregator/submodule 排除/置信度/disposition/existing/cap/mode);initProjectScaffold+init.mjs stdout 同步;双跑 bit-identical 测试。",
+      "spec_section_md": "### 任务概述\n把 `lib/su-init/index.mjs` 旧单数 gate `detectArchitectureCandidate` 替换为复数候选发现 `detectArchitectureCandidates`(技术设计 §四 0-12 步算法);`initProjectScaffold` 挂 `summary.architectureCandidates`;init.mjs stdout 同步;测试全向量重写。零新增运行时依赖。\n\n### 关键枚举(spec 自包含,实现以此为准,与设计文档冲突时升级)\n- 返回模型:`{ mode: \"single\"|\"layered\"|\"overview_only\"|\"skip\", reason: null|\"no_source\"|\"architecture_exists\", candidates[], overviewTargetPath, overviewExisting, excluded[], scopeConflicts[], existingArchitectureDocs, capLimit: 8 }`\n- candidate:`{ id, path, kind: \"source_root\"|\"submodule\", disposition: \"generate\"|\"list_only\", confidence: \"high\"|\"medium\", evidence: string[], targetPath, existing: bool }`;excluded 条目 `{ path, reason: \"framework_shell_merged\"|\"root_aggregator\"|\"nested_absorbed\" }`\n- evidence label:`marker:<file>`、`workspace_member`、`entry:<相对路径>`、`run_script:<name>`、`deploy:<file>`、`git_submodule`\n- 硬运行证据(→high):package.json scripts.start|dev|serve、bin/main 字段、Dockerfile、docker-compose.yml 服务、pyproject `[project.scripts]`、入口源文件 main.go|src/main.rs|main.py|manage.py|app.py|src/index.{js,ts,mjs};仅 marker/workspace_member 无入口→medium(workspace member 不抬置信度)\n- disposition:high→generate;medium 与 submodule→list_only;cap 按 generate 计(submodule/list_only 不占)\n- 壳归并表初版(壳目录+宿主证据对,宿主证据不存在不归并):src-tauri/Cargo.toml + 根 tauri.conf.json 或根 package.json 依赖含 @tauri-apps → 归并;android/build.gradle 或 ios/ + 根依赖 react-native|expo|capacitor → 归并;壳 path 并入宿主 scope_source_roots\n- workspace 解析 MVP 语法(零依赖,超出范围按不识别处理并记 warning):package.json workspaces 数组形式与 {packages:[...]} 对象形式;pnpm-workspace.yaml 仅 packages 列表的 `- \"glob\"` 行级解析;Cargo.toml [workspace] members 数组;go.work use 块。glob 仅支持尾部 /* 单层展开;`!` 否定模式忽略+warning;成员目录必须存在且含 marker 才成候选\n- 判定顺序:①docs/01_架构设计/ 非模板 md 任一缺 architecture_scope → 整体 skip(architecture_exists) 最优先;②.gitmodules 路径从 marker 扫描整体排除(防重复枚举);③root 声明 workspaces → 默认 aggregator 排除(记 excluded),但有硬运行证据(Dockerfile/入口源文件,scripts.start 不算)→ 纳入 id=\"root\";④嵌套吸收:祖先候选吸收子孙 marker 目录,显式 workspace member 除外\n- existing 匹配:scoped 已有文档按 scope_source_roots ∩ 候选 path;scope=overview → overviewExisting=true\n- 排序规则:目录遍历/glob 展开/evidence/candidates 全部字典序;同 fixture 双跑 JSON 深比较必须相等(bit-identical)\n- slug:路径小写、非字母数字→`-`、去首尾 `-`;根候选 id=\"root\";targetPath 全局唯一断言,冲突附 sha256(path) 前 6 位后缀(deterministic)\n- 命名:子架构 `<subsystem-slug>-架构.md`,总架构 `<project-slug>-总架构.md`,均落 docs/01_架构设计/\n- mode 推导:0 候选→skip(no_source);generatable==1→single;2..8→layered;>8→overview_only(全转 list_only);generatable==0 且候选>0→overview_only\n\n### 任务分解\n1. 抽公共 helper(frontmatter 行级解析 / 排序遍历 / slug / .gitmodules 解析)\n2. 候选发现主算法(上述判定顺序 0-12 步)\n3. initProjectScaffold 挂新字段;删旧单数导出\n4. skills/su-init/scripts/init.mjs stdout 字段更名 architectureCandidates\n5. __tests__ 重写全向量 fixtures(先 fixtures 后断言,控制复杂度)\n\n### 验收标准\n- node --test 全过,向量覆盖:空项目→skip/no_source;单 marker+入口→single 候选 root;frontend+backend 双入口→layered;pnpm workspace(apps/* generate、packages/* list_only、root aggregator 排除);root-app(workspaces+Dockerfile)→root 纳入;Tauri 形状(根 pyproject+main.py + src-tauri+tauri.conf.json)→壳归并 single+excluded 记录;src-tauri 无宿主证据→不归并 2 候选;9 个 generatable→overview_only;.gitmodules→submodule 候选且其内部 marker 不重复枚举;已有无 scope md→整体 skip 优先于一切;scoped md 部分覆盖→对应 existing 其余 generate;overview 已存在→overviewExisting;slug 冲突→deterministic 后缀;目录乱序创建 fixture 双跑深比较相等;`!` 否定模式忽略+warning\n- grep lib/su-init、skills/su-init/scripts 无旧 detectArchitectureCandidate 单数残留(SKILL.md 残留由 pr3 清理)\n- 无新增 package 依赖;既有三步脚手架测试不回归\n\n### 边界\n- 不改 SKILL.md(pr3)、不改契约/模板(pr2)、不碰 Console/indexer 代码",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr2-contract-template",
+      "order": 2,
+      "title": "契约三副本 scope 注释同步 + 架构模板 frontmatter 说明",
+      "summary": "plugin canonical / 项目副本 / Oriel fallback 三份契约加逐字一致的注释级 scope 声明;模板加两字段可选说明+inline list 提示;su-oriel 子仓只 stage 目标文件、不 push、gitlink 留合并流程。",
+      "spec_section_md": "### 任务概述\nscope 元数据声明面落地:契约三副本同步注释级 scope 字段声明 + 架构模板 frontmatter 注释说明。全部注释级,零行为影响。\n\n### 任务分解\n1. `su-ccb-claude-plugin/references/docs-structure-contract.yaml`:`01_架构设计/` 条目注释加 scope 声明(architecture_scope: 子系统 slug 或 \"overview\";scope_source_roots: 单行 inline list 路径数组;su-init 分层生成写入,人工手写架构可选标注以参与补缺判断)\n2. `docs/.ccb/docs-structure-contract.yaml`(项目副本):同步逐字一致的注释\n3. `su-oriel/server/src/indexer/default-docs-structure-contract.yaml`(Oriel fallback 第三副本):同步逐字一致的注释 —— 子仓纪律见下\n4. `su-ccb-claude-plugin/templates/docs/01_架构设计/_模板_架构.md`:frontmatter 区注释加 architecture_scope / scope_source_roots 可选字段说明 + 单行 inline list 写法提示(多行 YAML 数组会被行级 parser partial)\n\n### 子仓纪律(su-oriel,硬约束)\n- 子仓当前有 unrelated dirty(如 server/src/generated/version.ts 生成物):只 stage 目标 yaml 一个文件,严禁带入任何其它变更\n- 子仓改动 commit 留本地分支,不 push;父仓 gitlink 抬升不在本任务内做(随需求合并/归档流程统一走,需用户授权)\n- 回执必须报告:子仓 git status 摘要、目标文件 diff、子仓 commit hash(若已 commit)、父仓 gitlink 当前状态\n- 子仓操作受阻(权限/锁/冲突)时停止并回执升级,不得绕过;受阻时本片其余 3 个文件照常交付,Oriel 副本单独列 blocked\n\n### 验收标准\n- 三份 yaml 的 scope 注释逐字一致(grep 比对通过)\n- 模板注释含两字段说明 + inline list 单行写法提示\n- 契约 schema 校验通过、docs-structure 相关既有测试不回归(注释零行为)\n- 回执含子仓状态报告\n\n### 边界\n- 不改契约结构字段/治理规则;不改模板章节结构;不碰 lib/SKILL",
+      "priority": "medium",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr3-skill-and-docs",
+      "order": 3,
+      "title": "SKILL 三模式分层生成规程改写 + 1db492 修订注记",
+      "summary": "SKILL「旧项目架构生成」章改写:mode 四分支、per-candidate 证据门槛、scope frontmatter inline list、总架构固定 profile、回执终态枚举、二次 detect 新中止条件;1db492 设计文档头部加 gate 被替换注记。",
+      "spec_section_md": "### 任务概述\n`skills/su-init/SKILL.md`「旧项目架构生成」章改写为三模式分层生成规程,对齐 pr1 落地的真实接口;1db492 技术设计文档加修订注记。**依赖 pr1**(字段名以 pr1 实际返回为准,完成前先核对);pr2 已完成时与其模板措辞保持一致(soft-after,非硬依赖)。\n\n### 任务分解\n1. SKILL 消费规程改写:读 `summary.architectureCandidates`,按 mode 四分支——skip→回执 reason(no_source/architecture_exists);single→现行证据门槛路径 + 新增 scope frontmatter;layered→per-candidate 证据门槛(以候选目录为根:目录树+≥1 grounding 源+概述/技术栈/结构/核心模块四块可填,不满足记 evidence_insufficient 继续其余)→子架构逐个 final-path wx →总架构;overview_only→仅总架构+全部候选清单+点名补生成提示\n2. scope frontmatter 示例:doc_type/updated/generated_by: su-init-ai/human_verified: false/architecture_scope: <slug>(总架构 \"overview\")/scope_source_roots: 单行 inline list(多行 YAML 会被行级 parser partial,硬要求)\n3. 总架构固定渲染 profile:按 _模板_架构.md 固定填一(概述=系统全景)、二(整体结构图=子系统框图,仅证实连线)、五(核心模块=全部候选清单表:子系统/路径/职责/置信度/状态/文档链接)、六(关键流程=仅可证实关联:import 方向/HTTP client 指向/配置引用;推不出标「未推断」)、十一(相关文档=仅链接实际写成功的子架构);不得编造子系统关联\n4. 写盘纪律更新:逐文件 final-path wx 独占写(禁 temp+rename,沿用);先子架构(按候选 id 排序)后总架构;单文件 EEXIST/失败→记 skipped 继续其余;写前二次 detect 中止条件=出现新增「无 scope 非模板 md」(本轮自写 scoped 文档走 existing 语义,不算形状变化)\n5. 回执契约:每候选终态(generated|existing|evidence_insufficient|list_only|submodule|shell_merged|aggregator_excluded)、总架构状态(generated|existing)、overview 陈旧链接提示(补写子架构而旧总架构存在时)、AI 生成+建议 review 提醒、超限时全部候选+点名补生成指引\n6. 1db492 技术设计文档(docs/03_开发计划/su-init-旧项目自动生成架构-1db492-技术设计.md)头部加修订注记:multiple_source_roots gate 已被 726299 分层候选发现替换,指向新设计文档;不改其余内容\n\n### 验收标准\n- SKILL 无「multiple_source_roots→跳过」旧语义残留、无旧单数函数名残留\n- 三模式规程完整(mode 四分支+证据门槛+总架构 profile+回执终态枚举)\n- 字段名与 pr1 实际接口逐项核对一致(回执附核对清单)\n- 1db492 文档含修订注记并指向 726299 设计文档\n- 不改 lib/init.mjs/契约/模板(pr1/pr2 的面)\n\n### 边界\n- 仅文档/规程改写,无代码;wx 纪律与信任标记语义不得削弱",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr1-lib-candidates"
+      ],
+      "include": true
+    }
+  ],
+  "requirement_id": "cmq23elzh081b0a36b7726299",
+  "carrier_task_id": "cmq23elzh081b0a36b7726299",
+  "review_history": [
+    {
+      "at": "2026-06-06T10:59:24.705Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-06-06T12:19:20.632Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "user-initiated materialize via Console (job_704ed75a9119)"
+    },
+    {
+      "at": "2026-06-06T12:19:20.849Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "approved via Console materialize payload hash b3dc03e9"
+    },
+    {
+      "at": "2026-06-06T12:19:21.358Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-06-06T12:19:20.849Z",
+  "approved_by": "user",
+  "consumed_at": "2026-06-06T12:19:21.358Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "8add95651043c40293f36ec706b1a665b1a49224a347aa24d037d06a90ca79de"
+}
