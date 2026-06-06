@@ -2,9 +2,10 @@
 doc_type: dev_task
 task_id: subtask-a98c5fc05308
 title: 契约三副本 scope 注释同步 + 架构模板 frontmatter 说明
-status: reviewing
-current_node: dispatch
-node_substate: awaiting_codex_pickup
+status: done
+current_node: archive
+node_substate: archived
+review_status: passed
 priority: medium
 requirement_id: cmq23elzh081b0a36b7726299
 section_id: pr2-contract-template
@@ -14,6 +15,8 @@ dependencies: []
 source_breakdown_draft: docs/.ccb/drafts/breakdown/cmq23elzh081b0a36b7726299.json
 source_draft_hash: 8add95651043c40293f36ec706b1a665b1a49224a347aa24d037d06a90ca79de
 created_at: 2026-06-06T12:19:20.972Z
+updated_at: 2026-06-06T12:57:38.078Z
+updated_by: ccb_claude
 code_workspace: {"path":"../SU-CCB-req-cmq23elzh081b0a36b7726299","branch":"ccb/req-cmq23elzh081b0a36b7726299"}
 ---
 

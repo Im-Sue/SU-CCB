@@ -1,0 +1,11 @@
+{
+  "schema_version": "requirement-worktree-v0.1",
+  "requirement_id": "cmq23elzh081b0a36b7726299",
+  "status": "ready",
+  "path": "../SU-CCB-req-cmq23elzh081b0a36b7726299",
+  "branch": "ccb/req-cmq23elzh081b0a36b7726299",
+  "confirmed_target_branch": "main",
+  "base_sha": "a67e26c72041b919bc82c2b226d63094318e809b",
+  "created_at": "2026-06-06T12:31:19.485Z",
+  "updated_at": "2026-06-06T12:31:19.485Z"
+}
