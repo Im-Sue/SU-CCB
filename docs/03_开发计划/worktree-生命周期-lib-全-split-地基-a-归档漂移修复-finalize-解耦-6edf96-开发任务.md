@@ -2,9 +2,10 @@
 doc_type: dev_task
 task_id: subtask-cef1146edf96
 title: worktree 生命周期 lib 全 split 地基 + A 归档漂移修复 + finalize 解耦
-status: reviewing
-current_node: dispatch
-node_substate: awaiting_codex_pickup
+status: done
+current_node: archive
+node_substate: archived
+review_status: passed
 priority: high
 requirement_id: cmpworktreearchive260604
 section_id: pr1-worktree-lifecycle-split
@@ -14,6 +15,8 @@ dependencies: []
 source_breakdown_draft: docs/.ccb/drafts/breakdown/cmpworktreearchive260604.json
 source_draft_hash: 0d9d990c7e64a4f3fbee2476deb0e7adac5d696afba2fc3dd0557b74752a53ba
 created_at: 2026-06-06T08:12:35.133Z
+updated_at: 2026-06-06T08:54:34.393Z
+updated_by: ccb_claude
 code_workspace: {"path":"../SU-CCB-req-cmpworktreearchive260604","branch":"ccb/req-cmpworktreearchive260604"}
 ---
 
