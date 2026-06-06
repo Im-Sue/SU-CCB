@@ -4,7 +4,7 @@ title: per-需求 worktree 归档分层修复 + 合并后预览式归档
 doc_type: requirement
 created: 2026-06-04T00:00:00.000Z
 updated: 2026-06-04T00:00:00.000Z
-status: planning
+status: delivered
 source: discussion
 output_mode: spec_plan_task
 parent_epic: v1.0 plugin sovereignty
