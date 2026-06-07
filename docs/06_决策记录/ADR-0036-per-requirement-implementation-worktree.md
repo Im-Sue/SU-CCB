@@ -3,7 +3,7 @@ id: ADR-0036
 title: per-需求实施 worktree · 字段驱动的非 canonical 代码隔离
 status: active
 decided_at: 2026-05-26
-last_updated: 2026-06-06
+last_updated: 2026-06-07
 parent_adrs:
   - ADR-0023  # plugin sovereignty（本 ADR amend 决策 2 的 worktree 归属）
   - ADR-0032  # α-X slot topology（本 ADR refine 决策 1.4 的 opt-in 场景）
@@ -13,6 +13,7 @@ consult_evidence:
   - job_a3bbe8b3fc7e  # main_codex consult / rep_f66fb0b1a03b
   - job_32f2decc1cf9  # cmpworktreearchive260604 技术设计共识
   - job_177c0723a3ee  # autonomous-batch 执行序与自指风险核对
+  - job_99a3e338f0fa  # cmpmultispacemerge260606 技术设计协商
 tags:
   - worktree
   - plugin-sovereignty
@@ -25,7 +26,7 @@ tags:
 
 ## Status
 
-Active（2026-05-26）。2026-06-06 amended by requirement `cmpworktreearchive260604`：修复 per-需求 worktree 在多子任务串行归档时提前 archive 的分层错误，并加入 `merged` 预览暂停、手动归档与 reopen。
+Active（2026-05-26）。2026-06-06 amended by requirement `cmpworktreearchive260604`：修复 per-需求 worktree 在多子任务串行归档时提前 archive 的分层错误，并加入 `merged` 预览暂停、手动归档与 reopen。2026-06-07 amended by requirement `cmpmultispacemerge260606`：把收尾量词从单一实施 worktree 推广为该需求名下全部实施空间，新增项目拓扑机器声明契约与整体 merged/escalated 不变量。
 
 ## Context
 
@@ -58,6 +59,8 @@ merged  -> ready      # explicit reopen
 - `archived` / `discarded`：终态。
 - `discard` 只允许 `ready→discarded`；`merged→ready` 只能经显式 reopen。
 
+2026-06-07 多实施空间修订：runtime 可升为 `requirement-worktree-v0.2`，在顶层记录 `aggregate_status`、`spaces[]`、`associations[]` 与 `topology_source`。每个 space 各自记录 `target_branch`、`base_sha` 与 per-space status；aggregate status 由 space/association 事实重算并持久化。单空间 v0.1 文件读时可 lift 为 root space，不做批量迁移。
+
 ### 3. 字段驱动（不靠 ask 协议传递）
 
 `su-materialize` 创建子任务时在 spec frontmatter 盖**可选**字段：
@@ -74,7 +77,7 @@ code_workspace:
 
 ### 4. plugin lib 生命周期 helper（保守幂等）
 
-新增/修订 `ensureRequirementWorktree` / `mergeRequirementWorktree` / `cleanupRequirementWorktree` / `reopenRequirementWorktree` / `discardRequirementWorktree`，以 canonical-root lock 串行同 req 操作；旧 `archiveRequirementWorktree` 仅保留为兼容 wrapper（`merge+cleanup`），不再作为子任务 archive 入口。
+新增/修订 `ensureRequirementWorktree` / `mergeRequirementWorktree` / `cleanupRequirementWorktree` / `reopenRequirementWorktree` / `discardRequirementWorktree`，以 canonical-root lock 串行同 req 操作；旧 `archiveRequirementWorktree` 仅保留为兼容 wrapper（`merge+cleanup`），不再作为子任务 archive 入口。2026-06-07 起，公开 API 名称/签名保持不变，但语义推广为 requirement 级 orchestrator：对该需求名下全部实施空间执行生命周期动作；无项目拓扑声明时退化为单 root space，行为与旧单空间语义一致。
 
 - **ensure**：先 `git worktree prune`；`git worktree list --porcelain` 判 path/branch 绑定；path 存在但非预期 worktree → fail；branch 已在他处 checkout 不盲目 `--force`；首次才 `add`。
 - **merge**：只吃 `ready→merged`；先 canonical-sync-commit（见决策 7），再把实施分支 merge 回 runtime 记录的 `target_branch`，保留 worktree+分支；分支 tip 已是 target 祖先时 no-op 补写 `merged`。
@@ -87,7 +90,7 @@ code_workspace:
 旧语义「子任务 archive 前 merge+删分支」被废止：
 
 1. 子任务 archive 只写 dev_task 终态（`status: done`、`current_node: archive`、`review_status: passed`），不碰 worktree。
-2. autonomous-batch 在全需求非 cancelled dev_task 终态后，只自动 `mergeRequirementWorktree()`，进入 `merged` 并停止；requirement 保持非 delivered（通常 `delivering`）。
+2. autonomous-batch 在全需求非 cancelled dev_task 终态后，只自动 `mergeRequirementWorktree()`，将该需求名下全部实施空间各自合并回各自运行态记录的源分支，并同步项目声明的空间间关联；整体进入 `merged` 后停止；requirement 保持非 delivered（通常 `delivering`）。
 3. cleanup + `requirement.finalize` 移到手动 `/ccb:su-archive requirement_id=<id>` 需求级入口。该入口在 cleanup 成功后重新读 requirement md hash，再 finalize 为 `delivered`。
 4. 若 cleanup 成功但 finalize CAS/guard 失败，允许 `archived + requirement 仍非 delivered` 的 finalize-only 重入。
 
@@ -121,13 +124,23 @@ allowlist 外 dirty 必须升级 `canonical_dirty_outside_allowlist`，不得 br
 
 手动需求级归档走 requirement-wide evidence；旧 scope evidence 保留兼容。
 
+### 9. 项目拓扑机器声明契约（amend for cmpmultispacemerge260606）
+
+项目可在 `docs/.ccb/config/implementation-topology.yaml` 声明实施空间与空间间版本关联，`schema_version` 为 `implementation-topology-v0.1`。声明内容包含：
+
+- `spaces[]`：`space_id`、`kind`、`repo`、`worktree_path` 模板、`branch` 模板；模板使用 `<requirementId>` 占位。
+- `associations[]`：`kind`、`from_space`、`to_space` 与关联路径字段。
+
+该声明由 plugin lib 在 ensure 时读取、校验并展开；展开后的实例与声明内容 hash 写入 `docs/.ccb/worktrees/<req>.json`。此后 merge/cleanup/reopen/discard 只信 runtime 中已展开的空间集，声明改版不追溯已展开需求。未声明该文件时，默认只有由 dev_task `code_workspace` 派生的 root space，下游单仓项目零成本退化为旧行为。拓扑校验与执行规则属于项目层与 lib 层，不进入 kernel 节点词汇表。
+
 ## 不变量（违反即视为回归）
 
 1. canonical 真相（`docs/.ccb`）永远经 plugin lib 以主仓绝对路径写，绝不进 worktree、不靠 git 回流。
 2. 代码改动只在 worktree；git 回流只回代码。
-3. merge target = 记录的 `target_branch`，绝不硬编码 `main`。
+3. 每个实施空间的 merge target = 该空间运行态记录的 `target_branch`，绝不硬编码 `main`，也绝不从其它空间继承。
 4. `merged` 不是 delivered；Console rollup 不得凭全子任务 archive 推导 delivered，delivered 只镜像 canonical requirement status。
 5. Console 始终只投影，不参与 worktree 建删。
+6. 整体 `merged` 仅在全部空间 merged、项目声明的空间间关联同步完成且预览自洽时成立；任一空间或关联失败，整体必须 escalated 并保留现场。
 
 ## 实施面（派 Codex 实施）
 
@@ -150,3 +163,4 @@ allowlist 外 dirty 必须升级 `canonical_dirty_outside_allowlist`，不得 br
 - consult：main_codex `job_a3bbe8b3fc7e` / `rep_f66fb0b1a03b`（findings + 4 点逐条可行性 + 最简稳妥形态；纠正了 sparse 越界、merge target 硬编码、helper 幂等保守性）。
 - 用户拍板：worktree 归属 = plugin 全包、per-需求键（按 reqId）、子任务级 auto-commit。
 - 2026-06-06 修订来源：需求 `cmpworktreearchive260604`、技术设计 `per-需求worktree-归档分层修复与预览式归档-260604-技术设计.md`、consult `job_32f2decc1cf9`（设计共识）与 `job_177c0723a3ee`（batch 自指风险/执行序核对）。
+- 2026-06-07 修订来源：需求 `cmpmultispacemerge260606`、技术设计 `per-需求实施空间-多空间收尾与拓扑声明-260606-技术设计.md`、consult `job_99a3e338f0fa`（多实施空间设计质疑与修订）。

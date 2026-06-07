@@ -58,6 +58,7 @@ machine_layer:
     - locks/                   # 写锁
     - drafts/breakdown/        # 拆分草稿(机制件;人读 review 投影到 03)
     - schemas/                 # 校验规则
+    - config/                  # 项目层机器可读配置
   not_holds: [需求本体, 设计本体, 任务本体, 状态本体]   # 这些上移人读层
 
 # ── 字段可改性(写作工作流核心)──

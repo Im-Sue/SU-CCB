@@ -1,0 +1,38 @@
+schema_version: implementation-topology-v0.1
+spaces:
+  - space_id: root
+    kind: git_worktree
+    repo: "."
+    worktree_path: "../SU-CCB-req-<requirementId>"
+    branch: "ccb/req-<requirementId>"
+  - space_id: su-ccb-claude-plugin
+    kind: git_worktree
+    repo: "su-ccb-claude-plugin"
+    worktree_path: "../su-ccb-claude-plugin-req-<requirementId>"
+    branch: "ccb/req-<requirementId>"
+  - space_id: su-oriel
+    kind: git_worktree
+    repo: "su-oriel"
+    worktree_path: "../su-oriel-req-<requirementId>"
+    branch: "ccb/req-<requirementId>"
+  - space_id: su-ccb-codex-skills
+    kind: git_worktree
+    repo: "su-ccb-codex-skills"
+    worktree_path: "../su-ccb-codex-skills-req-<requirementId>"
+    branch: "ccb/req-<requirementId>"
+associations:
+  - association_id: su-ccb-claude-plugin-to-root
+    kind: git_submodule_gitlink
+    from_space: su-ccb-claude-plugin
+    to_space: root
+    submodule_path: "su-ccb-claude-plugin"
+  - association_id: su-oriel-to-root
+    kind: git_submodule_gitlink
+    from_space: su-oriel
+    to_space: root
+    submodule_path: "su-oriel"
+  - association_id: su-ccb-codex-skills-to-root
+    kind: git_submodule_gitlink
+    from_space: su-ccb-codex-skills
+    to_space: root
+    submodule_path: "su-ccb-codex-skills"
