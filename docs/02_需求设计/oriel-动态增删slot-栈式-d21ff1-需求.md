@@ -2,7 +2,7 @@
 id: cmmq2a2x3p25029cbd6d21ff1
 title: "oriel 支持动态增删 slot（栈式）"
 doc_type: requirement
-status: planning
+status: delivered
 created: 2026-06-06T11:37:17.887Z
 analysis_input_hash: bffe03d0c24e1c7f91a298a0aba28b0935b2278013c732e9be9e20246fb543ad
 analysis_applied_at: 2026-06-06T11:50:13.919Z

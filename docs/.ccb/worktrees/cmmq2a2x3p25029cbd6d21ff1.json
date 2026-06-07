@@ -1,11 +1,47 @@
 {
   "schema_version": "requirement-worktree-v0.1",
   "requirement_id": "cmmq2a2x3p25029cbd6d21ff1",
-  "status": "ready",
+  "status": "archived",
   "path": "../SU-CCB-req-cmmq2a2x3p25029cbd6d21ff1",
   "branch": "ccb/req-cmmq2a2x3p25029cbd6d21ff1",
   "confirmed_target_branch": "main",
   "base_sha": "db9561f725afb6c457468d0d1b4f0870c6a64040",
   "created_at": "2026-06-06T15:19:30.265Z",
-  "updated_at": "2026-06-06T15:19:30.265Z"
+  "updated_at": "2026-06-07T06:45:10.905Z",
+  "merged_branch_sha": "8b208830fc80a6af604c7b39fbaa31c6c70a1fef",
+  "target_sha_after_merge": "4a1c7159a8f3c2be1ba9e9f76ea0d6b42f87180a",
+  "merged_at": "2026-06-07T06:36:21.182Z",
+  "merge": {
+    "target_branch": "main",
+    "warnings": [],
+    "canonical_sync": {
+      "status": "committed",
+      "committed": true,
+      "commitSha": "697c8f2d8b27afca60f27c1fe85db2f4ae69853c",
+      "paths": [
+        "docs/.ccb/events/journal.jsonl"
+      ],
+      "allowlist": [
+        "docs/02_需求设计/oriel-动态增删slot-栈式-d21ff1-需求.md",
+        "docs/03_开发计划/api-类型对齐-lint-参数化-specs-同步-工程收尾-8d9308-开发任务.md",
+        "docs/03_开发计划/managed-config-参数化-signature-动态白名单-mutationlock-onboarding-惰-31499a-开发任务.md",
+        "docs/03_开发计划/projectslottopology-纯计算服务-prisma-schema-两字段-357378-开发任务.md",
+        "docs/03_开发计划/reload-cli-wrapper-slotresizeservice-域逻辑-不接-http-f2df83-开发任务.md",
+        "docs/03_开发计划/resize-api-slots-projection-扩展-绑定路径-lock-行为-后端-smoke-baa646-开发任务.md",
+        "docs/03_开发计划/slotspage-resize-ui-最终-smoke-验收文档-d39ca1-开发任务.md",
+        "docs/03_开发计划/调度-派发-投影消费方-slot-ids-isslotid-topology-动态化-c9ef51-开发任务.md",
+        "docs/00_文档地图.md",
+        "docs/.ccb/events/journal.jsonl",
+        "docs/.ccb/worktrees/cmmq2a2x3p25029cbd6d21ff1.json",
+        "docs/.ccb/drafts/breakdown/cmmq2a2x3p25029cbd6d21ff1.json"
+      ]
+    },
+    "merge_stdout": "Note: Fast-forwarding submodule su-oriel to 63aad0629a3d7fb4fd37018a6ffb9a24d856ece6\nMerge made by the 'ort' strategy.\n su-oriel | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n",
+    "merge_stderr": ""
+  },
+  "archived_at": "2026-06-07T06:45:10.905Z",
+  "archive": {
+    "target_branch": "main",
+    "branch_sha": "8b208830fc80a6af604c7b39fbaa31c6c70a1fef"
+  }
 }
