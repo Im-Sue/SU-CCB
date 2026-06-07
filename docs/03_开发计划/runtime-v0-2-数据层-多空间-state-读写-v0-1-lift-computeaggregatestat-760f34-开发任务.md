@@ -2,9 +2,10 @@
 doc_type: dev_task
 task_id: subtask-21ff25760f34
 title: runtime v0.2 数据层:多空间 state 读写 + v0.1 lift + computeAggregateStatus + topology loader
-status: reviewing
-current_node: dispatch
-node_substate: awaiting_codex_pickup
+status: done
+current_node: archive
+node_substate: archived
+review_status: passed
 priority: high
 requirement_id: cmpmultispacemerge260606
 section_id: pr2-runtime-schema-multispace
@@ -14,6 +15,8 @@ dependencies: [subtask-be53b323049e]
 source_breakdown_draft: docs/.ccb/drafts/breakdown/cmpmultispacemerge260606.json
 source_draft_hash: 56f84fd263ca94c9bc00d4361027a499b9dbf4676109a462f9f7ce36d3eabf29
 created_at: 2026-06-07T05:28:12.990Z
+updated_at: 2026-06-07T06:01:17.114Z
+updated_by: slot1_claude
 code_workspace: {"path":"../SU-CCB-req-cmpmultispacemerge260606","branch":"ccb/req-cmpmultispacemerge260606"}
 ---
 
