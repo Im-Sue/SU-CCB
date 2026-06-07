@@ -2,7 +2,7 @@
 id: cmpzoupdv863041443e52441f
 title: 整套oriel和plugin缺少主动的消息通知机制
 doc_type: requirement
-status: planning
+status: delivering
 created: 2026-06-04T16:07:08.036Z
 analysis_input_hash: 15f363447f93a8162970ff5069bca4b322027df3b1978e09ae796a4ebfd0522b
 analysis_applied_at: 2026-06-04T16:36:41.384Z

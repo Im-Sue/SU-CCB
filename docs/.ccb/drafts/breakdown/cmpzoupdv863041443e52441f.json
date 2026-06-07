@@ -5,7 +5,7 @@
   "carrier_task_key": "requirement-attention-notify",
   "base_task_revision": null,
   "generated_at": "2026-06-06T15:24:35.608Z",
-  "updated_at": "2026-06-06T15:34:40.196Z",
+  "updated_at": "2026-06-07T03:43:13.992Z",
   "generated_by": "ai_session",
   "generation_source": {
     "cc_agent": "slot2_claude",
@@ -81,6 +81,28 @@
         "pr4-sidebar-and-reconcile"
       ],
       "include": true
+    },
+    {
+      "section_id": "pr6-requirement-planning-delivering-kernel-policy-pl",
+      "order": 6,
+      "title": "requirement planning→delivering 生命周期写入口补全(kernel policy+plugin 重生+52441f 回填)",
+      "summary": "批尾发现的体系 gap:lifecycles/requirement_lifecycle.yaml 已定义 req__on_first_subtask_dispatched__planning_to_delivering(trigger=subtask_dispatched),但 capability policy 层无 delivering 写入口(plugin generated-policy 无条目),导致批执行期 requirement md 永远停 planning、Console 投影无法呈现交付中状态。范围:① kernel capability policy 源 yaml 注册 requirement 状态写 delivering 条目(write_target=requirement_md,state_effects status set:delivering,from 语义=planning,evidence 引用 journal 的 dispatch_submitted 类事件,样式对齐既有 requirement.promote:planning / requirement.finalize:delivered 条目);② capabilities/global.yaml 如需补注册按 promote 既有样式;③ references lint(lint_manifest.py)回归 + plugin lib/capability-outcome/generated-policy.mjs 重生;④ 修复验证:用新写入口把本需求 cmpzoupdv863041443e52441f 从 planning 推到 delivering(走 applyCapabilityOutcome,严禁手写 status),投影 scan 后确认;⑤ plugin 单测矩阵:planning→delivering 成功、delivering 重入幂等语义(no-op 或 guard 拒,对齐 promote:planning 先例)、delivered/cancelled/deferred 态 guard 拒。边界:su-oriel server/src/generated/capability-outcome-policy.ts 重生不在本任务(归下一个 follow-up,其依赖本任务 kernel 变更);不改 CCB runtime;不动既有 transition 定义。",
+      "spec_section_md": "## requirement planning→delivering 生命周期写入口补全(kernel policy+plugin 重生+52441f 回填)\n\n> 派生自:task cmq2ikpop0g6hqrpli6fgyh5p(subtask-42f58c56b9cd)\n\n### Follow-up\n\n- Type: subtask\n- Description: 批尾发现的体系 gap:lifecycles/requirement_lifecycle.yaml 已定义 req__on_first_subtask_dispatched__planning_to_delivering(trigger=subtask_dispatched),但 capability policy 层无 delivering 写入口(plugin generated-policy 无条目),导致批执行期 requirement md 永远停 planning、Console 投影无法呈现交付中状态。范围:① kernel capability policy 源 yaml 注册 requirement 状态写 delivering 条目(write_target=requirement_md,state_effects status set:delivering,from 语义=planning,evidence 引用 journal 的 dispatch_submitted 类事件,样式对齐既有 requirement.promote:planning / requirement.finalize:delivered 条目);② capabilities/global.yaml 如需补注册按 promote 既有样式;③ references lint(lint_manifest.py)回归 + plugin lib/capability-outcome/generated-policy.mjs 重生;④ 修复验证:用新写入口把本需求 cmpzoupdv863041443e52441f 从 planning 推到 delivering(走 applyCapabilityOutcome,严禁手写 status),投影 scan 后确认;⑤ plugin 单测矩阵:planning→delivering 成功、delivering 重入幂等语义(no-op 或 guard 拒,对齐 promote:planning 先例)、delivered/cancelled/deferred 态 guard 拒。边界:su-oriel server/src/generated/capability-outcome-policy.ts 重生不在本任务(归下一个 follow-up,其依赖本任务 kernel 变更);不改 CCB runtime;不动既有 transition 定义。\n- Source task title: 全链路实机冒烟\n- Source task current node: archive\n\n### Acceptance\n\n- Deliver the follow-up without changing unrelated requirement scope.\n- Keep the source task provenance visible in the implementation receipt.",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr7-attention-inbox-in-memory-map-ack-ref-capability",
+      "order": 7,
+      "title": "attention-inbox 加固:in-memory Map 清理 + ack ref 前缀校验 + capability policy TS 重生",
+      "summary": "pr1/pr3 review 留档风险闭环(su-oriel,分支 ccb/req-52441f-attention 续作,依赖上一 follow-up 的 kernel 变更先合入 plugin):① provider-activity.source 的 completedItems 按 ack 集合清理——computeAttention 已拿到 ackRows,把已 ack 的 completed ref 从 Map 删除;安全性依据:ref 含 idle updated_at 且 mainAgentState 前态为 idle 时 projectMainCompletion 不会重新产生,无『历史 completed 消失』新语义;② debounceFirstSeen 按最后访问时间 TTL 清理(条目 >10min 未访问即删,防 fallback ref 的 10min bucket 键空间无界增长);③ attention-inbox.routes 的 POST ack 对 ref 加 source-native 前缀白名单(review_intent:|consult_request:|event_journal:|dev_task_approval:|slot_binding:|provider_activity:),非法 ref 返回 400(闭合 pr1 review Q4 脏 ref 风险);④ 上一 follow-up 的 kernel delivering 条目落地后,重生 server/src/generated/capability-outcome-policy.ts(generate:capability-policy,注意确认脚本读取的 kernel 路径指向已更新的 plugin 副本)并对齐相关测试;⑤ 单测:ack 后 completedItems 条目消失且不复活、debounce TTL 过期清理、ack ref 白名单正反例、重生产物与 kernel 一致。边界:不动 AttentionItem 已消费 contract 字段;不引入 LRU 封顶(按 ack/TTL 语义化清理);不碰 task SSE。",
+      "spec_section_md": "## attention-inbox 加固:in-memory Map 清理 + ack ref 前缀校验 + capability policy TS 重生\n\n> 派生自:task cmq2ikpmc0g6bqrplkujd4tue(subtask-89e538a4cdb6)\n\n### Follow-up\n\n- Type: subtask\n- Description: pr1/pr3 review 留档风险闭环(su-oriel,分支 ccb/req-52441f-attention 续作,依赖上一 follow-up 的 kernel 变更先合入 plugin):① provider-activity.source 的 completedItems 按 ack 集合清理——computeAttention 已拿到 ackRows,把已 ack 的 completed ref 从 Map 删除;安全性依据:ref 含 idle updated_at 且 mainAgentState 前态为 idle 时 projectMainCompletion 不会重新产生,无『历史 completed 消失』新语义;② debounceFirstSeen 按最后访问时间 TTL 清理(条目 >10min 未访问即删,防 fallback ref 的 10min bucket 键空间无界增长);③ attention-inbox.routes 的 POST ack 对 ref 加 source-native 前缀白名单(review_intent:|consult_request:|event_journal:|dev_task_approval:|slot_binding:|provider_activity:),非法 ref 返回 400(闭合 pr1 review Q4 脏 ref 风险);④ 上一 follow-up 的 kernel delivering 条目落地后,重生 server/src/generated/capability-outcome-policy.ts(generate:capability-policy,注意确认脚本读取的 kernel 路径指向已更新的 plugin 副本)并对齐相关测试;⑤ 单测:ack 后 completedItems 条目消失且不复活、debounce TTL 过期清理、ack ref 白名单正反例、重生产物与 kernel 一致。边界:不动 AttentionItem 已消费 contract 字段;不引入 LRU 封顶(按 ack/TTL 语义化清理);不碰 task SSE。\n- Source task title: provider-activity 文件源\n- Source task current node: archive\n\n### Acceptance\n\n- Deliver the follow-up without changing unrelated requirement scope.\n- Keep the source task provenance visible in the implementation receipt.",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
     }
   ],
   "carrier_task_id": "cmpzoupdv863041443e52441f",
@@ -109,11 +131,67 @@
       "at": "2026-06-06T15:34:40.196Z",
       "actor": "user",
       "action": "status_changed"
+    },
+    {
+      "at": "2026-06-07T03:43:12.753Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "derive_followup reopened consumed breakdown draft"
+    },
+    {
+      "at": "2026-06-07T03:43:12.858Z",
+      "actor": "ai",
+      "action": "edited"
+    },
+    {
+      "at": "2026-06-07T03:43:12.938Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "derive_followup appended a new follow-up subtask"
+    },
+    {
+      "at": "2026-06-07T03:43:12.994Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "derive_followup approved for materialization"
+    },
+    {
+      "at": "2026-06-07T03:43:13.089Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-06-07T03:43:13.320Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "derive_followup reopened consumed breakdown draft"
+    },
+    {
+      "at": "2026-06-07T03:43:13.522Z",
+      "actor": "ai",
+      "action": "edited"
+    },
+    {
+      "at": "2026-06-07T03:43:13.774Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "derive_followup appended a new follow-up subtask"
+    },
+    {
+      "at": "2026-06-07T03:43:13.917Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "derive_followup approved for materialization"
+    },
+    {
+      "at": "2026-06-07T03:43:13.992Z",
+      "actor": "user",
+      "action": "status_changed"
     }
   ],
-  "approved_at": "2026-06-06T15:34:39.587Z",
-  "approved_by": "user",
-  "consumed_at": "2026-06-06T15:34:40.196Z",
+  "approved_at": "2026-06-07T03:43:13.917Z",
+  "approved_by": "ccb_claude",
+  "consumed_at": "2026-06-07T03:43:13.992Z",
   "consumed_by": "ccb_claude",
-  "consumed_from_hash": "db12930dd087b69323ede0b4e05130f3d45a5ba88574794f6e8df3d6994729f6"
+  "consumed_from_hash": "329a0b40666b0e02adc5a28a1b19737d1dabb8d587439989e2b8192fe1a292fe"
 }
