@@ -23,11 +23,11 @@
       "last_error": {
         "op": "merge",
         "reason": "canonical_dirty_outside_allowlist",
-        "at": "2026-06-07T12:27:40.997Z",
+        "at": "2026-06-07T13:11:24.727Z",
         "status": "escalated",
         "requirementId": "cmq3euisf1b2a90a0b3e057f6",
         "path": "/home/sue/dev/SU-CCB",
-        "porcelain": " M su-oriel",
+        "porcelain": " M docs/.ccb/worktrees/cmq3feiumac1ad394d74d8dbf.json\n M docs/02_需求设计/优化-关于需求分析-技术设计文档的可读性和直观性优化-4d8dbf-需求.md",
         "space_id": "root"
       }
     },
@@ -135,13 +135,13 @@
   "last_error": {
     "op": "merge",
     "reason": "canonical_dirty_outside_allowlist",
-    "at": "2026-06-07T12:27:40.997Z",
+    "at": "2026-06-07T13:11:24.727Z",
     "status": "escalated",
     "requirementId": "cmq3euisf1b2a90a0b3e057f6",
     "path": "/home/sue/dev/SU-CCB",
-    "porcelain": " M su-oriel",
+    "porcelain": " M docs/.ccb/worktrees/cmq3feiumac1ad394d74d8dbf.json\n M docs/02_需求设计/优化-关于需求分析-技术设计文档的可读性和直观性优化-4d8dbf-需求.md",
     "space_id": "root"
   },
   "created_at": "2026-06-07T10:16:24.480Z",
-  "updated_at": "2026-06-07T12:27:40.997Z"
+  "updated_at": "2026-06-07T13:11:24.727Z"
 }
