@@ -2,9 +2,10 @@
 doc_type: dev_task
 task_id: subtask-a00a63c9ef51
 title: 调度/派发/投影消费方 SLOT_IDS/isSlotId → topology 动态化
-status: reviewing
-current_node: dispatch
-node_substate: awaiting_codex_pickup
+status: done
+current_node: archive
+node_substate: archived
+review_status: passed
 priority: high
 requirement_id: cmmq2a2x3p25029cbd6d21ff1
 section_id: pr3-scheduler-dynamic
@@ -14,6 +15,8 @@ dependencies: [subtask-a49275357378]
 source_breakdown_draft: docs/.ccb/drafts/breakdown/cmmq2a2x3p25029cbd6d21ff1.json
 source_draft_hash: d59d78137cdefb29c8589355c4c91fd32b4027006f16872f1b8e9e594060343a
 created_at: 2026-06-06T15:09:08.542Z
+updated_at: 2026-06-07T04:39:25.224Z
+updated_by: slot3_claude
 code_workspace: {"path":"../SU-CCB-req-cmmq2a2x3p25029cbd6d21ff1","branch":"ccb/req-cmmq2a2x3p25029cbd6d21ff1"}
 ---
 

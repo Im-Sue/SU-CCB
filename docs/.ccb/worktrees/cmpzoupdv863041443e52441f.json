@@ -1,27 +1,34 @@
 {
   "schema_version": "requirement-worktree-v0.1",
   "requirement_id": "cmpzoupdv863041443e52441f",
-  "status": "ready",
+  "status": "archived",
   "path": "../SU-CCB-req-cmpzoupdv863041443e52441f",
   "branch": "ccb/req-cmpzoupdv863041443e52441f",
   "confirmed_target_branch": "main",
   "base_sha": "db9561f725afb6c457468d0d1b4f0870c6a64040",
   "created_at": "2026-06-06T15:46:31.984Z",
-  "updated_at": "2026-06-07T04:11:23.073Z",
-  "merged_branch_sha": "ece81ab0d6a8a21531b800869103799dee3fba9d",
-  "target_sha_after_merge": "d0e856883b7b5dfbc93378bd4ce544d34603889b",
+  "updated_at": "2026-06-07T05:32:00.013Z",
+  "merged_branch_sha": "a3cf284e6f1817f138e122d4c5022d16f034f33d",
+  "target_sha_after_merge": "12dca4d2aee5ced546d3c87fd07fc9fdc5ffa262",
   "merged_at": "2026-06-06T18:06:47.262Z",
   "merge": {
     "target_branch": "main",
     "warnings": [],
     "canonical_sync": {
-      "status": "noop",
-      "committed": false,
+      "status": "committed",
+      "committed": true,
+      "commitSha": "9a95de3ea7c1480775df8d8f534b83857ca774aa",
+      "paths": [
+        "docs/.ccb/events/journal.jsonl",
+        "docs/.ccb/worktrees/cmpzoupdv863041443e52441f.json"
+      ],
       "allowlist": [
         "docs/02_需求设计/整套oriel和plugin缺少主动的消息通知机制-52441f-需求.md",
+        "docs/03_开发计划/attention-inbox-加固-in-memory-map-清理-ack-ref-前缀校验-capability--3110f8-开发任务.md",
         "docs/03_开发计划/attention-inbox-后端核心-公共-severity-helper-小-migration-业务-5-源批量-08a7f3-开发任务.md",
         "docs/03_开发计划/console-浏览器通知投影-a-舱-notificationmanager-单例-多标签-leader-deep-l-c63343-开发任务.md",
         "docs/03_开发计划/provider-activity-文件源-harness-交互层第-6-源-特判矩阵-防抖分-reason-slotb-a4cdb6-开发任务.md",
+        "docs/03_开发计划/requirement-planning-delivering-生命周期写入口补全-kernel-policy-plug-6c0254-开发任务.md",
         "docs/03_开发计划/sidebar-投影-b-舱-journal-水位对账兜底-两段独立-commit-b5ca9a-开发任务.md",
         "docs/03_开发计划/全链路实机冒烟-6-源真实触发矩阵-ack-sidebar-sse-回归-浏览器侧人工验证清单-56b9cd-开发任务.md",
         "docs/00_文档地图.md",
@@ -33,5 +40,10 @@
     "merge_stdout": "Merge made by the 'ort' strategy.\n su-oriel | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n",
     "merge_stderr": ""
   },
-  "reopened_at": "2026-06-07T04:11:23.073Z"
+  "reopened_at": "2026-06-07T04:11:23.073Z",
+  "archived_at": "2026-06-07T05:32:00.013Z",
+  "archive": {
+    "target_branch": "main",
+    "branch_sha": "a3cf284e6f1817f138e122d4c5022d16f034f33d"
+  }
 }

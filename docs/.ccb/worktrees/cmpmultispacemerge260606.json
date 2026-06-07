@@ -1,0 +1,11 @@
+{
+  "schema_version": "requirement-worktree-v0.1",
+  "requirement_id": "cmpmultispacemerge260606",
+  "status": "ready",
+  "path": "../SU-CCB-req-cmpmultispacemerge260606",
+  "branch": "ccb/req-cmpmultispacemerge260606",
+  "confirmed_target_branch": "main",
+  "base_sha": "12dca4d2aee5ced546d3c87fd07fc9fdc5ffa262",
+  "created_at": "2026-06-07T05:32:23.763Z",
+  "updated_at": "2026-06-07T05:32:23.763Z"
+}

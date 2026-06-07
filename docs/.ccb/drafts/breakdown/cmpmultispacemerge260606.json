@@ -1,9 +1,9 @@
 {
   "schema_version": "breakdown-draft-v0.2",
-  "status": "draft",
+  "status": "consumed",
   "base_task_revision": null,
   "generated_at": "2026-06-07T03:51:45.818Z",
-  "updated_at": "2026-06-07T03:59:56.905Z",
+  "updated_at": "2026-06-07T05:28:13.903Z",
   "carrier_task_key": "multispace-merge-topology-260606",
   "generated_by": "ai_session",
   "generation_source": {
@@ -93,6 +93,27 @@
       "at": "2026-06-07T03:59:56.905Z",
       "actor": "ai",
       "action": "edited"
+    },
+    {
+      "at": "2026-06-07T05:28:12.735Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-06-07T05:28:12.902Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "user-initiated materialize via Console (job_9189e809c8f5); payload hash 24508af0 matches on-disk draft revision (rev1, consult job_7f48524ef45b revisions verbatim-adopted, zero diff since) — pre-materialize consult satisfied by job_7f48524ef45b per no-new-info rule, not re-opened"
+    },
+    {
+      "at": "2026-06-07T05:28:13.903Z",
+      "actor": "user",
+      "action": "status_changed"
     }
-  ]
+  ],
+  "approved_at": "2026-06-07T05:28:12.902Z",
+  "approved_by": "user",
+  "consumed_at": "2026-06-07T05:28:13.903Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "56f84fd263ca94c9bc00d4361027a499b9dbf4676109a462f9f7ce36d3eabf29"
 }
