@@ -5,7 +5,7 @@ doc_type: requirement
 status: planning
 created: 2026-06-06T08:09:20.995Z
 analysis_input_hash: 0c7f44f482f8928e4f778f2a80dafb8e7836038d4d67a0df9676e3f63d24e26c
-analysis_applied_at: 2026-06-07T06:27:15.750Z
+analysis_applied_at: 2026-06-07T06:39:27.912Z
 ---
 
 > ⚠️ Requirement status canonical 在本 md，Console 仅投影展示。
@@ -22,74 +22,106 @@ analysis_applied_at: 2026-06-07T06:27:15.750Z
 
 Console 新建项目的 onboarding banner 提供「复制命令」（`su-oriel/server/src/modules/project/project-onboarding.routes.ts:31 buildManualSetupCommand`），生成 `cd <path> && mkdir -p .ccb && cat > .ccb/ccb.config <<'EOF' && ccb` 一体命令；config 模板含 `startup_args = ["--effort", "max"]`（`managed-config.service.ts:62 CLAUDE_AGENT_DEFAULTS`）。
 
-本需求目标：判定「startup_args 未生效」的真伪与根因归属，并澄清复制命令的期望语义（init-only vs init+launch），再决定修复落点。
+**目标**：复制命令首次执行启动的 claude pane 即带 `--effort max` 生效（现状：仅首次丢参，第二次起正常）。命令语义保持 init+launch 一体（用户拍板 A）。
 
 ## 三、讨论与决策
 
-### 证据链（2026-06-07 实测）
+### 用户拍板（2026-06-07，原话）
 
-1. ccb v7.3.2（release 安装）配置解析用真 tomllib，`startup_args` 在 `ALLOWED_AGENT_KEYS`，claude launcher `service.py:104 cmd_parts.extend(spec.startup_args)`——静态链路完整。
-2. realtime_translator（用户 2026-06-06 16:06 新建）4 个 claude pane 进程 cmdline 全部带 `--model opus[1m] --effort max`，无 `--continue`（首启路径）；本需求 16:09 创建。
-3. Codex 补证：运行态 session 文件 `.claude-main_claude-session` 的 `start_cmd` 带 `--effort max`；`agents/main_claude/agent.json` 归一化 `startup_args` 为 `["--model","opus[1m]","--effort","max"]`。
-4. `--effort` 合法值含 max（claude 2.1.168 `--help` 实测）；settings overlay 与用户 settings.json 均无 effort 覆盖。
-5. claude-hud 的 effort 显示默认关闭（`config.ts:178 showEffortLevel: false`，已复核），开启时依赖 Claude Code statusline stdin 的 `effort.level`（2.1.115+）。
+> 1. 从claude code的终端里看到的   2. A保持现状   3. 退出后第二次跑会正常，仅首次问题
 
-### Codex 协商纪要（consult，job_9f9b7f296756）
+### 第一轮取证（2026-06-07，拍板前）
 
-- 同意「ccb 传参链路无明显丢失」，并以 session/agent.json 两层补强。
-- 不同意定性为「根本不是 bug」：准确表述是「ccb 传参 bug 基本排除，但 Claude Code 内部是否采用该 effort、HUD 是否显示、用户是否期望 init-only 仍未判定」。
-- 新发现旁路：已有可复用 pane 时 ccb attach 不重启，config 新 `startup_args` 不 retroactive 生效；崩溃恢复用 session 文件旧 `start_cmd`。不符合本次首启场景，但解释「日后改配置看似不生效」。
-- 建议：B（观察渠道/显示诊断）+ A（复制命令语义确认）拆分推进，不动 ccb 传参链路。analysis_depth_hint: human-decision。
+1. ccb v7.3.2（release 安装，BUILD_INFO：commit 1e1b778，2026-06-06 15:35 安装）配置解析用真 tomllib，`startup_args` 在 `ALLOWED_AGENT_KEYS`，claude launcher `service.py:104 cmd_parts.extend(spec.startup_args)`——静态链路完整。
+2. realtime_translator 现存 4 个 claude pane 进程 cmdline 全带 `--model opus[1m] --effort max`；Codex 补证 session 文件 `start_cmd` 与 `agent.json` 归一化 `startup_args` 同样带全。
+3. `--effort` 合法值含 max（claude 2.1.168）；settings overlay 与用户 settings.json 无 effort 覆盖；claude-hud effort 显示默认关闭（`config.ts:178`）。
 
-### Claude 反思（4 锚点）
+### 第二轮取证（拍板后，时间线重建）
 
-- **我同意的**：Codex 的限定表述比我最初「reframe 成观察渠道问题」更严谨——证据只覆盖「参数传到进程层」，不覆盖「Claude Code 会话内部采用」；B+A 拆分让根因诊断与产品语义解耦，可并行问用户；证据全绿时不动传参链路代码，避免制造回归。
-- **我不同意的**：Codex 把 option C（关闭为非 bug）列为当前选项。HUD 默认不显示 effort 意味着用户大概率「看到了别的什么」才下结论，在观察渠道明确前预设结论方向会污染用户问题的中立性；C 只能是拍板后的可能出口。
-- **我的盲点**：attach-不重启旁路和 HUD `showEffortLevel` 默认值都是 Codex 指出后我才补查的——我查到了 HUD 读 effort 的机制却没查显示开关默认值，取证只推进到 OS argv 层就停了。
-- **接下来**：复核 HUD 默认值（已完成，属实）→ 写入本分析 → 升级用户 3 个拍板问题 → 停在需求分析完成态，不自动进技术设计（human-decision + 必问项未决）。
+| 时刻（2026-06-06 +0800） | 事件 | 证据 |
+|---|---|---|
+| 15:23:54 | WSL 开机（旧 daemon 不可能存活） | `uptime -s` |
+| 15:35 | 用户更新 ccb 至 v7.3.2 | BUILD_INFO `installed_at` |
+| 16:04:36 | 粘贴复制命令，config 写入（此后未再改） | `ccb.config` mtime |
+| 16:04:39 | **run-1 启动**（provider 目录创建）；用户亲见 claude 不带 `--effort max` | provider-runtime mtime + 用户拍板 1 |
+| 16:04:46/51 | run-1 内 main_claude 两个 session-env（5 秒双启，relaunch churn 迹象） | session-env 目录 mtime |
+| 16:06:09-13 | **run-2 启动**：keeper `restart_count=1`，ccbd.sock 重建，agent.json/session 写入，claude 带全参数启动至今 | keeper.json + ps lstart |
+| 16:09 | 用户提本需求 | frontmatter created |
+
+**环境关键事实**：`.ccb/agents/` 下存在 `agent1/2/3` + `ccb_codex`（2026-05-20 时代，attempts.jsonl 实证）多代残留；ccbd lifecycle `generation=5`。run-1 = 新版 ccb 在多代残留状态上的首次 mount。
+
+### Codex 协商纪要（consult，job_9f9b7f296756，拍板前）
+
+- 同意「ccb 静态传参链路无丢失」，补强 session/agent.json 两层证据。
+- 不同意草率定性「非 bug」：「ccb 传参 bug 基本排除」仅指静态链路，Claude Code 采用、显示、用户期望仍未判定——**拍板后印证了这一审慎**：问题真实存在于首启动态路径。
+- 新发现 attach-不重启旁路与崩溃恢复用旧 `start_cmd`——与拍板后锁定的根因方向（恢复路径丢参）直接呼应。
+- 建议 B+A 拆分推进。analysis_depth_hint: human-decision。
+
+### Claude 反思（4 锚点，拍板前原文保留）
+
+- **我同意的**：Codex 的限定表述比我最初「reframe 成观察渠道问题」更严谨——证据只覆盖「参数传到进程层」，不覆盖「Claude Code 会话内部采用」；B+A 拆分让根因诊断与产品语义解耦；证据全绿时不动传参链路代码。
+- **我不同意的**：Codex 把「关闭为非 bug」列为当前选项——在观察渠道明确前预设结论方向会污染用户问题中立性。
+- **我的盲点**：attach-不重启旁路和 HUD 默认值都是 Codex 指出后我才补查；取证只推进到 OS argv 层就停了。**拍板后追加**：更大的盲点是把幸存进程当成首启进程——「带参进程在跑」证明的是 run-2，不证伪用户对 run-1 的观察。
+- **接下来**：（已完成）复核 HUD 默认值 → 升级用户三问 → 拍板后二轮取证 → 本定稿。
+
+## 四、功能 / 范围
+
+**范围内**：ccb 首次启动（含带历史残留状态目录的首次 mount）时 `startup_args` 生效问题的根因定位与修复推动。
+
+**范围外**：su-oriel 复制命令与 config 模板（已验证正确，且语义经拍板保持）；Claude Code 内部 effort 策略（上游闭源）；attach-不重启旁路的 retroactive 生效（如需修复另立需求）。
+
+**验收口径**：
+1. 场景 A（带多代残留 `.ccb` 状态的目录）与场景 B（全新干净目录）：执行复制命令后**首次** `ccb` 启动的全部 claude pane 进程 cmdline 即带 `--model opus[1m] --effort max`（`ps` 可验）。
+2. 第二次及以后启动行为不回归。
+3. 修复落地形态（ccb 上游仓修复 vs 上报移交 + 等待 release）由技术设计阶段给出方案并经用户拍板。
 
 ## 六、边界 / 不做项
 
-1. 不修改 ccb 传参链路（codex-dual 仓）代码——证据全绿。
-2. Claude Code 内部 effort 采用/钳制策略不在本仓与 ccb 仓修复范围，若根因落此只能适配（如显示提示）或上报上游。
-3. attach-不重启旁路（运行中改 config 不 retroactive）若需修复，另立需求，不并入本 bug。
+1. 不改 su-oriel 复制命令语义（拍板 A：init+launch 保持）。
+2. 不改 ccb 静态传参链路（证据全绿）；根因在首启动态路径，修复在 ccb 上游仓（本机无源码仓，仅 release 安装与 tarball）。
+3. Claude Code 内部 effort 采用/钳制策略不在修复范围。
+4. attach-不重启旁路不并入本 bug。
 
 ## 七、开放问题 / 假设
 
-**待用户拍板（已升级，见需求分析产出）**：
+**用户拍板项**：已全部闭环（见「三、讨论与决策」），无遗留待用户确认项。
 
-1. 「没生效」的观察渠道与具体所见：HUD（若是，`display.showEffortLevel` 是否已开启）？`/status`？行为体感？还是其他？
-2. 复制命令的期望语义：保持 init+launch 一体（现设计），还是改为 init-only（写完 config 提示用户手动跑 `ccb`）？
-3. 第二次及以后进入 ccb 时，观察结果是否不同？
+**技术设计阶段输入**（下一节点工作项，非用户 TBD）：
+1. 在带残留状态目录上复现 run-1 丢参，定位精确机制（候选：recovery/迁移路径用非 config 来源 start_cmd；bootstrap 先行 spawn；relaunch 路径丢参——run-1 五秒双 session-env 是线索）。
+2. 确认 ccb 源码仓接入方式或上报通道，给出修复落地方案供拍板。
 
-**假设（待证伪）**：
-
-- 用户观察的是 2026-06-06 16:06 首启的 realtime_translator 会话。
-- `ps` cmdline 可作为 ccb 传参到进程层的有效证据。
+**假设（已尽可能证实）**：
+- run-1 与 run-2 使用同一 binary 与同一 config（mtime 链证实）。
+- 用户终端所见可采信为 run-1 真实 spawn 状态（已无法从 ps/session-env 直接恢复 run-1 argv，session-env 为空目录）。
 
 ## 十三、风险
 
-1. Claude Code 可能在特定模型组合（如 `opus[1m]`）或内部策略下静默忽略/钳制 effort——两仓均不可直接修复。
-2. 用户真实诉求可能落在「复制命令直接进入 ccb」的 UX 上而非 effort 本身；只回复「已生效」会漏掉 init-only 诉求。
-3. attach-不重启旁路会在「改 config 后重进」场景复现「看似不生效」，易与本 bug 混淆。
+1. run-1 现场不可完全复原（进程已死、session-env 空、tmux server 已重建），根因定位依赖在残留状态目录上的主动复现；若复现不稳定，定位成本上升。
+2. 修复在 ccb 上游仓，本工作区无源码——推动周期不完全可控；必要时以「上报 + 复现脚本 + 定位报告」交付。
+3. attach-不重启旁路会在「改 config 后重进」场景复现「看似不生效」，易与本 bug 混淆，沟通时需区分。
+4. 多代残留状态（agent1/2/3、ccb_codex）可能还隐藏其他首启异常，复现时可能发现衍生问题。
 
 ## Claude 解读
 
-用户在 Console 新建项目后，使用 onboarding banner 的「复制命令」（由 su-oriel `project-onboarding.routes.ts` 的 `buildManualSetupCommand` 生成：写 `.ccb/ccb.config` 后立即启动 `ccb`）。用户报告两点：① 命令首次执行后直接进入 ccb（语气上为意外）；② config 中 `startup_args = ["--effort", "max"]` 疑似未生效。
+【用户拍板后定稿，2026-06-07】用户在 Console 新建项目 realtime_translator 后执行 onboarding「复制命令」（写 `.ccb/ccb.config` + 立即启动 `ccb`，su-oriel `project-onboarding.routes.ts buildManualSetupCommand`）。经三问拍板与二轮取证，问题收口为：
 
-实测取证（2026-06-07）：用户 2026-06-06 16:06:12 首启的 realtime_translator 项目 4 个 claude pane 进程 cmdline 均带 `--model opus[1m] --effort max`（无 `--continue`，即首启路径）；运行态 session 文件 `start_cmd` 与 `agent.json` 归一化后的 `startup_args` 同样带全。即 ccb 传参链路（Console 模板 → tomllib 解析 → spec 归一化 → claude launcher → OS argv）全绿，参数已传到进程层。本需求创建于 16:09，用户提 bug 时观察的正是这些已带参进程。
+**同一 ccb binary（v7.3.2，用户当日 15:35 刚更新）+ 同一 config（16:04:36 写入后未再改）下：首次 `ccb` 启动（16:04:39）的 claude pane 不带 `--effort max`（用户在 Claude Code 终端亲见）；退出后第二次启动（16:06:09）起完全正常**（进程 argv / session start_cmd / agent.json 三层实证带参）。复制命令的 init+launch 一体语义经用户拍板保持现状（选 A），「直接进入了ccb」移出问题范围。
 
-矛盾点收敛为：参数已传到，但用户基于某个未知观察渠道判断其未生效。结合 claude-hud 的 effort 显示开关 `display.showEffortLevel` 默认 false、且显示依赖 Claude Code statusline stdin 上报 `effort.level`，「没看到 max」不能等价于「参数没传」。真实工作项待用户拍板后预计落为：B) 观察渠道/显示诊断；A) 复制命令语义确认（init-only vs init+launch，现设计为后者）。ccb 传参链路本身证据全绿，不立即修改代码。
+关键环境事实：该目录**非处女目录**——`.ccb/agents/` 下同时存在 `agent1/2/3`（更早默认拓扑时代）与 `ccb_codex`（2026-05-20 时代，attempts.jsonl 实证旧 agent 名）多代残留，ccbd lifecycle generation=5；WSL 当日 15:23 才开机，旧 daemon 不可能存活，即 run-1 是新版代码在旧残留状态上的首次 mount。run-1 期间 main_claude 的 session-env 在 5 秒内出现两次（16:04:46/16:04:51），暗示 pane relaunch churn。
+
+根因方向锁定为 **ccb CLI 首启对残留运行态的 mount/recovery 路径在 spawn 时丢失 startup_args**，具体机制待技术设计阶段复现定位。修复落点在 ccb 上游仓（本机仅 release 安装与 tarball，无源码仓）；本仓 su-oriel 的命令与 config 生成均正确，无代码改动。
 ## 歧义点
 
-1. 「应该是没有生效的」是推断非实证：用户未说明观察渠道（claude-hud？`/status`？行为体感？）。claude-hud 的 `display.showEffortLevel` 默认 false（config.ts:178 实证），且显示依赖 Claude Code statusline 上报——观察渠道决定根因归属（Claude Code 会话内部采用策略 vs 显示层 vs 认知偏差）。→ 升级用户（拍板问题 1）。
-2. 「直接进入了ccb」是待修问题还是过程叙述：现设计即 init+launch 一体（banner 文案「完成 ccb.config 写入与 ccbd 启动」+ 测试断言），用户原话「应该是初始化CCB的命令」暗示期望 init-only。产品语义分歧。→ 升级用户（拍板问题 2）。
-3. 「第一次执行后」是否暗示后续执行正常：未说明再次进入 ccb 时观察结果是否不同，复现条件未定义。→ 升级用户（拍板问题 3）。
-4. 修复落点跨仓未定义：su-oriel（本仓，命令模板/文案）、ccb CLI（codex-dual 外仓，release 安装非本工作区）、Claude Code（上游闭源）三层；若根因在 Claude Code 内部 effort 采用策略，两仓均只能适配或上报。→ 依赖拍板问题 1 的答案，暂不可决。
+分析期歧义 4 项已全部闭环（用户拍板 2026-06-07，原话见「三、讨论与决策」）：
 
-本清单共 4 项，已满足「至少 3 项」要求；隐私/合规/成本/不可逆类不命中（纯本地 CLI 启动参数与 UX 语义问题，无数据外发、无 schema 变更、无新依赖）。
+1. 「没生效」观察渠道 → **已解决**：用户在 Claude Code 终端亲见（非 HUD/体感推断）。结合复现条件，采信为 run-1 真实现象。
+2. 「直接进入了ccb」定性 → **已解决**：用户选 A 保持现状（init+launch 一体是预期），移出问题范围。
+3. 复现条件 → **已解决**：仅首次启动异常，退出后第二次起正常。
+4. 修复落点 → **方向已定**：根因在 ccb CLI 首启路径（上游仓）；本机无 ccb 源码仓（release 安装），「上报移交」还是「接入源码仓修复」由技术设计阶段连同根因复现一并给出方案供拍板。
+
+遗留技术问题（设计阶段输入，非用户待定项）：run-1 丢参的精确机制——候选：① 对多代残留状态的 recovery/迁移路径用了非 config 来源的 start_cmd；② bootstrap 先行 spawn 早于 agent spec 归一化；③ run-1 内 5 秒双 session-env 对应的 relaunch 路径丢参。需在带残留状态的目录上复现验证。
 ## 保真差异
 
-① 用户断言「参数应该是没有生效的」；实测进程 argv、session start_cmd、agent.json 三层均带 `--effort max`。本文档将该断言降级表述为「用户观察到的某个信号显示 effort 未达 max」——断言强度被有意削弱，待用户提供观察证据后再定性。
-② 用户「直接进入了ccb」语带意外；现设计与 banner 文案明示 init+launch 是预期行为。本文档将其标记为「期望与设计的分歧待拍板」而非既成 bug。
-③ 用户主诉聚焦 effort 参数；本分析补充了用户未提及的 attach-不重启旁路（运行中改 config 不 retroactive 生效、崩溃恢复用 session 旧 start_cmd）作为关联风险——属分析扩展，非用户原意。
+① 【本轮修正】分析初稿曾把用户断言「参数应该是没有生效的」降级为「观察渠道未知的推断」，并以 16:06 进程带参作为「决定性证据」——用户拍板（仅首次异常、第二次正常）后修正：该证据证明的是**第二次运行**正常，不证伪用户对**首次运行**的观察；用户断言对 run-1 恢复为采信。初稿误判根源是把幸存进程当成了首启进程。
+② 用户原话「应该是初始化CCB的命令」对 init+launch 语义的意外语气：经拍板选 A（保持现状），该差异按用户决定归档，不再视为问题。
+③ attach-不重启旁路（运行中改 config 不 retroactive 生效）仍为分析扩展，非用户原意，已记入风险节与边界节。
