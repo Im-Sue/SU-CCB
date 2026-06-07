@@ -1,7 +1,7 @@
 {
   "schema_version": "requirement-worktree-v0.2",
   "requirement_id": "cmq3ifdhy0887ac1757c6c368",
-  "aggregate_status": "escalated",
+  "aggregate_status": "archived",
   "spaces": [
     {
       "space_id": "root",
@@ -11,25 +11,42 @@
       "branch": "ccb/req-cmq3ifdhy0887ac1757c6c368",
       "target_branch": "main",
       "base_sha": "f34ded5e47bf1063d26149b6495b7d89ef5bc367",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
-      "archived_at": null,
-      "archive": null,
+      "status": "archived",
+      "merged_branch_sha": "f34ded5e47bf1063d26149b6495b7d89ef5bc367",
+      "target_sha_after_merge": "86be49ee02ae173dcab47bb146e47b1e1fa7cb11",
+      "merged_at": "2026-06-07T13:23:16.054Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": {
+          "status": "committed",
+          "committed": true,
+          "commitSha": "86be49ee02ae173dcab47bb146e47b1e1fa7cb11",
+          "paths": [
+            "docs/.ccb/events/journal.jsonl",
+            "docs/.ccb/worktrees/cmq3ifdhy0887ac1757c6c368.json",
+            "docs/00_文档地图.md"
+          ],
+          "allowlist": [
+            "docs/02_需求设计/优化-一键初始化知识库的交互优化-c6c368-需求.md",
+            "docs/03_开发计划/确认初始化后自动弹出-main-终端弹窗-fallback-显式重试-d0744c-开发任务.md",
+            "docs/00_文档地图.md",
+            "docs/.ccb/events/journal.jsonl",
+            "docs/.ccb/worktrees/cmq3ifdhy0887ac1757c6c368.json",
+            "docs/.ccb/drafts/breakdown/cmq3ifdhy0887ac1757c6c368.json"
+          ]
+        },
+        "merge_stdout": "",
+        "merge_stderr": ""
+      },
+      "archived_at": "2026-06-07T13:41:57.457Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "f34ded5e47bf1063d26149b6495b7d89ef5bc367"
+      },
       "discarded_at": null,
       "reopened_at": null,
-      "last_error": {
-        "op": "merge",
-        "reason": "canonical_dirty_outside_allowlist",
-        "at": "2026-06-07T13:22:43.774Z",
-        "status": "escalated",
-        "requirementId": "cmq3ifdhy0887ac1757c6c368",
-        "path": "/home/sue/dev/SU-CCB",
-        "porcelain": " M docs/.ccb/worktrees/cmq3euisf1b2a90a0b3e057f6.json\n M docs/02_需求设计/bug-需求详情里的终端-终端组件滚动问题-e057f6-需求.md",
-        "space_id": "root"
-      }
+      "last_error": null
     },
     {
       "space_id": "su-ccb-claude-plugin",
@@ -39,13 +56,22 @@
       "branch": "ccb/req-cmq3ifdhy0887ac1757c6c368",
       "target_branch": "main",
       "base_sha": "ecd730a1f3a8a17005dc6c80bb126654c1305785",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
-      "archived_at": null,
-      "archive": null,
+      "status": "archived",
+      "merged_branch_sha": "ecd730a1f3a8a17005dc6c80bb126654c1305785",
+      "target_sha_after_merge": "69f344bffafb3c7f948402099c2772edae44941d",
+      "merged_at": "2026-06-07T13:23:16.157Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "",
+        "merge_stderr": ""
+      },
+      "archived_at": "2026-06-07T13:41:57.665Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "ecd730a1f3a8a17005dc6c80bb126654c1305785"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -58,13 +84,22 @@
       "branch": "ccb/req-cmq3ifdhy0887ac1757c6c368",
       "target_branch": "main",
       "base_sha": "63aad0629a3d7fb4fd37018a6ffb9a24d856ece6",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
-      "archived_at": null,
-      "archive": null,
+      "status": "archived",
+      "merged_branch_sha": "ffec23df5c739c4306c4cea7ca2e7f9a0e12849a",
+      "target_sha_after_merge": "ffec23df5c739c4306c4cea7ca2e7f9a0e12849a",
+      "merged_at": "2026-06-07T13:23:16.257Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "Updating e8dcfc2..ffec23d\nFast-forward\n .../main-terminal/MainTerminalLauncher.spec.tsx    | 130 ++++++++++++++++++++-\n .../main-terminal/MainTerminalLauncher.tsx         |  15 +++\n .../projects/ProjectOnboardingBanner.spec.tsx      |  47 +++++++-\n .../projects/ProjectOnboardingBanner.tsx           |   3 +\n .../slot-terminal/MainTerminalPanel.module.css     |  15 +++\n .../components/slot-terminal/MainTerminalPanel.tsx |  16 ++-\n web/src/stores/ui-store.ts                         |  11 ++\n 7 files changed, 231 insertions(+), 6 deletions(-)\n",
+        "merge_stderr": ""
+      },
+      "archived_at": "2026-06-07T13:41:58.269Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "ffec23df5c739c4306c4cea7ca2e7f9a0e12849a"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -77,13 +112,22 @@
       "branch": "ccb/req-cmq3ifdhy0887ac1757c6c368",
       "target_branch": "main",
       "base_sha": "646cf721e15624a207b4c59089b491e45b24587d",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
-      "archived_at": null,
-      "archive": null,
+      "status": "archived",
+      "merged_branch_sha": "646cf721e15624a207b4c59089b491e45b24587d",
+      "target_sha_after_merge": "646cf721e15624a207b4c59089b491e45b24587d",
+      "merged_at": "2026-06-07T13:23:16.335Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "",
+        "merge_stderr": ""
+      },
+      "archived_at": "2026-06-07T13:41:58.384Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "646cf721e15624a207b4c59089b491e45b24587d"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -96,10 +140,10 @@
       "from_space": "su-ccb-claude-plugin",
       "to_space": "root",
       "submodule_path": "su-ccb-claude-plugin",
-      "status": "pending",
-      "synced_commit_sha": null,
-      "noop": false,
-      "synced_at": null,
+      "status": "synced",
+      "synced_commit_sha": "69f344bffafb3c7f948402099c2772edae44941d",
+      "noop": true,
+      "synced_at": "2026-06-07T13:23:16.517Z",
       "last_error": null
     },
     {
@@ -108,10 +152,10 @@
       "from_space": "su-oriel",
       "to_space": "root",
       "submodule_path": "su-oriel",
-      "status": "pending",
-      "synced_commit_sha": null,
+      "status": "synced",
+      "synced_commit_sha": "8a50e646446eacd4e8972c90fe48c40175a6d340",
       "noop": false,
-      "synced_at": null,
+      "synced_at": "2026-06-07T13:23:16.725Z",
       "last_error": null
     },
     {
@@ -120,10 +164,10 @@
       "from_space": "su-ccb-codex-skills",
       "to_space": "root",
       "submodule_path": "su-ccb-codex-skills",
-      "status": "pending",
-      "synced_commit_sha": null,
-      "noop": false,
-      "synced_at": null,
+      "status": "synced",
+      "synced_commit_sha": "646cf721e15624a207b4c59089b491e45b24587d",
+      "noop": true,
+      "synced_at": "2026-06-07T13:23:16.915Z",
       "last_error": null
     }
   ],
@@ -132,16 +176,7 @@
     "schema_version": "implementation-topology-v0.1",
     "content_hash": "7ac179da7822d7cc9454fdb9a3012031c393808cf9ee804a6ad9dae0f1e8e189"
   },
-  "last_error": {
-    "op": "merge",
-    "reason": "canonical_dirty_outside_allowlist",
-    "at": "2026-06-07T13:22:43.774Z",
-    "status": "escalated",
-    "requirementId": "cmq3ifdhy0887ac1757c6c368",
-    "path": "/home/sue/dev/SU-CCB",
-    "porcelain": " M docs/.ccb/worktrees/cmq3euisf1b2a90a0b3e057f6.json\n M docs/02_需求设计/bug-需求详情里的终端-终端组件滚动问题-e057f6-需求.md",
-    "space_id": "root"
-  },
+  "last_error": null,
   "created_at": "2026-06-07T10:02:03.702Z",
-  "updated_at": "2026-06-07T13:22:43.774Z"
+  "updated_at": "2026-06-07T13:41:58.438Z"
 }
