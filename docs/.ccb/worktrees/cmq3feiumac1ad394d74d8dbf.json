@@ -1,7 +1,7 @@
 {
   "schema_version": "requirement-worktree-v0.2",
   "requirement_id": "cmq3feiumac1ad394d74d8dbf",
-  "aggregate_status": "escalated",
+  "aggregate_status": "archived",
   "spaces": [
     {
       "space_id": "root",
@@ -11,25 +11,44 @@
       "branch": "ccb/req-cmq3feiumac1ad394d74d8dbf",
       "target_branch": "main",
       "base_sha": "f34ded5e47bf1063d26149b6495b7d89ef5bc367",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
-      "archived_at": null,
-      "archive": null,
+      "status": "archived",
+      "merged_branch_sha": "d20b93bb26364a4fa080de511b5173b1dfac7e9b",
+      "target_sha_after_merge": "7cf72b6baaca2f301c69e94ca278657750b95cbe",
+      "merged_at": "2026-06-07T13:08:23.812Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": {
+          "status": "committed",
+          "committed": true,
+          "commitSha": "72b6723381dd28add01ef912e7313a69a230d1b2",
+          "paths": [
+            "docs/.ccb/events/journal.jsonl",
+            "docs/00_文档地图.md"
+          ],
+          "allowlist": [
+            "docs/02_需求设计/优化-关于需求分析-技术设计文档的可读性和直观性优化-4d8dbf-需求.md",
+            "docs/03_开发计划/3-份模板补强-applyrequirementanalysis-写-expression-spec-标记-d77c80-开发任务.md",
+            "docs/03_开发计划/console-巡检表达检查-gate-隔离-骨架-13-章-指引-2d5952-开发任务.md",
+            "docs/03_开发计划/kernel-表达规范-4-节点-manifest-接线-2999c2-开发任务.md",
+            "docs/03_开发计划/本项目契约-wiring-模板落地-全链路验收-4ce165-开发任务.md",
+            "docs/00_文档地图.md",
+            "docs/.ccb/events/journal.jsonl",
+            "docs/.ccb/worktrees/cmq3feiumac1ad394d74d8dbf.json",
+            "docs/.ccb/drafts/breakdown/cmq3feiumac1ad394d74d8dbf.json"
+          ]
+        },
+        "merge_stdout": "Merge made by the 'ort' strategy.\n docs/.ccb/docs-structure-contract.yaml             |  14 ++\n ...50\\241\\346\\235\\277_\\346\\236\\266\\346\\236\\204.md\" | 175 ++++++++++++++++++\n ...50\\241\\346\\235\\277_\\351\\234\\200\\346\\261\\202.md\" | 196 +++++++++++++++++++++\n ...274\\200\\345\\217\\221\\344\\273\\273\\345\\212\\241.md\" | 115 ++++++++++++\n ...212\\200\\346\\234\\257\\350\\256\\276\\350\\256\\241.md\" | 163 +++++++++++++++++\n ...250\\241\\345\\235\\227\\350\\247\\204\\346\\240\\274.md\" | 158 +++++++++++++++++\n ...273\\217\\351\\252\\214\\346\\262\\211\\346\\267\\200.md\" |  70 ++++++++\n .../_\\346\\250\\241\\346\\235\\277_ADR.md\"              |  74 ++++++++\n ...226\\207\\346\\241\\243\\345\\234\\260\\345\\233\\276.md\" |  43 +++++\n ...241\\271\\347\\233\\256\\346\\200\\273\\350\\247\\210.md\" |  85 +++++++++\n 10 files changed, 1093 insertions(+)\n create mode 100644 \"docs/01_\\346\\236\\266\\346\\236\\204\\350\\256\\276\\350\\256\\241/_\\346\\250\\241\\346\\235\\277_\\346\\236\\266\\346\\236\\204.md\"\n create mode 100644 \"docs/02_\\351\\234\\200\\346\\261\\202\\350\\256\\276\\350\\256\\241/_\\346\\250\\241\\346\\235\\277_\\351\\234\\200\\346\\261\\202.md\"\n create mode 100644 \"docs/03_\\345\\274\\200\\345\\217\\221\\350\\256\\241\\345\\210\\222/_\\346\\250\\241\\346\\235\\277_\\345\\274\\200\\345\\217\\221\\344\\273\\273\\345\\212\\241.md\"\n create mode 100644 \"docs/03_\\345\\274\\200\\345\\217\\221\\350\\256\\241\\345\\210\\222/_\\346\\250\\241\\346\\235\\277_\\346\\212\\200\\346\\234\\257\\350\\256\\276\\350\\256\\241.md\"\n create mode 100644 \"docs/04_\\346\\250\\241\\345\\235\\227\\350\\247\\204\\346\\240\\274/_\\346\\250\\241\\346\\235\\277_\\346\\250\\241\\345\\235\\227\\350\\247\\204\\346\\240\\274.md\"\n create mode 100644 \"docs/05_\\347\\273\\217\\351\\252\\214\\346\\262\\211\\346\\267\\200/_\\346\\250\\241\\346\\235\\277_\\347\\273\\217\\351\\252\\214\\346\\262\\211\\346\\267\\200.md\"\n create mode 100644 \"docs/06_\\345\\206\\263\\347\\255\\226\\350\\256\\260\\345\\275\\225/_\\346\\250\\241\\346\\235\\277_ADR.md\"\n create mode 100644 \"docs/_\\346\\250\\241\\346\\235\\277_\\346\\226\\207\\346\\241\\243\\345\\234\\260\\345\\233\\276.md\"\n create mode 100644 \"docs/_\\346\\250\\241\\346\\235\\277_\\351\\241\\271\\347\\233\\256\\346\\200\\273\\350\\247\\210.md\"\n",
+        "merge_stderr": ""
+      },
+      "archived_at": "2026-06-07T13:10:54.365Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "d20b93bb26364a4fa080de511b5173b1dfac7e9b"
+      },
       "discarded_at": null,
       "reopened_at": null,
-      "last_error": {
-        "op": "merge",
-        "reason": "canonical_dirty_outside_allowlist",
-        "at": "2026-06-07T11:12:35.257Z",
-        "status": "escalated",
-        "requirementId": "cmq3feiumac1ad394d74d8dbf",
-        "path": "/home/sue/dev/SU-CCB",
-        "porcelain": " M docs/.ccb/worktrees/cmpvdsgdf40042bda10261d73.json\n M docs/.ccb/worktrees/cmpxrd5tx5a10460b1fa4017f.json\n M docs/.ccb/worktrees/cmpy6y7oe23104eb766718db0.json\n M docs/02_需求设计/bug-需求详情里的终端-终端组件滚动问题-e057f6-需求.md\n M docs/02_需求设计/bug-项目初始化的问题-9201ab-需求.md\n M docs/02_需求设计/console-文件监听器不为运行时新建项目注册-watcher-40d29c-需求.md\n M su-oriel\n?? docs/.ccb/assets/requirements/cmq3lp9jy559ead7b3fe9f09f/3e02261477c3d58664453d3891a7461fb570aee280d2baddac6e2eb582a90612.png\n?? docs/.ccb/drafts/breakdown/cmq3euisf1b2a90a0b3e057f6.json\n?? docs/.ccb/drafts/breakdown/cmq3ifdhy0887ac1757c6c368.json\n?? docs/.ccb/worktrees/cmq3euisf1b2a90a0b3e057f6.json\n?? docs/.ccb/worktrees/cmq3ifdhy0887ac1757c6c368.json\n?? docs/02_需求设计/bug-新项目的需求里绑定slot报错-e9f09f-需求.md\n?? docs/02_需求设计/bug-项目切换之后似乎有什么操作会数据错乱问题-23ee06-需求.md\n?? docs/02_需求设计/mark思想-不开发-a249f3-需求.md\n?? docs/02_需求设计/优化-一键初始化知识库的交互优化-c6c368-需求.md\n?? docs/02_需求设计/需求级动态agent拓扑-决策agent招募-rolepack角色-fqn0ds-需求.md\n?? docs/03_开发计划/bug-slot终端运行期历史持续累积-e057f6-技术设计.md\n?? docs/03_开发计划/ws-pump-接线-stream-模式端到端-mock-集成-降级链-6c874a-开发任务.md\n?? docs/03_开发计划/优化-一键初始化知识库的交互优化-c6c368-技术设计.md\n?? docs/03_开发计划/前端帧协议-渲染写入模型-scrollback-截断修复-p1-7c0a53-开发任务.md\n?? docs/03_开发计划/后端-per-pane-流-recorder-组件-fifo-槽位检测-ring-生命周期-0bfe44-开发任务.md\n?? docs/03_开发计划/文档可读性-落档表达规范与写路径接线-4d8dbf-技术设计.md\n?? docs/03_开发计划/真-tmux-集成五断言-真浏览器人工验收清单-p2-837460-开发任务.md\n?? docs/03_开发计划/确认初始化后自动弹出-main-终端弹窗-fallback-显式重试-d0744c-开发任务.md",
-        "space_id": "root"
-      }
+      "last_error": null
     },
     {
       "space_id": "su-ccb-claude-plugin",
@@ -39,13 +58,22 @@
       "branch": "ccb/req-cmq3feiumac1ad394d74d8dbf",
       "target_branch": "main",
       "base_sha": "ecd730a1f3a8a17005dc6c80bb126654c1305785",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
-      "archived_at": null,
-      "archive": null,
+      "status": "archived",
+      "merged_branch_sha": "69f344bffafb3c7f948402099c2772edae44941d",
+      "target_sha_after_merge": "69f344bffafb3c7f948402099c2772edae44941d",
+      "merged_at": "2026-06-07T13:08:23.921Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "Updating ecd730a..69f344b\nFast-forward\n .../__tests__/requirement-analysis.test.mjs        |   4 +\n lib/requirement-analysis/index.mjs                 |   8 +-\n lib/su-init/__tests__/su-init.test.mjs             |  30 ++++++\n references/kernel/README.md                        |   1 +\n references/kernel/document-expression-spec.md      | 113 +++++++++++++++++++++\n .../kernel/nodes/requirement_analysis.node.md      |   9 +-\n references/kernel/nodes/review.node.md             |   3 +\n references/kernel/nodes/task_breakdown.node.md     |   2 +-\n references/kernel/nodes/technical_design.node.md   |   2 +-\n ...50\\241\\346\\235\\277_\\351\\234\\200\\346\\261\\202.md\" |   6 ++\n ...274\\200\\345\\217\\221\\344\\273\\273\\345\\212\\241.md\" |   2 +\n ...212\\200\\346\\234\\257\\350\\256\\276\\350\\256\\241.md\" |   9 +-\n 12 files changed, 181 insertions(+), 8 deletions(-)\n create mode 100644 references/kernel/document-expression-spec.md\n",
+        "merge_stderr": ""
+      },
+      "archived_at": "2026-06-07T13:10:54.513Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "69f344bffafb3c7f948402099c2772edae44941d"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -58,13 +86,22 @@
       "branch": "ccb/req-cmq3feiumac1ad394d74d8dbf",
       "target_branch": "main",
       "base_sha": "63aad0629a3d7fb4fd37018a6ffb9a24d856ece6",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
-      "archived_at": null,
-      "archive": null,
+      "status": "archived",
+      "merged_branch_sha": "c8f27f65fee1a3b83d6c91af12513c26208fd030",
+      "target_sha_after_merge": "d765917b4cfb49e5f5c1a73d9ceb02ac4adcde66",
+      "merged_at": "2026-06-07T13:08:24.016Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "Merge made by the 'ort' strategy.\n .../indexer/default-docs-structure-contract.yaml   |   8 +\n server/src/indexer/docs-structure-resolver.spec.ts |  18 +++\n server/src/indexer/project-indexer.ts              |  64 ++++++--\n server/src/indexer/template-conformance.spec.ts    | 175 ++++++++++++++++++++-\n server/src/indexer/template-conformance.ts         |  58 ++++++-\n .../requirement-reindex.service.spec.ts            |  57 +++++++\n server/src/tests/requirement-md-roundtrip.spec.ts  |  69 ++++++++\n 7 files changed, 432 insertions(+), 17 deletions(-)\n create mode 100644 server/src/indexer/docs-structure-resolver.spec.ts\n",
+        "merge_stderr": ""
+      },
+      "archived_at": "2026-06-07T13:10:54.656Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "c8f27f65fee1a3b83d6c91af12513c26208fd030"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -77,13 +114,22 @@
       "branch": "ccb/req-cmq3feiumac1ad394d74d8dbf",
       "target_branch": "main",
       "base_sha": "646cf721e15624a207b4c59089b491e45b24587d",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
-      "archived_at": null,
-      "archive": null,
+      "status": "archived",
+      "merged_branch_sha": "646cf721e15624a207b4c59089b491e45b24587d",
+      "target_sha_after_merge": "646cf721e15624a207b4c59089b491e45b24587d",
+      "merged_at": "2026-06-07T13:08:24.077Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "",
+        "merge_stderr": ""
+      },
+      "archived_at": "2026-06-07T13:10:54.749Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "646cf721e15624a207b4c59089b491e45b24587d"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -96,10 +142,10 @@
       "from_space": "su-ccb-claude-plugin",
       "to_space": "root",
       "submodule_path": "su-ccb-claude-plugin",
-      "status": "pending",
-      "synced_commit_sha": null,
+      "status": "synced",
+      "synced_commit_sha": "14e95293ba1db0e6da751227c337704f037f2d5c",
       "noop": false,
-      "synced_at": null,
+      "synced_at": "2026-06-07T13:08:24.286Z",
       "last_error": null
     },
     {
@@ -108,10 +154,10 @@
       "from_space": "su-oriel",
       "to_space": "root",
       "submodule_path": "su-oriel",
-      "status": "pending",
-      "synced_commit_sha": null,
+      "status": "synced",
+      "synced_commit_sha": "c907953e23581a71d42016bafa1df0209b937f50",
       "noop": false,
-      "synced_at": null,
+      "synced_at": "2026-06-07T13:08:24.570Z",
       "last_error": null
     },
     {
@@ -120,10 +166,10 @@
       "from_space": "su-ccb-codex-skills",
       "to_space": "root",
       "submodule_path": "su-ccb-codex-skills",
-      "status": "pending",
-      "synced_commit_sha": null,
-      "noop": false,
-      "synced_at": null,
+      "status": "synced",
+      "synced_commit_sha": "646cf721e15624a207b4c59089b491e45b24587d",
+      "noop": true,
+      "synced_at": "2026-06-07T13:08:24.720Z",
       "last_error": null
     }
   ],
@@ -132,16 +178,7 @@
     "schema_version": "implementation-topology-v0.1",
     "content_hash": "7ac179da7822d7cc9454fdb9a3012031c393808cf9ee804a6ad9dae0f1e8e189"
   },
-  "last_error": {
-    "op": "merge",
-    "reason": "canonical_dirty_outside_allowlist",
-    "at": "2026-06-07T11:12:35.257Z",
-    "status": "escalated",
-    "requirementId": "cmq3feiumac1ad394d74d8dbf",
-    "path": "/home/sue/dev/SU-CCB",
-    "porcelain": " M docs/.ccb/worktrees/cmpvdsgdf40042bda10261d73.json\n M docs/.ccb/worktrees/cmpxrd5tx5a10460b1fa4017f.json\n M docs/.ccb/worktrees/cmpy6y7oe23104eb766718db0.json\n M docs/02_需求设计/bug-需求详情里的终端-终端组件滚动问题-e057f6-需求.md\n M docs/02_需求设计/bug-项目初始化的问题-9201ab-需求.md\n M docs/02_需求设计/console-文件监听器不为运行时新建项目注册-watcher-40d29c-需求.md\n M su-oriel\n?? docs/.ccb/assets/requirements/cmq3lp9jy559ead7b3fe9f09f/3e02261477c3d58664453d3891a7461fb570aee280d2baddac6e2eb582a90612.png\n?? docs/.ccb/drafts/breakdown/cmq3euisf1b2a90a0b3e057f6.json\n?? docs/.ccb/drafts/breakdown/cmq3ifdhy0887ac1757c6c368.json\n?? docs/.ccb/worktrees/cmq3euisf1b2a90a0b3e057f6.json\n?? docs/.ccb/worktrees/cmq3ifdhy0887ac1757c6c368.json\n?? docs/02_需求设计/bug-新项目的需求里绑定slot报错-e9f09f-需求.md\n?? docs/02_需求设计/bug-项目切换之后似乎有什么操作会数据错乱问题-23ee06-需求.md\n?? docs/02_需求设计/mark思想-不开发-a249f3-需求.md\n?? docs/02_需求设计/优化-一键初始化知识库的交互优化-c6c368-需求.md\n?? docs/02_需求设计/需求级动态agent拓扑-决策agent招募-rolepack角色-fqn0ds-需求.md\n?? docs/03_开发计划/bug-slot终端运行期历史持续累积-e057f6-技术设计.md\n?? docs/03_开发计划/ws-pump-接线-stream-模式端到端-mock-集成-降级链-6c874a-开发任务.md\n?? docs/03_开发计划/优化-一键初始化知识库的交互优化-c6c368-技术设计.md\n?? docs/03_开发计划/前端帧协议-渲染写入模型-scrollback-截断修复-p1-7c0a53-开发任务.md\n?? docs/03_开发计划/后端-per-pane-流-recorder-组件-fifo-槽位检测-ring-生命周期-0bfe44-开发任务.md\n?? docs/03_开发计划/文档可读性-落档表达规范与写路径接线-4d8dbf-技术设计.md\n?? docs/03_开发计划/真-tmux-集成五断言-真浏览器人工验收清单-p2-837460-开发任务.md\n?? docs/03_开发计划/确认初始化后自动弹出-main-终端弹窗-fallback-显式重试-d0744c-开发任务.md",
-    "space_id": "root"
-  },
+  "last_error": null,
   "created_at": "2026-06-07T10:17:41.725Z",
-  "updated_at": "2026-06-07T11:12:35.257Z"
+  "updated_at": "2026-06-07T13:10:54.807Z"
 }
