@@ -1,0 +1,99 @@
+{
+  "schema_version": "breakdown-draft-v0.2",
+  "status": "consumed",
+  "requirement_id": "cmq3euisf1b2a90a0b3e057f6",
+  "carrier_task_key": "slot-terminal-live-history-e057f6",
+  "base_task_revision": null,
+  "generated_at": "2026-06-07T10:01:18.704Z",
+  "updated_at": "2026-06-07T10:04:48.041Z",
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot2_claude",
+    "cx_agent": "slot2_codex",
+    "ccb_job_id": "job_5f9b6995d387"
+  },
+  "plan": {
+    "title": "slot 终端运行期历史持续累积(B-full-lite hybrid)四切交付",
+    "summary": "按技设 td-e057f6 落地运行期历史:pr1 前端协议/渲染+P1 截断修复、pr2 后端 recorder 组件、pr3 WS 接线(mock 集成)、pr4 真 tmux 断言+真浏览器人工验收清单(P2 欠账)。pr1∥pr2 可并行,pr3 依赖两者,pr4 收口。",
+    "spec_outline_md": "## 交付总览\n\n- 体验目标(用户拍板):一体化终端滚动,与真终端一致;运行期持续累积最近 ~2000 行(窗口可调)。\n- 架构:B-full-lite hybrid——per-pane pipe-pane recorder(FIFO 不落盘)+ 快照通道(initial/reset/降级)。\n- 顺序:pr1 ∥ pr2 → pr3 → pr4;文件零交叉(pr1=web,pr2=新 server 文件,pr3=frame-stream/ws,pr4=spec+清单)。\n- 共享约束:不动 anchor-terminal;不动 06c62eb 滚动仲裁;READ_ONLY 不变;无 client resume 协议(v1 简化);UTF-8 chunk 用 StringDecoder。\n- 体量:pr1=M、pr2=M、pr3=L、pr4=M。"
+  },
+  "subtasks": [
+    {
+      "order": 1,
+      "section_id": "pr1-protocol-renderer",
+      "title": "前端帧协议+渲染写入模型+scrollback 截断修复(P1)",
+      "summary": "三类帧 parse/分派/写入(stream 有序直写,initial/reset 统一 terminal.reset 重灌),client 帧分派,scrollback 2500,协议 fixture 供后续切片复用",
+      "include": true,
+      "priority": "high",
+      "dependencies": [],
+      "implementation_owner": "ccb_codex",
+      "spec_section_md": "## 任务概述\n\n前端帧协议与渲染写入模型改造 + scrollback 截断修复(P1)。为 B-full-lite hybrid(td-e057f6)建立前端侧契约:三类帧(snapshot/stream/reset)的 parse、分派与写入;协议 fixture 作为 pr3/pr4 的共享契约。\n\n## 任务分解\n\n1. `web/src/types/slot-terminal.ts`:帧类型扩展——kind:\"stream\"(data、seq? 仅诊断)/\"reset\"(reason + snapshot 字段);无 kind = snapshot 向后兼容;mode 元数据(\"stream\"|\"snapshot-fallback\")。\n2. `web/src/lib/slot-terminal-ws.ts`:stream/reset 帧 parse 与回调分派,与现有 SlotTerminalSnapshotFrame 回调兼容。\n3. `SlotTerminalFrameRenderer.ts` 写入模型:stream 帧有序直写 terminal.write(同一 RAF 周期多 chunk 不丢、不乱序——现行单 pendingFrame RAF 合批仅保留给 snapshot/reset);initial 与 reset 统一路径:terminal.reset() 全复位(清 mouse-tracking/bracketed paste/SGR 模式污染)后写深快照重灌(技设 D6);贴底沿用双底部判定,用户上滚中 stream 写入不拽视口。\n4. `useXtermTerminal.ts`:scrollback 1000 → SLOT_TERMINAL_SCROLLBACK=2500 常量(P1,技设 D7)。\n5. 协议 fixture/测试向量(snapshot/stream/reset/fallback 序列样本),供 pr3/pr4 双侧复用(4d8a20 同测试向量先例)。\n\n## 验收标准\n\n- 单测:三类帧状态机;同 RAF 周期 N 个 stream 帧逐字有序写入;initial/reset 后无模式残留(注入 mouse-tracking/SGR/宽字符后 reset 断言);上滚(viewportY<baseY)时 stream 写入不改 ydisp;贴底时跟随;无 kind 帧按 snapshot 处理。\n- 现有 slot-terminal 测试全绿;tsc/lint 干净;fixture 落地并被本 PR 单测消费(契约自证)。\n\n## 边界 / 不做项\n\n不动 SlotTerminalSurface 滚动仲裁(06c62eb 回归红线);不动 server 任何文件;stream/reset 帧本 PR 无生产者(fixture 即契约);不实现 client resume(技设 v1 简化)。\n\n> 派生自:技设 td-e057f6 八章(web 侧)+ breakdown 协商 job_6a4e5c3c62e4 findings 1-3。"
+    },
+    {
+      "order": 2,
+      "section_id": "pr2-recorder-registry",
+      "title": "后端 per-pane 流 recorder 组件(FIFO+槽位检测+ring+生命周期)",
+      "summary": "pipe-pane→FIFO→chunk 流核心基建:registry/refcount、#{pane_pipe} 不抢占降级、UTF-8 安全、ring 补发、重启恢复;纯组件不接线",
+      "include": true,
+      "priority": "high",
+      "dependencies": [],
+      "implementation_owner": "ccb_codex",
+      "spec_section_md": "## 任务概述\n\n后端 per-pane 流 recorder 组件(纯组件,不接线)。B-full-lite hybrid 核心新基建:pipe-pane→FIFO→chunk 流→多订阅 fanout,带槽位检测降级与生命周期管理。\n\n## 任务分解\n\n1. 新文件 `server/src/modules/slot-terminal/slot-terminal-stream-recorder.ts`:\n   - per-pane 单例 registry + 引用计数(lazy 启动;末订阅者释放后 idle ~5min 关闭,常量可调);\n   - FIFO:os.tmpdir 下 mkfifo,node 读端先 open 再 `pipe-pane -o 'cat > <fifo>'`(技设 D2:FIFO 数据不落盘);\n   - 槽位检测:启动前查 `#{pane_pipe}`,被占(如 anchor-terminal 录制)→ 不抢占,降级态 + 周期重试(技设 D1);\n   - chunk 处理:StringDecoder/Buffer 环处理 UTF-8 多字节跨 chunk 切割(禁止裸 chunk.toString(),协商风险项);\n   - seq 计数 + ring buffer(~256KiB 常量):仅作订阅内 pause/resume 补发缓存(技设 D3);\n   - 订阅 API:subscribe→cursor;pause/resume;超 ring 缺口→gap 信号(调用方触发 reset);\n   - 重启恢复:启动序列先 pipe-pane off 再重开(技设 D8);pipe/FIFO 异常→错误事件+降级。\n2. 单测:mock execFile + mock pipe source(借鉴 anchor-terminal ControlledPipeSource 模式);真 FIFO 仅小型生命周期/读写边界测试;不跑真 tmux。\n\n## 验收标准\n\n- 单测覆盖:槽位占用→降级→释放后重试升级;引用计数生命周期(双订阅/先后释放/idle 关闭);ring 补发边界(恰可补/超出→gap);UTF-8 多字节跨 chunk 断言;重启恢复序列;FIFO 读端异常。\n- 不触碰 anchor-terminal/*、frame-stream.ts、ws.ts;tsc/lint 干净。\n\n## 边界 / 不做项\n\n不接 ws/pump(pr3);不改既有快照通道;不引新依赖(mkfifo 走 child_process,FIFO 读走 fs)。\n\n> 派生自:技设 D1/D2/D3/D8 + 协商 finding 4 与 UTF-8 风险项。"
+    },
+    {
+      "order": 3,
+      "section_id": "pr3-ws-wiring",
+      "title": "WS/pump 接线:stream 模式端到端(mock 集成)+降级链",
+      "summary": "per-pane 共享接线、stream/reset 下发、seam 顺序、hidden/visible cursor 补发、snapshot-fallback+Surface 提示、更新只读命令断言",
+      "include": true,
+      "priority": "high",
+      "dependencies": [
+        "pr1-protocol-renderer",
+        "pr2-recorder-registry"
+      ],
+      "implementation_owner": "ccb_codex",
+      "spec_section_md": "## 任务概述\n\nWS/pump 接线:把 recorder 流接入 slot-terminal WS 通道,完成 stream 模式端到端(mock 层面),含降级与 reset 触发链。\n\n## 任务分解\n\n1. `slot-terminal.frame-stream.ts`:快照通道降频为 initial/reset/降级模式;接 recorder 订阅;seam 顺序:先开 pipe 缓冲,initial capture 完成后 flush(技设四章);resize(cols/rows 变)→reset 帧;gap→reset。\n2. `slot-terminal.ws.ts`:per-connection pump → per-pane recorder 共享接线;stream/reset 帧序列化下发;mode 元数据透传;hidden/visible→订阅 pause/resume(server 侧 cursor 补发,无 client resume 协议)。\n3. Surface 降级提示:复用 header 现有 status/error 槽位显示「历史受限(快照模式)」,不碰仲裁逻辑。\n4. 自动集成测试:mock recorder + 现有 ws fixture;更新 ws.spec 既有「tmux backend only uses read-only capture-pane and display-message」断言(pipe-pane 加入只读命令白名单)。\n5. 消费 pr1 协议 fixture 作为下发帧契约校验。\n\n## 验收标准\n\n- 自动集成(mock):连接→initial→stream 续发顺序正确(seam 无缺口);hidden→大量 chunk→visible 走 cursor 补发,超 ring 走 reset;槽位占用→snapshot-fallback 模式 + mode 元数据 + Surface 提示;resize→reset 帧;READ_ONLY 输入契约不变。\n- 全仓 server+web 测试绿;tsc/lint 干净。\n\n## 边界 / 不做项\n\n不动 anchor-terminal;不跑真 tmux(pr4);不改输入/粘贴;无 client resume 协议。\n\n> 派生自:技设四章流程 + 八章(server 侧)+ 协商 finding 5 与 seam/mode 归属项。"
+    },
+    {
+      "order": 4,
+      "section_id": "pr4-tmux-acceptance",
+      "title": "真 tmux 集成五断言+真浏览器人工验收清单(P2)",
+      "summary": "运行期历史/超 cap/hidden 恢复/槽位降级/重启恢复真 tmux 断言;浏览器人工清单产出交用户(含 06c62eb 验收欠账),回执诚实标注未执行",
+      "include": true,
+      "priority": "medium",
+      "dependencies": [
+        "pr3-ws-wiring"
+      ],
+      "implementation_owner": "ccb_codex",
+      "spec_section_md": "## 任务概述\n\n真 tmux 端到端集成断言 + 真浏览器人工验收清单(P2 欠账并入)。本切片是需求验收门:自动部分代码化,人工部分产出清单交用户。\n\n## 任务分解\n\n1. ws.spec 真 tmux 集成(隔离 socket,参照既有真 tmux 测试模式)五断言:\n   a. 连接后 pane 输出 N 行→scrollback 含全部 N 行(运行期历史核心);\n   b. 输出超 scrollback cap→尾部与 tmux 末尾一致、最老行挤出;\n   c. hidden→输出→visible:ring 内无缝补发 / 超 ring reset,无重复无丢失;\n   d. pipe 槽位被占(预先 pipe-pane 模拟 anchor)→降级模式工作+状态可见,释放后重试升级;\n   e. server 重启(recorder 重建)→先 off 再开,流恢复。\n2. 真浏览器人工验收清单(markdown,交用户执行):滚轮连续回看连接前+连接后历史(核心体验);claude/codex CLI 真实 TUI 场景观感(alt-screen 语义);06c62eb host 外滚/双底部贴底回归;PageUp/触控历史入口检查(可访问性)。\n3. 回执措辞(诚实边界):自动验证通过;真浏览器清单已产出未执行,待用户验收。\n\n## 验收标准\n\n- 五断言在真 tmux 下稳定通过(容忍 CI 抖动重试);全仓绿。\n- 人工清单文档落地,含逐项操作步骤与预期。\n\n## 边界 / 不做项\n\n不补新功能代码(发现 bug 回 pr1-pr3 修);不动 anchor-terminal。\n\n> 派生自:技设五章测试策略 + P2 验收欠账 + 协商 finding 6(诚实措辞)。"
+    }
+  ],
+  "carrier_task_id": "cmq3euisf1b2a90a0b3e057f6",
+  "review_history": [
+    {
+      "at": "2026-06-07T10:01:18.709Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-06-07T10:04:46.918Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-06-07T10:04:47.089Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-06-07T10:04:48.041Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-06-07T10:04:47.089Z",
+  "approved_by": "user",
+  "consumed_at": "2026-06-07T10:04:48.041Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "5b17e632c20263f23fee037170e920a8f175a0492e816e1f2a23ce07ae72134e"
+}
