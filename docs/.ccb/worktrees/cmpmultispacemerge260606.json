@@ -1,11 +1,66 @@
 {
-  "schema_version": "requirement-worktree-v0.1",
+  "schema_version": "requirement-worktree-v0.2",
   "requirement_id": "cmpmultispacemerge260606",
-  "status": "ready",
-  "path": "../SU-CCB-req-cmpmultispacemerge260606",
-  "branch": "ccb/req-cmpmultispacemerge260606",
-  "confirmed_target_branch": "main",
-  "base_sha": "12dca4d2aee5ced546d3c87fd07fc9fdc5ffa262",
+  "aggregate_status": "archived",
+  "spaces": [
+    {
+      "space_id": "root",
+      "kind": "git_worktree",
+      "repo": ".",
+      "path": "../SU-CCB-req-cmpmultispacemerge260606",
+      "branch": "ccb/req-cmpmultispacemerge260606",
+      "target_branch": "main",
+      "base_sha": "12dca4d2aee5ced546d3c87fd07fc9fdc5ffa262",
+      "status": "archived",
+      "merged_branch_sha": "6827c9ffca2644ad4cd9515544546c054b2c2bde",
+      "target_sha_after_merge": "6d01cacb67eaccb899316f50f4e6f1d953746cfb",
+      "merged_at": "2026-06-07T07:04:19.154Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": {
+          "status": "committed",
+          "committed": true,
+          "commitSha": "2e649be38c485734491ffe6262ba6c043d44906b",
+          "paths": [
+            "docs/.ccb/events/journal.jsonl",
+            "docs/00_文档地图.md",
+            "docs/03_开发计划/merge-reopen-discard-cleanup-多空间-orchestrator-preflight-显式恢复-897199-开发任务.md",
+            "docs/03_开发计划/su-ccb-拓扑声明落地-git-submodule-gitlink-executor-ccb-execute-措辞--3aa6a1-开发任务.md"
+          ],
+          "allowlist": [
+            "docs/02_需求设计/per-需求实施空间-多空间收尾与拓扑声明-260606-需求.md",
+            "docs/03_开发计划/adr-0036-amend-kernel-三-manifest-量词措辞-拓扑声明契约与模板-23049e-开发任务.md",
+            "docs/03_开发计划/ensure-多空间展开-d8-target-守卫-全-helper-过渡-lift-读取-含多空间拒绝守卫-su-di-c751ae-开发任务.md",
+            "docs/03_开发计划/merge-reopen-discard-cleanup-多空间-orchestrator-preflight-显式恢复-897199-开发任务.md",
+            "docs/03_开发计划/runtime-v0-2-数据层-多空间-state-读写-v0-1-lift-computeaggregatestat-760f34-开发任务.md",
+            "docs/03_开发计划/su-ccb-拓扑声明落地-git-submodule-gitlink-executor-ccb-execute-措辞--3aa6a1-开发任务.md",
+            "docs/00_文档地图.md",
+            "docs/.ccb/events/journal.jsonl",
+            "docs/.ccb/worktrees/cmpmultispacemerge260606.json",
+            "docs/.ccb/drafts/breakdown/cmpmultispacemerge260606.json"
+          ]
+        },
+        "merge_stdout": "Merge made by the 'ort' strategy.\n docs/.ccb/config/implementation-topology.yaml      | 38 ++++++++++++++++++++++\n docs/.ccb/docs-structure-contract.yaml             |  1 +\n ...036-per-requirement-implementation-worktree.md\" | 24 +++++++++++---\n 3 files changed, 58 insertions(+), 5 deletions(-)\n create mode 100644 docs/.ccb/config/implementation-topology.yaml\n",
+        "merge_stderr": ""
+      },
+      "archived_at": "2026-06-07T07:13:23.024Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "6827c9ffca2644ad4cd9515544546c054b2c2bde"
+      },
+      "discarded_at": null,
+      "reopened_at": null,
+      "last_error": null
+    }
+  ],
+  "associations": [],
+  "topology_source": {
+    "path": null,
+    "schema_version": null,
+    "content_hash": null
+  },
+  "last_error": null,
   "created_at": "2026-06-07T05:32:23.763Z",
-  "updated_at": "2026-06-07T05:32:23.763Z"
+  "updated_at": "2026-06-07T07:13:23.024Z"
 }
