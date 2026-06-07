@@ -2,7 +2,7 @@
 id: c80da33d2ae4e053b5f40d29c
 title: Console 文件监听器不为运行时新建项目注册 watcher
 doc_type: requirement
-status: planning
+status: cancelled
 created: 2026-05-26T10:35:09.615Z
 analysis_input_hash: 9f0ef3ef94e349eb9f767dd93360dab30cc29566641b24a8ae326db96456e5a6
 analysis_applied_at: 2026-05-26T10:43:22.821Z

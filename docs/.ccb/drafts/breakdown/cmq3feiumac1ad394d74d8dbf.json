@@ -1,0 +1,98 @@
+{
+  "schema_version": "breakdown-draft-v0.2",
+  "status": "consumed",
+  "carrier_task_key": "doc-readability-expression-spec-4d8dbf",
+  "base_task_revision": null,
+  "generated_at": "2026-06-07T10:07:54.728Z",
+  "updated_at": "2026-06-07T10:11:21.871Z",
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot1_claude",
+    "cx_agent": "slot1_codex",
+    "ccb_job_id": "job_65a8a6a0284b"
+  },
+  "plan": {
+    "title": "文档可读性：落档表达规范与写路径接线",
+    "summary": "4 子任务三仓正交：pr1 kernel 表达规范+4 节点接线（plugin，claude）｜pr2 模板补强+lib 写 expression_spec 标记（plugin，codex）｜pr3 Console 巡检表达检查+骨架📌指引（su-oriel，codex）｜pr4 本项目契约 wiring+全链路验收（主仓 docs，codex）。pr1∥pr2∥pr3 并行、pr4 收尾依赖前三。零 schema 变更、软警告不阻断、存量零打扰（expression_spec: v1 gate）。",
+    "spec_outline_md": "共享约束（全子任务不可触碰）：13 章标题集与 5 投影锚点零变更；不做写入硬校验；不回填存量文档；不引入 mermaid；字面标记契约 = 设计文档四章规则表（「目标对齐」「模拟示例」「无需示例」「expression_spec: v1」），并行期以此解耦、pr1 合入后以规范为准。\n\n否决切法（审计留痕）：\n- X 按 doc_type 切（需求链/设计链/dev_task 链）：同一文件（conformance.ts、规范文件）被三链反复触碰，假并行真冲突。\n- Y 合并 pr1+pr2 成单 plugin PR：文件集不重叠，合并收益仅措辞一致，不值得扩大单 PR review 面（Codex 同判）；措辞一致改由字面契约 + pr2/pr3 合入前对照 + pr4 跨仓 grep 终门三层保障。\n\n执行顺序：pr1∥pr2∥pr3 并行；pr4 依赖前三全部合入。pr1 先合入时，pr2/pr3 合入前需与规范 grep 对照校准（Codex 建议的一致性门）。\n\n依赖风险自查：四子任务文件集两两不相交，零并发同文件冲突；su-oriel 在途 dirty 经路径级核验未触碰 pr3 三目标文件（template-conformance.ts / project-indexer.ts / default-docs-structure-contract.yaml），pr3 边界写死严格 stage；docs 侧无其它 draft 触碰模板路径。\n\nCodex 执行视角结论：切法成立（job_6ecbe40f3701），三项修正已纳入——pr3 验收限定「零新增 expressionIssues」（存量 missingSections 不归零）、pr3 边界防误 stage、pr4 模板口径定为镜像 9 份+契约 8 行（open question 已决，理由入 pr4 spec）。\n\nowner：pr1=claude（kernel 规范 = prompt 真相源，dogfood 表达质量，高判断密度 prompt 工程）；pr2/3/4=ccb_codex（模板/TS/wiring 实施）。"
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-expression-spec-wiring",
+      "order": 1,
+      "title": "kernel 表达规范 + 4 节点 manifest 接线",
+      "summary": "新增 references/kernel/document-expression-spec.md（R1-R6+doc_type 应用矩阵+豁免语义+before/after 微例）；4 个 node manifest（requirement_analysis/technical_design/task_breakdown/review）接线落档前消费要求；README 索引。纯 markdown，plugin 仓。",
+      "spec_section_md": "### 任务概述\n\n写一份「AI 怎么写文档」的规范并接进 4 个节点说明书。这是整个需求的真相源：规范定下的规则（目标对齐、示例、图表优先、术语解释），模板（pr2）和巡检（pr3）都向它对齐。仓库：su-ccb-claude-plugin，纯 markdown 零代码。技术设计：docs/03_开发计划/文档可读性-落档表达规范与写路径接线-4d8dbf-技术设计.md（八章 PR1 清单）。\n\n### 任务分解\n\n1. [NEW] references/kernel/document-expression-spec.md（~150 行）：R1-R6 规则（编号与需求文档五章一致：目标对齐先行/示例复杂度自适应/场景→图型映射/术语首现白话解释/受众分层/图形语言 ASCII+GFM 表格）；doc_type 应用矩阵（requirement/technical_design/dev_task 各适用哪些规则、落在哪章）；豁免语义（「无需示例，因为…」「无需图，因为…」= 合法满足，审查看理由实质）；d21ff1 开篇 before/after 微例（素材在需求文档二章）。规范自身 dogfood：白话+表格+ASCII，不写成长文。\n2. [MODIFY] references/kernel/nodes/requirement_analysis.node.md：②核心要点增「bodyMarkdown 按 _模板_需求.md 主体章节组织 + 遵守 document-expression-spec」；③完成条件、自检清单各加对应项。\n3. [MODIFY] references/kernel/nodes/technical_design.node.md：②.9 补表达规范引用 + 首屏目标对齐 + 端到端示例要求。\n4. [MODIFY] references/kernel/nodes/task_breakdown.node.md：spec_section_md 遵守表达规范（一行）。\n5. [MODIFY] references/kernel/nodes/review.node.md：checklist 增 3 项（目标对齐能秒懂吗/示例有或豁免合理吗/黑话首现解释了吗）。\n6. [MODIFY] references/kernel/README.md：索引加一行。\n\n### 验收标准\n\n- [ ] document-expression-spec.md 含 R1-R6+应用矩阵+豁免语义+before/after 微例，且自身符合自身规则（首块白话、表格优先、零未解释黑话）\n- [ ] grep 可证 4 个 node manifest 均引用 document-expression-spec 且含落档前消费要求\n- [ ] README 索引含该规范\n- [ ] 改动面恰为 6 文件；不触碰 manifest schema/transition/guard 表\n\n### 边界（不做项）\n\n- 不动 manifest 6 章节骨架结构；不写入硬校验；不在规范里内嵌模板全文（模板真相在 pr2，重复真相源是反模式）；不动 must-ask-checklist.md 等其它 kernel reference。",
+      "priority": "high",
+      "implementation_owner": "claude",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr2-template-lib-mark",
+      "order": 2,
+      "title": "3 份模板补强 + applyRequirementAnalysis 写 expression_spec 标记",
+      "summary": "_模板_需求/_模板_技术设计/_模板_开发任务补目标对齐+模拟示例占位块；lib/requirement-analysis 落档时附写 expression_spec: v1（rollout gate 标记源头）；单测+scaffold 幂等测试。plugin 仓。",
+      "spec_section_md": "### 任务概述\n\n把规范要求变成模板里现成的占位块——打开模板就看到「先写目标对齐」「复杂的配示例」；同时让需求分析落档自动盖 expression_spec: v1 标记（pr3 巡检靠它区分新旧文档，存量零打扰的源头机制）。仓库：su-ccb-claude-plugin。技术设计八章 PR2 清单。\n\n### 任务分解\n\n1. [MODIFY] templates/docs/02_需求设计/_模板_需求.md：「二、背景与目标」内增目标对齐+模拟示例占位块（粗体块，不加 ## 级新标题——不破坏 13 章标题集对齐）。\n2. [MODIFY] templates/docs/03_开发计划/_模板_技术设计.md：「一、设计概述」表格前增目标对齐叙事块（极小设计允许一行白话的自适应下限说明）；「四、核心流程」指引补端到端示例；frontmatter 示例加 expression_spec: v1。\n3. [MODIFY] templates/docs/03_开发计划/_模板_开发任务.md：「一、任务概述」表上方补白话概述占位（轻改，最低优先级，不做大重构）。\n4. [MODIFY] lib/requirement-analysis/index.mjs：applyRequirementAnalysis 写 frontmatter 时附加 expression_spec: v1（与 analysis_input_hash 同路径同模式写入）。\n5. 测试：applyRequirementAnalysis 单测（新分析带标记/同输入重放幂等/不触碰未重分析旧文档）；su-init scaffold 测试（新模板块随 copyIfMissing 分发、幂等）。\n\n### 验收标准\n\n- [ ] 3 模板含新占位块；占位措辞字面与设计文档四章固化标记一致（「目标对齐」「模拟示例」「无需示例」）；pr1 已合入时与 document-expression-spec.md R1/R2 用词 grep 对照一致（并行期以设计四章为契约）\n- [ ] applyRequirementAnalysis 单测 3 场景通过；plugin 既有测试零回归\n- [ ] scaffold/copyIfMissing 测试通过\n- [ ] 不改模板文件名与章节标题集；不动 bodyMarkdown 校验逻辑与 5 锚点替换语义\n\n### 边界（不做项）\n\n- 不动保留标题集（需求描述/原话/Claude 解读/歧义点/保真差异）；lib 只加 frontmatter 字段，不改任何校验/替换语义；不改 su-init 分发逻辑本身（仅补测试覆盖新块）。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr3-oriel-conformance-skeleton",
+      "order": 3,
+      "title": "Console 巡检表达检查（gate 隔离）+ 骨架 13 章📌指引",
+      "summary": "template-conformance.ts 增 expressionIssues 类（expression_spec: v1 gate 启用）+placeholder 残留检查；project-indexer.ts 骨架空标题逐章📌一行指引；default 契约副本补 template 行（第三副本同步）；测试矩阵。su-oriel 仓。",
+      "spec_section_md": "### 任务概述\n\n让 Console 巡检学会看「表达质量」：带新标记的文档缺目标对齐/示例就亮黄灯（只提醒不拦人）；新建需求的 13 个空标题各配一行📌指引告诉写的人这章写什么。老文档（无标记）零新打扰。仓库：su-oriel（server TS+测试）。技术设计八章 PR3 清单、四章处理规则表。\n\n### 任务分解\n\n1. [MODIFY] server/src/indexer/template-conformance.ts（现仅产 missingSections，见 :16/:72）：\n   - 新增 expressionIssues 检查类，与 missingSections 并列输出（不混同一数组，消费方需区分严重度）\n   - gate：frontmatter expression_spec: v1 存在 → 启用表达检查；缺失 → 只跑旧检查（存量行为不变）\n   - requirement / technical_design 表达检查：正文含「目标对齐」；含「模拟示例」或「无需示例」（豁免合法）\n   - placeholder 残留检查：非 _模板_* 文档含「[占位]」「<由系统生成>」→ expressionIssues（「复制了模板没填」失败模式）\n   - dev_task 本轮不查（轻改范围，由 task_breakdown manifest 接线约束）\n2. [MODIFY] server/src/indexer/project-indexer.ts：骨架 13 空标题逐章一行📌短指引（常量表实现）；renderRequirementMarkdown 与导出共用常量自动一致。\n3. [MODIFY] server/.../default-docs-structure-contract.yaml：补 8 个 template 声明行（与 plugin references/docs-structure-contract.yaml 对齐，第三契约副本同步）。\n4. 测试矩阵：conformance 单测（gate 开/关 × 三类检查 × 命中/豁免/残留）；骨架快照更新；parseRequirementSections roundtrip 回归（📌指引行不破坏 5 锚点提取）；_模板_* targeted reindex 行为测试（占位 requirement_id 不误匹配真文档）；frontmatter 未知字段容忍测试。\n\n### 验收标准\n\n- [ ] 测试矩阵全绿（cd su-oriel/server && 相关 spec + 全量回归）\n- [ ] 无 expression_spec 标记的存量文档：零新增 expressionIssues（注意：missingSections 维持现状，不要求归零——gate 隔离的精确证明口径）\n- [ ] SyncJob metadata 形状：templateConformance[].expressionIssues: string[] 与 missingSections 并列（additive，零 DB schema 变更）\n- [ ] 检查字面标记与设计四章规则表一致；pr1 已合入时与规范 grep 对照一致\n- [ ] 13 章📌指引每章一行短句；roundtrip 测试证明 5 锚点提取与导出不受影响\n\n### 边界（不做项）\n\n- 不动 13 章标题集本身、5 投影锚点、parseRequirementSections 解析逻辑、reindex 硬校验；不做 LLM 评分（巡检只做确定性字面检查）；su-oriel 仓当前有无关 dirty——严格只 stage 本任务三个目标文件+测试，不收编任何无关改动。",
+      "priority": "medium",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr4-project-wiring-acceptance",
+      "order": 4,
+      "title": "本项目契约 wiring + 模板落地 + 全链路验收",
+      "summary": "docs-structure-contract.yaml 定向 merge 8 个 template 行+consumers 段；镜像复制 9 份 _模板_*.md 进 docs/（以 pr2 最终态为源）；loadDocsStructureContract+resolver.templateFor 断言+Console rescan+跨仓字面一致性 grep。主仓 docs，一次性 wiring，依赖前三。",
+      "spec_section_md": "### 任务概述\n\n收尾：把模板和契约声明落进本项目 docs/，修掉「模板黑户」真相分裂（plugin 有 9 份好模板但项目契约没声明、目录里没有），最后跑全链路验收确认无新警告。仓库：主仓 docs/（一次性 wiring，不改任何代码仓）。依赖 pr1+pr2+pr3 全部合入。\n\n### 任务分解\n\n1. [MODIFY] docs/.ccb/docs-structure-contract.yaml：定向 merge plugin references/docs-structure-contract.yaml 的 8 个 template 声明行（00 项目总览/00 文档地图/01 架构/02 需求/03 复合行 [技术设计,开发任务]/04 模块规格/05 经验沉淀/06 ADR）+ consumers 段；保留项目既有定制行（config/ 等），只增不删。\n2. [NEW] 按契约落点镜像复制 9 份 _模板_*.md 进 docs/ 对应目录，以 pr2 合入后的模板最终态为源。口径已决（Codex open question）：镜像全 9 份，含 _模板_项目总览/_模板_文档地图——契约 8 行声明与文件一一对应是 resolver 断言可机械化的前提；两份特殊模板按契约注释语义 = 输出格式参考（非手填）；不改 su-init 行为（scaffold 对新项目的分发逻辑不在本任务面，本任务是已初始化项目的一次性手动 wiring）。\n3. 验收执行：node 断言 loadDocsStructureContract 校验通过 + resolver.templateFor 对 8 类声明逐一解析成功；触发 Console rescan（POST /scan，WSL2 下 watcher 可能漏事件需手动触发）。\n4. 跨仓字面一致性终门：grep 对照 kernel 规范 R1/R2 用词 ↔ pr2 模板占位块 ↔ pr3 conformance 检查字面（「目标对齐」「模拟示例」「无需示例」「expression_spec: v1」）三处一致。\n\n### 验收标准\n\n- [ ] loadDocsStructureContract 通过；resolver.templateFor 断言 8 类全过\n- [ ] Console rescan：存量文档零新增 expressionIssues 且零新增 missingSections（_模板_* 文件被主扫描跳过，不产投影噪音）\n- [ ] 跨仓字面标记 grep 一致性通过（三仓四标记零漂移）\n- [ ] 契约 diff 可证只增不删（项目既有 config/ 等定制行保留）\n\n### 边界（不做项）\n\n- 不回填/迁移存量文档；不改 su-init/scaffold 代码；不动 plugin 与 su-oriel 代码（前三 PR 已完）；dogfood 验收（下一个真实需求用新规范走分析→设计全程、用户能看懂）是需求级口径，不在本子任务内闭环。",
+      "priority": "medium",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr1-expression-spec-wiring",
+        "pr2-template-lib-mark",
+        "pr3-oriel-conformance-skeleton"
+      ],
+      "include": true
+    }
+  ],
+  "requirement_id": "cmq3feiumac1ad394d74d8dbf",
+  "carrier_task_id": "cmq3feiumac1ad394d74d8dbf",
+  "review_history": [
+    {
+      "at": "2026-06-07T10:07:54.732Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-06-07T10:11:20.988Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-06-07T10:11:21.151Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-06-07T10:11:21.871Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-06-07T10:11:21.151Z",
+  "approved_by": "user",
+  "consumed_at": "2026-06-07T10:11:21.871Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "ff7eb04d84c3a93a67878264b1f45843bf7dbf090332a2ab398e89f98f92ba3d"
+}

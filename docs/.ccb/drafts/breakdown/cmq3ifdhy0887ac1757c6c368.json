@@ -1,0 +1,61 @@
+{
+  "schema_version": "breakdown-draft-v0.2",
+  "status": "consumed",
+  "carrier_task_key": "init-kb-auto-open-main-term-c6c368",
+  "base_task_revision": null,
+  "generated_at": "2026-06-07T09:34:47.059Z",
+  "updated_at": "2026-06-07T09:54:20.252Z",
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot3_claude",
+    "cx_agent": "slot3_codex",
+    "ccb_job_id": "job_8059d3531686"
+  },
+  "plan": {
+    "title": "一键初始化知识库确认后自动弹出 main 终端弹窗",
+    "summary": "确认初始化成功(拿到 jobId)后自动打开既有「main agent 组终端」Modal(同一实例、默认 claude pane、焦点=关闭按钮不触 xterm),descriptor 未就绪给显式「重试」恢复路径;banner 既有轮询/toast 不动。纯 web 前端:4 核心文件+测试+必要样式,零新依赖,server 零改动。",
+    "spec_outline_md": "单子任务交付：pr1 自动弹出 + fallback 可恢复（同一验收闭环）。\n\n否决切法（审计留痕）：\n- X「通路/重试」二分：重试片孤立无业务价值，产生「自动弹但不可恢复」半成品，review 开销大于收益。\n- Y 按组件四分：store 字段无消费者不可独立验收，机械切片制造假并行。\n\n执行顺序：单任务无内部依赖。owner=ccb_claude（web UI/UX 用户既定决策）。\n依赖风险：触碰同 4 文件的历史任务（4144e8/369434/12195c/c63343）全部 done，breakdown drafts 全 consumed，无并发修改冲突。\nCodex 执行视角结论：Go（job_5ac5a25a0a01），三处收紧已纳入——改动面含测试与必要样式、验收绑定验证命令、ready 态覆盖口径。"
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-auto-open-main-terminal",
+      "order": 1,
+      "title": "确认初始化后自动弹出 main 终端弹窗 + fallback 显式重试",
+      "summary": "ui-store 专用 open-request 通道;banner 确认成功发请求;launcher 消费(projectId 校验、消费即 clear、已开幂等);panel fallback 加「重试」(resolverEpoch);测试含集成断言(无确认 dialog/有终端 dialog/activeElement=关闭按钮)与 ready 态覆盖;验证 npm run build && npm test。",
+      "spec_section_md": "### 任务概述\n\nsu-oriel web 前端实现「确认初始化知识库成功后自动弹出 main agent 组终端弹窗」：ui-store 专用 open-request 通道，ProjectOnboardingBanner 确认成功后发请求，MainTerminalLauncher 消费（projectId 校验、消费即 clear），MainTerminalPanel fallback 态新增显式「重试」。改动面：4 个核心源码文件 + 相关测试 + 必要样式（如 `MainTerminalPanel.module.css`）；零新依赖；server 零改动。技术设计：`docs/03_开发计划/优化-一键初始化知识库的交互优化-c6c368-技术设计.md`（本 spec 自包含核心契约，与设计冲突时升级）。\n\n### 任务分解\n\n1. `su-oriel/web/src/stores/ui-store.ts`：新增 `mainTerminalOpenRequest: { projectId: string } | null` 字段与 `requestOpenMainTerminal(projectId)` / `clearMainTerminalOpenRequest()` actions；不触碰既有 `modalOpen/modalType` 互斥机制。\n2. `su-oriel/web/src/components/projects/ProjectOnboardingBanner.tsx`：`handleConfirmInit` 成功路径（`setInitJob` 之后）追加 `setConfirmOpen(false)` + `requestOpenMainTerminal(projectId)`；reject 路径不发请求；轮询/60s 超时/toast 全不动。\n3. `su-oriel/web/src/components/main-terminal/MainTerminalLauncher.tsx`：新增消费 effect（声明在「selectedProjectId 变化 → setOpen(false)」effect 之后）：request 非空且 `projectId === selectedProjectId` ⇒ `loadMainState()` + `setOpen(true)`；不匹配 ⇒ 丢弃；两路均 clear；main Modal 已打开时再次请求保持幂等（`setOpen(true)` 幂等，不重置面板状态）。\n4. `su-oriel/web/src/components/slot-terminal/MainTerminalPanel.tsx`：新增 `resolverEpoch` state 并纳入 descriptor fetch effect 依赖；fallback 态渲染「重试」按钮（点击 epoch+1）；失败/fallback 态不建立 websocket（surface 仅 ready 态渲染，维持现状语义）。\n5. 测试（轻量，不穷举）：\n   - banner spec：确认成功 → store 收到 `{projectId}`；`initProjectKnowledgeBase` reject → request 保持 null。\n   - launcher spec：匹配 request → dialog 打开 + request cleared；不匹配 → 不打开 + cleared；已打开时再次 request → 仍打开且无异常（幂等）。\n   - 集成断言：确认成功后无「初始化知识库」dialog、有「main agent 组终端」dialog、`document.activeElement` 为 main Modal 关闭按钮；ready 态「重新初始化知识库」同路径至少 1 条断言。\n   - panel 重试：descriptor 失败 → 「重试」出现；点击 → 重新 fetch 成功 → 渲染 surface（优先扩展既有 spec 组织，必要时新增 `MainTerminalPanel.spec.tsx`）。\n   - 测试卫生：涉及 ui-store 的 spec 在 afterEach reset 新增字段，防 request 泄漏污染后续用例。\n\n### 验收标准\n\n- [ ] knowledge-missing 态「一键初始化知识库」与 ready 态「重新初始化知识库」确认成功后：确认弹窗关闭、「main agent 组终端」弹窗自动打开（默认 claude pane），`document.activeElement` 为弹窗关闭按钮（不触 xterm）\n- [ ] `initProjectKnowledgeBase` reject：不弹终端弹窗，仅既有 error toast\n- [ ] descriptor 失败/panes 空：fallback 显示「重试」，点击重新解析；重试成功进入 surface；失败态不建立 websocket；手动 M 入口路径零回归\n- [ ] banner 既有 jobId 轮询/60s 超时/成功失败 toast 不变；知识库就绪后弹窗不自动关\n- [ ] 验证命令通过：`cd su-oriel/web && npm run build && npm test`（targeted spec 先行，全量 web test 收尾）\n- [ ] 零新依赖；server 零改动；不触碰 `modalOpen/modalType`、`AiCliPanel`、`EmbeddedTerminal`、`spawnMainTerminal`\n\n### 边界（不做项）\n\n- 不自动重试 descriptor（仅显式按钮）；不在弹窗内叠加进度 UI；不自动关闭弹窗；不动实体终端按钮；不改 `Modal.tsx` / `SlotTerminalSurface.tsx`；不动 server / su-init 投递链路。",
+      "priority": "high",
+      "implementation_owner": "claude",
+      "dependencies": [],
+      "include": true
+    }
+  ],
+  "requirement_id": "cmq3ifdhy0887ac1757c6c368",
+  "carrier_task_id": "cmq3ifdhy0887ac1757c6c368",
+  "review_history": [
+    {
+      "at": "2026-06-07T09:34:47.063Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-06-07T09:54:19.757Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-06-07T09:54:19.996Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-06-07T09:54:20.252Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-06-07T09:54:19.996Z",
+  "approved_by": "user",
+  "consumed_at": "2026-06-07T09:54:20.252Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "2d3e6026fc9074936e2ae68e9234aa39e73cc86dc07230920cecde3ef6c00184"
+}

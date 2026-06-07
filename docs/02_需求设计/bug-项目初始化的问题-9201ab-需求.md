@@ -2,7 +2,7 @@
 id: cmq22nz3754ac31e9099201ab
 title: BUG：项目初始化的问题
 doc_type: requirement
-status: planning
+status: cancelled
 created: 2026-06-06T08:09:20.995Z
 analysis_input_hash: 0c7f44f482f8928e4f778f2a80dafb8e7836038d4d67a0df9676e3f63d24e26c
 analysis_applied_at: 2026-06-07T06:39:27.912Z
