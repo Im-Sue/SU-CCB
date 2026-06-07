@@ -2,7 +2,7 @@
 id: cmq3euisf1b2a90a0b3e057f6
 title: BUG：需求详情里的终端/终端组件滚动问题
 doc_type: requirement
-status: planning
+status: delivered
 created: 2026-06-07T06:38:08.031Z
 analysis_input_hash: 4ac1e0e286c2ab49f83b93a46badce2671ddd481266a42b8523c383f383dd257
 analysis_applied_at: 2026-06-07T08:50:23.596Z

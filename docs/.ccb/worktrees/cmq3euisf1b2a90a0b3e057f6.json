@@ -1,7 +1,7 @@
 {
   "schema_version": "requirement-worktree-v0.2",
   "requirement_id": "cmq3euisf1b2a90a0b3e057f6",
-  "aggregate_status": "merged",
+  "aggregate_status": "archived",
   "spaces": [
     {
       "space_id": "root",
@@ -11,7 +11,7 @@
       "branch": "ccb/req-cmq3euisf1b2a90a0b3e057f6",
       "target_branch": "main",
       "base_sha": "f34ded5e47bf1063d26149b6495b7d89ef5bc367",
-      "status": "merged",
+      "status": "archived",
       "merged_branch_sha": "f34ded5e47bf1063d26149b6495b7d89ef5bc367",
       "target_sha_after_merge": "038898d744ff5cf0a15e43fb05116cfb591bf7c6",
       "merged_at": "2026-06-07T13:11:46.101Z",
@@ -42,8 +42,11 @@
         "merge_stdout": "",
         "merge_stderr": ""
       },
-      "archived_at": null,
-      "archive": null,
+      "archived_at": "2026-06-07T13:20:14.856Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "f34ded5e47bf1063d26149b6495b7d89ef5bc367"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -56,7 +59,7 @@
       "branch": "ccb/req-cmq3euisf1b2a90a0b3e057f6",
       "target_branch": "main",
       "base_sha": "ecd730a1f3a8a17005dc6c80bb126654c1305785",
-      "status": "merged",
+      "status": "archived",
       "merged_branch_sha": "ecd730a1f3a8a17005dc6c80bb126654c1305785",
       "target_sha_after_merge": "69f344bffafb3c7f948402099c2772edae44941d",
       "merged_at": "2026-06-07T13:11:46.250Z",
@@ -67,8 +70,11 @@
         "merge_stdout": "",
         "merge_stderr": ""
       },
-      "archived_at": null,
-      "archive": null,
+      "archived_at": "2026-06-07T13:20:15.114Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "ecd730a1f3a8a17005dc6c80bb126654c1305785"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -81,7 +87,7 @@
       "branch": "ccb/req-cmq3euisf1b2a90a0b3e057f6",
       "target_branch": "main",
       "base_sha": "63aad0629a3d7fb4fd37018a6ffb9a24d856ece6",
-      "status": "merged",
+      "status": "archived",
       "merged_branch_sha": "356ef88ee62c87d4fad13b41497da2d351a2c5b6",
       "target_sha_after_merge": "e8dcfc2e9e9ad26f2887b89ae9dcb4121be3af34",
       "merged_at": "2026-06-07T13:11:46.348Z",
@@ -92,8 +98,11 @@
         "merge_stdout": "Merge made by the 'ort' strategy.\n ACCEPTANCE-e057f6-slot-terminal-live-history.md    |  79 +++\n .../slot-terminal-stream-recorder.spec.ts          | 437 ++++++++++++\n .../slot-terminal/slot-terminal-stream-recorder.ts | 775 +++++++++++++++++++++\n .../slot-terminal/slot-terminal.true-tmux.spec.ts  | 605 ++++++++++++++++\n .../modules/slot-terminal/slot-terminal.ws.spec.ts | 653 ++++++++++++++++-\n .../src/modules/slot-terminal/slot-terminal.ws.ts  | 525 +++++++++++++-\n .../main-terminal/MainTerminalLauncher.spec.tsx    |  21 +-\n .../slot-terminal/SlotTerminalFrameRenderer.ts     | 122 +++-\n .../slot-terminal/SlotTerminalSurface.module.css   |   9 +\n .../slot-terminal/SlotTerminalSurface.tsx          |  12 +-\n .../slot-terminal/slot-terminal-substrate.spec.ts  | 136 +++-\n .../components/slot-terminal/useXtermTerminal.ts   |   4 +-\n web/src/lib/slot-terminal-ws.ts                    |   4 +-\n web/src/types/slot-terminal-fixtures.ts            |  55 ++\n web/src/types/slot-terminal.ts                     | 104 ++-\n 15 files changed, 3441 insertions(+), 100 deletions(-)\n create mode 100644 ACCEPTANCE-e057f6-slot-terminal-live-history.md\n create mode 100644 server/src/modules/slot-terminal/slot-terminal-stream-recorder.spec.ts\n create mode 100644 server/src/modules/slot-terminal/slot-terminal-stream-recorder.ts\n create mode 100644 server/src/modules/slot-terminal/slot-terminal.true-tmux.spec.ts\n create mode 100644 web/src/types/slot-terminal-fixtures.ts\n",
         "merge_stderr": ""
       },
-      "archived_at": null,
-      "archive": null,
+      "archived_at": "2026-06-07T13:20:16.053Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "356ef88ee62c87d4fad13b41497da2d351a2c5b6"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -106,7 +115,7 @@
       "branch": "ccb/req-cmq3euisf1b2a90a0b3e057f6",
       "target_branch": "main",
       "base_sha": "646cf721e15624a207b4c59089b491e45b24587d",
-      "status": "merged",
+      "status": "archived",
       "merged_branch_sha": "646cf721e15624a207b4c59089b491e45b24587d",
       "target_sha_after_merge": "646cf721e15624a207b4c59089b491e45b24587d",
       "merged_at": "2026-06-07T13:11:46.441Z",
@@ -117,8 +126,11 @@
         "merge_stdout": "",
         "merge_stderr": ""
       },
-      "archived_at": null,
-      "archive": null,
+      "archived_at": "2026-06-07T13:20:16.266Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "646cf721e15624a207b4c59089b491e45b24587d"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -169,5 +181,5 @@
   },
   "last_error": null,
   "created_at": "2026-06-07T10:16:24.480Z",
-  "updated_at": "2026-06-07T13:11:47.941Z"
+  "updated_at": "2026-06-07T13:20:16.343Z"
 }
