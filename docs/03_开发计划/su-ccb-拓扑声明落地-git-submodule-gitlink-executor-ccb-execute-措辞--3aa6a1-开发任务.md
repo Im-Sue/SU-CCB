@@ -2,9 +2,10 @@
 doc_type: dev_task
 task_id: subtask-15cde33aa6a1
 title: SU-CCB 拓扑声明落地 + git_submodule_gitlink executor + ccb-execute 措辞 + 端到端验收
-status: reviewing
-current_node: dispatch
-node_substate: awaiting_codex_pickup
+status: done
+current_node: archive
+node_substate: archived
+review_status: passed
 priority: high
 requirement_id: cmpmultispacemerge260606
 section_id: pr5-succb-topology-gitlink-e2e
@@ -14,6 +15,8 @@ dependencies: [subtask-fa53a1897199]
 source_breakdown_draft: docs/.ccb/drafts/breakdown/cmpmultispacemerge260606.json
 source_draft_hash: 56f84fd263ca94c9bc00d4361027a499b9dbf4676109a462f9f7ce36d3eabf29
 created_at: 2026-06-07T05:28:12.990Z
+updated_at: 2026-06-07T07:03:14.155Z
+updated_by: slot1_claude
 code_workspace: {"path":"../SU-CCB-req-cmpmultispacemerge260606","branch":"ccb/req-cmpmultispacemerge260606"}
 ---
 
