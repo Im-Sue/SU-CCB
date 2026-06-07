@@ -1,7 +1,7 @@
 {
   "schema_version": "requirement-worktree-v0.2",
   "requirement_id": "cmq3euisf1b2a90a0b3e057f6",
-  "aggregate_status": "escalated",
+  "aggregate_status": "merged",
   "spaces": [
     {
       "space_id": "root",
@@ -11,25 +11,42 @@
       "branch": "ccb/req-cmq3euisf1b2a90a0b3e057f6",
       "target_branch": "main",
       "base_sha": "f34ded5e47bf1063d26149b6495b7d89ef5bc367",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
+      "status": "merged",
+      "merged_branch_sha": "f34ded5e47bf1063d26149b6495b7d89ef5bc367",
+      "target_sha_after_merge": "038898d744ff5cf0a15e43fb05116cfb591bf7c6",
+      "merged_at": "2026-06-07T13:11:46.101Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": {
+          "status": "committed",
+          "committed": true,
+          "commitSha": "038898d744ff5cf0a15e43fb05116cfb591bf7c6",
+          "paths": [
+            "docs/.ccb/events/journal.jsonl",
+            "docs/.ccb/worktrees/cmq3euisf1b2a90a0b3e057f6.json",
+            "docs/00_文档地图.md"
+          ],
+          "allowlist": [
+            "docs/02_需求设计/bug-需求详情里的终端-终端组件滚动问题-e057f6-需求.md",
+            "docs/03_开发计划/ws-pump-接线-stream-模式端到端-mock-集成-降级链-6c874a-开发任务.md",
+            "docs/03_开发计划/前端帧协议-渲染写入模型-scrollback-截断修复-p1-7c0a53-开发任务.md",
+            "docs/03_开发计划/后端-per-pane-流-recorder-组件-fifo-槽位检测-ring-生命周期-0bfe44-开发任务.md",
+            "docs/03_开发计划/真-tmux-集成五断言-真浏览器人工验收清单-p2-837460-开发任务.md",
+            "docs/00_文档地图.md",
+            "docs/.ccb/events/journal.jsonl",
+            "docs/.ccb/worktrees/cmq3euisf1b2a90a0b3e057f6.json",
+            "docs/.ccb/drafts/breakdown/cmq3euisf1b2a90a0b3e057f6.json"
+          ]
+        },
+        "merge_stdout": "",
+        "merge_stderr": ""
+      },
       "archived_at": null,
       "archive": null,
       "discarded_at": null,
       "reopened_at": null,
-      "last_error": {
-        "op": "merge",
-        "reason": "canonical_dirty_outside_allowlist",
-        "at": "2026-06-07T13:11:24.727Z",
-        "status": "escalated",
-        "requirementId": "cmq3euisf1b2a90a0b3e057f6",
-        "path": "/home/sue/dev/SU-CCB",
-        "porcelain": " M docs/.ccb/worktrees/cmq3feiumac1ad394d74d8dbf.json\n M docs/02_需求设计/优化-关于需求分析-技术设计文档的可读性和直观性优化-4d8dbf-需求.md",
-        "space_id": "root"
-      }
+      "last_error": null
     },
     {
       "space_id": "su-ccb-claude-plugin",
@@ -39,11 +56,17 @@
       "branch": "ccb/req-cmq3euisf1b2a90a0b3e057f6",
       "target_branch": "main",
       "base_sha": "ecd730a1f3a8a17005dc6c80bb126654c1305785",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
+      "status": "merged",
+      "merged_branch_sha": "ecd730a1f3a8a17005dc6c80bb126654c1305785",
+      "target_sha_after_merge": "69f344bffafb3c7f948402099c2772edae44941d",
+      "merged_at": "2026-06-07T13:11:46.250Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "",
+        "merge_stderr": ""
+      },
       "archived_at": null,
       "archive": null,
       "discarded_at": null,
@@ -58,11 +81,17 @@
       "branch": "ccb/req-cmq3euisf1b2a90a0b3e057f6",
       "target_branch": "main",
       "base_sha": "63aad0629a3d7fb4fd37018a6ffb9a24d856ece6",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
+      "status": "merged",
+      "merged_branch_sha": "356ef88ee62c87d4fad13b41497da2d351a2c5b6",
+      "target_sha_after_merge": "e8dcfc2e9e9ad26f2887b89ae9dcb4121be3af34",
+      "merged_at": "2026-06-07T13:11:46.348Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "Merge made by the 'ort' strategy.\n ACCEPTANCE-e057f6-slot-terminal-live-history.md    |  79 +++\n .../slot-terminal-stream-recorder.spec.ts          | 437 ++++++++++++\n .../slot-terminal/slot-terminal-stream-recorder.ts | 775 +++++++++++++++++++++\n .../slot-terminal/slot-terminal.true-tmux.spec.ts  | 605 ++++++++++++++++\n .../modules/slot-terminal/slot-terminal.ws.spec.ts | 653 ++++++++++++++++-\n .../src/modules/slot-terminal/slot-terminal.ws.ts  | 525 +++++++++++++-\n .../main-terminal/MainTerminalLauncher.spec.tsx    |  21 +-\n .../slot-terminal/SlotTerminalFrameRenderer.ts     | 122 +++-\n .../slot-terminal/SlotTerminalSurface.module.css   |   9 +\n .../slot-terminal/SlotTerminalSurface.tsx          |  12 +-\n .../slot-terminal/slot-terminal-substrate.spec.ts  | 136 +++-\n .../components/slot-terminal/useXtermTerminal.ts   |   4 +-\n web/src/lib/slot-terminal-ws.ts                    |   4 +-\n web/src/types/slot-terminal-fixtures.ts            |  55 ++\n web/src/types/slot-terminal.ts                     | 104 ++-\n 15 files changed, 3441 insertions(+), 100 deletions(-)\n create mode 100644 ACCEPTANCE-e057f6-slot-terminal-live-history.md\n create mode 100644 server/src/modules/slot-terminal/slot-terminal-stream-recorder.spec.ts\n create mode 100644 server/src/modules/slot-terminal/slot-terminal-stream-recorder.ts\n create mode 100644 server/src/modules/slot-terminal/slot-terminal.true-tmux.spec.ts\n create mode 100644 web/src/types/slot-terminal-fixtures.ts\n",
+        "merge_stderr": ""
+      },
       "archived_at": null,
       "archive": null,
       "discarded_at": null,
@@ -77,11 +106,17 @@
       "branch": "ccb/req-cmq3euisf1b2a90a0b3e057f6",
       "target_branch": "main",
       "base_sha": "646cf721e15624a207b4c59089b491e45b24587d",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
+      "status": "merged",
+      "merged_branch_sha": "646cf721e15624a207b4c59089b491e45b24587d",
+      "target_sha_after_merge": "646cf721e15624a207b4c59089b491e45b24587d",
+      "merged_at": "2026-06-07T13:11:46.441Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "",
+        "merge_stderr": ""
+      },
       "archived_at": null,
       "archive": null,
       "discarded_at": null,
@@ -96,10 +131,10 @@
       "from_space": "su-ccb-claude-plugin",
       "to_space": "root",
       "submodule_path": "su-ccb-claude-plugin",
-      "status": "pending",
-      "synced_commit_sha": null,
-      "noop": false,
-      "synced_at": null,
+      "status": "synced",
+      "synced_commit_sha": "69f344bffafb3c7f948402099c2772edae44941d",
+      "noop": true,
+      "synced_at": "2026-06-07T13:11:46.714Z",
       "last_error": null
     },
     {
@@ -108,10 +143,10 @@
       "from_space": "su-oriel",
       "to_space": "root",
       "submodule_path": "su-oriel",
-      "status": "pending",
-      "synced_commit_sha": null,
+      "status": "synced",
+      "synced_commit_sha": "2b0d88f8a1d9d741c7997625ea67eabdbff8da14",
       "noop": false,
-      "synced_at": null,
+      "synced_at": "2026-06-07T13:11:47.069Z",
       "last_error": null
     },
     {
@@ -120,10 +155,10 @@
       "from_space": "su-ccb-codex-skills",
       "to_space": "root",
       "submodule_path": "su-ccb-codex-skills",
-      "status": "pending",
-      "synced_commit_sha": null,
-      "noop": false,
-      "synced_at": null,
+      "status": "synced",
+      "synced_commit_sha": "646cf721e15624a207b4c59089b491e45b24587d",
+      "noop": true,
+      "synced_at": "2026-06-07T13:11:47.440Z",
       "last_error": null
     }
   ],
@@ -132,16 +167,7 @@
     "schema_version": "implementation-topology-v0.1",
     "content_hash": "7ac179da7822d7cc9454fdb9a3012031c393808cf9ee804a6ad9dae0f1e8e189"
   },
-  "last_error": {
-    "op": "merge",
-    "reason": "canonical_dirty_outside_allowlist",
-    "at": "2026-06-07T13:11:24.727Z",
-    "status": "escalated",
-    "requirementId": "cmq3euisf1b2a90a0b3e057f6",
-    "path": "/home/sue/dev/SU-CCB",
-    "porcelain": " M docs/.ccb/worktrees/cmq3feiumac1ad394d74d8dbf.json\n M docs/02_需求设计/优化-关于需求分析-技术设计文档的可读性和直观性优化-4d8dbf-需求.md",
-    "space_id": "root"
-  },
+  "last_error": null,
   "created_at": "2026-06-07T10:16:24.480Z",
-  "updated_at": "2026-06-07T13:11:24.727Z"
+  "updated_at": "2026-06-07T13:11:47.941Z"
 }
