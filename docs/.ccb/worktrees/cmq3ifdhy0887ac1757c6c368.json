@@ -23,11 +23,11 @@
       "last_error": {
         "op": "merge",
         "reason": "canonical_dirty_outside_allowlist",
-        "at": "2026-06-07T10:23:01.858Z",
+        "at": "2026-06-07T13:22:43.774Z",
         "status": "escalated",
         "requirementId": "cmq3ifdhy0887ac1757c6c368",
         "path": "/home/sue/dev/SU-CCB",
-        "porcelain": " M docs/.ccb/worktrees/cmpvdsgdf40042bda10261d73.json\n M docs/.ccb/worktrees/cmpxrd5tx5a10460b1fa4017f.json\n M docs/.ccb/worktrees/cmpy6y7oe23104eb766718db0.json\n M docs/02_需求设计/bug-需求详情里的终端-终端组件滚动问题-e057f6-需求.md\n M docs/02_需求设计/bug-项目初始化的问题-9201ab-需求.md\n M docs/02_需求设计/console-文件监听器不为运行时新建项目注册-watcher-40d29c-需求.md\n M docs/02_需求设计/优化-关于需求分析-技术设计文档的可读性和直观性优化-4d8dbf-需求.md\n M su-oriel\n?? docs/.ccb/assets/requirements/cmq3lp9jy559ead7b3fe9f09f/3e02261477c3d58664453d3891a7461fb570aee280d2baddac6e2eb582a90612.png\n?? docs/.ccb/drafts/breakdown/cmq3euisf1b2a90a0b3e057f6.json\n?? docs/.ccb/drafts/breakdown/cmq3feiumac1ad394d74d8dbf.json\n?? docs/.ccb/worktrees/cmq3euisf1b2a90a0b3e057f6.json\n?? docs/.ccb/worktrees/cmq3feiumac1ad394d74d8dbf.json\n?? docs/02_需求设计/bug-新项目的需求里绑定slot报错-e9f09f-需求.md\n?? docs/02_需求设计/bug-项目切换之后似乎有什么操作会数据错乱问题-23ee06-需求.md\n?? docs/02_需求设计/mark思想-不开发-a249f3-需求.md\n?? docs/02_需求设计/需求级动态agent拓扑-决策agent招募-rolepack角色-fqn0ds-需求.md\n?? docs/03_开发计划/3-份模板补强-applyrequirementanalysis-写-expression-spec-标记-d77c80-开发任务.md\n?? docs/03_开发计划/bug-slot终端运行期历史持续累积-e057f6-技术设计.md\n?? docs/03_开发计划/console-巡检表达检查-gate-隔离-骨架-13-章-指引-2d5952-开发任务.md\n?? docs/03_开发计划/kernel-表达规范-4-节点-manifest-接线-2999c2-开发任务.md\n?? docs/03_开发计划/ws-pump-接线-stream-模式端到端-mock-集成-降级链-6c874a-开发任务.md\n?? docs/03_开发计划/优化-一键初始化知识库的交互优化-c6c368-技术设计.md\n?? docs/03_开发计划/前端帧协议-渲染写入模型-scrollback-截断修复-p1-7c0a53-开发任务.md\n?? docs/03_开发计划/后端-per-pane-流-recorder-组件-fifo-槽位检测-ring-生命周期-0bfe44-开发任务.md\n?? docs/03_开发计划/文档可读性-落档表达规范与写路径接线-4d8dbf-技术设计.md\n?? docs/03_开发计划/本项目契约-wiring-模板落地-全链路验收-4ce165-开发任务.md\n?? docs/03_开发计划/真-tmux-集成五断言-真浏览器人工验收清单-p2-837460-开发任务.md",
+        "porcelain": " M docs/.ccb/worktrees/cmq3euisf1b2a90a0b3e057f6.json\n M docs/02_需求设计/bug-需求详情里的终端-终端组件滚动问题-e057f6-需求.md",
         "space_id": "root"
       }
     },
@@ -135,13 +135,13 @@
   "last_error": {
     "op": "merge",
     "reason": "canonical_dirty_outside_allowlist",
-    "at": "2026-06-07T10:23:01.858Z",
+    "at": "2026-06-07T13:22:43.774Z",
     "status": "escalated",
     "requirementId": "cmq3ifdhy0887ac1757c6c368",
     "path": "/home/sue/dev/SU-CCB",
-    "porcelain": " M docs/.ccb/worktrees/cmpvdsgdf40042bda10261d73.json\n M docs/.ccb/worktrees/cmpxrd5tx5a10460b1fa4017f.json\n M docs/.ccb/worktrees/cmpy6y7oe23104eb766718db0.json\n M docs/02_需求设计/bug-需求详情里的终端-终端组件滚动问题-e057f6-需求.md\n M docs/02_需求设计/bug-项目初始化的问题-9201ab-需求.md\n M docs/02_需求设计/console-文件监听器不为运行时新建项目注册-watcher-40d29c-需求.md\n M docs/02_需求设计/优化-关于需求分析-技术设计文档的可读性和直观性优化-4d8dbf-需求.md\n M su-oriel\n?? docs/.ccb/assets/requirements/cmq3lp9jy559ead7b3fe9f09f/3e02261477c3d58664453d3891a7461fb570aee280d2baddac6e2eb582a90612.png\n?? docs/.ccb/drafts/breakdown/cmq3euisf1b2a90a0b3e057f6.json\n?? docs/.ccb/drafts/breakdown/cmq3feiumac1ad394d74d8dbf.json\n?? docs/.ccb/worktrees/cmq3euisf1b2a90a0b3e057f6.json\n?? docs/.ccb/worktrees/cmq3feiumac1ad394d74d8dbf.json\n?? docs/02_需求设计/bug-新项目的需求里绑定slot报错-e9f09f-需求.md\n?? docs/02_需求设计/bug-项目切换之后似乎有什么操作会数据错乱问题-23ee06-需求.md\n?? docs/02_需求设计/mark思想-不开发-a249f3-需求.md\n?? docs/02_需求设计/需求级动态agent拓扑-决策agent招募-rolepack角色-fqn0ds-需求.md\n?? docs/03_开发计划/3-份模板补强-applyrequirementanalysis-写-expression-spec-标记-d77c80-开发任务.md\n?? docs/03_开发计划/bug-slot终端运行期历史持续累积-e057f6-技术设计.md\n?? docs/03_开发计划/console-巡检表达检查-gate-隔离-骨架-13-章-指引-2d5952-开发任务.md\n?? docs/03_开发计划/kernel-表达规范-4-节点-manifest-接线-2999c2-开发任务.md\n?? docs/03_开发计划/ws-pump-接线-stream-模式端到端-mock-集成-降级链-6c874a-开发任务.md\n?? docs/03_开发计划/优化-一键初始化知识库的交互优化-c6c368-技术设计.md\n?? docs/03_开发计划/前端帧协议-渲染写入模型-scrollback-截断修复-p1-7c0a53-开发任务.md\n?? docs/03_开发计划/后端-per-pane-流-recorder-组件-fifo-槽位检测-ring-生命周期-0bfe44-开发任务.md\n?? docs/03_开发计划/文档可读性-落档表达规范与写路径接线-4d8dbf-技术设计.md\n?? docs/03_开发计划/本项目契约-wiring-模板落地-全链路验收-4ce165-开发任务.md\n?? docs/03_开发计划/真-tmux-集成五断言-真浏览器人工验收清单-p2-837460-开发任务.md",
+    "porcelain": " M docs/.ccb/worktrees/cmq3euisf1b2a90a0b3e057f6.json\n M docs/02_需求设计/bug-需求详情里的终端-终端组件滚动问题-e057f6-需求.md",
     "space_id": "root"
   },
   "created_at": "2026-06-07T10:02:03.702Z",
-  "updated_at": "2026-06-07T10:23:01.858Z"
+  "updated_at": "2026-06-07T13:22:43.774Z"
 }
