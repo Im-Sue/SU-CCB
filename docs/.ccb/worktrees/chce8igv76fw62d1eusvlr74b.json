@@ -1,7 +1,7 @@
 {
   "schema_version": "requirement-worktree-v0.2",
   "requirement_id": "chce8igv76fw62d1eusvlr74b",
-  "aggregate_status": "escalated",
+  "aggregate_status": "merged",
   "spaces": [
     {
       "space_id": "root",
@@ -127,20 +127,11 @@
       "from_space": "su-ccb-claude-plugin",
       "to_space": "root",
       "submodule_path": "su-ccb-claude-plugin",
-      "status": "pending",
-      "synced_commit_sha": null,
+      "status": "synced",
+      "synced_commit_sha": "64b6cf6ae307d485d8c3e93428926daa19d42ad7",
       "noop": false,
-      "synced_at": null,
-      "last_error": {
-        "op": "associate",
-        "reason": "association_dirty_outside_path",
-        "at": "2026-06-08T08:14:22.848Z",
-        "association_id": "su-ccb-claude-plugin-to-root",
-        "kind": "git_submodule_gitlink",
-        "to_space": "root",
-        "submodule_path": "su-ccb-claude-plugin",
-        "porcelain": " M docs/00_文档地图.md"
-      }
+      "synced_at": "2026-06-08T08:15:42.084Z",
+      "last_error": null
     },
     {
       "association_id": "su-oriel-to-root",
@@ -148,10 +139,10 @@
       "from_space": "su-oriel",
       "to_space": "root",
       "submodule_path": "su-oriel",
-      "status": "pending",
-      "synced_commit_sha": null,
-      "noop": false,
-      "synced_at": null,
+      "status": "synced",
+      "synced_commit_sha": "405eb248b6575f23fe7fa0c22c418d55d02a5e50",
+      "noop": true,
+      "synced_at": "2026-06-08T08:15:42.273Z",
       "last_error": null
     },
     {
@@ -160,10 +151,10 @@
       "from_space": "su-ccb-codex-skills",
       "to_space": "root",
       "submodule_path": "su-ccb-codex-skills",
-      "status": "pending",
-      "synced_commit_sha": null,
-      "noop": false,
-      "synced_at": null,
+      "status": "synced",
+      "synced_commit_sha": "646cf721e15624a207b4c59089b491e45b24587d",
+      "noop": true,
+      "synced_at": "2026-06-08T08:15:42.453Z",
       "last_error": null
     }
   ],
@@ -172,16 +163,7 @@
     "schema_version": "implementation-topology-v0.1",
     "content_hash": "7ac179da7822d7cc9454fdb9a3012031c393808cf9ee804a6ad9dae0f1e8e189"
   },
-  "last_error": {
-    "op": "associate",
-    "reason": "association_dirty_outside_path",
-    "at": "2026-06-08T08:14:22.848Z",
-    "association_id": "su-ccb-claude-plugin-to-root",
-    "kind": "git_submodule_gitlink",
-    "to_space": "root",
-    "submodule_path": "su-ccb-claude-plugin",
-    "porcelain": " M docs/00_文档地图.md"
-  },
+  "last_error": null,
   "created_at": "2026-06-08T06:32:02.915Z",
-  "updated_at": "2026-06-08T08:14:22.848Z"
+  "updated_at": "2026-06-08T08:15:42.555Z"
 }
