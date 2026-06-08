@@ -2,7 +2,7 @@
 id: cmq3m1i8r5ac97ea38323ee06
 title: BUG：项目切换之后似乎有什么操作会数据错乱问题
 doc_type: requirement
-status: planning
+status: delivered
 created: 2026-06-07T09:59:31.227Z
 analysis_input_hash: 0fc60f622bb123be75e8c4e03ab3bd77f6f604351baae9df2d5fa5ecea908dea
 analysis_applied_at: 2026-06-07T13:30:46.758Z

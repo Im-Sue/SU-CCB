@@ -2,7 +2,7 @@
 id: cmq3lp9jy559ead7b3fe9f09f
 title: BUG：新项目的需求里绑定slot报错
 doc_type: requirement
-status: planning
+status: delivered
 created: 2026-06-07T09:50:00.096Z
 analysis_input_hash: bf8c81f7a4d14de7921aef6ede94173d0598444ebffb2b6145e60331a5834b96
 analysis_applied_at: 2026-06-07T10:23:14.058Z
