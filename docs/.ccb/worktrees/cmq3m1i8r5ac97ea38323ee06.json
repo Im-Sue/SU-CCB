@@ -1,7 +1,7 @@
 {
   "schema_version": "requirement-worktree-v0.2",
   "requirement_id": "cmq3m1i8r5ac97ea38323ee06",
-  "aggregate_status": "escalated",
+  "aggregate_status": "merged",
   "spaces": [
     {
       "space_id": "root",
@@ -11,25 +11,45 @@
       "branch": "ccb/req-cmq3m1i8r5ac97ea38323ee06",
       "target_branch": "main",
       "base_sha": "25bbbd0a40eb20127c568b868ce7a01610a753a7",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
+      "status": "merged",
+      "merged_branch_sha": "424f429e4126d6d16756486ca16b583e9a1bd14c",
+      "target_sha_after_merge": "fee210a9520cc55b6245826abc5f9e56104061da",
+      "merged_at": "2026-06-08T04:39:33.621Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": {
+          "status": "committed",
+          "committed": true,
+          "commitSha": "3a87265e43ee500e65ffe188860e94010137d861",
+          "paths": [
+            "docs/.ccb/events/journal.jsonl",
+            "docs/.ccb/worktrees/cmq3m1i8r5ac97ea38323ee06.json"
+          ],
+          "allowlist": [
+            "docs/02_需求设计/bug-项目切换之后似乎有什么操作会数据错乱问题-23ee06-需求.md",
+            "docs/03_开发计划/anchor-terminal-项目归属校验-去-ccb-su-ccb-task-硬编码-共享-resolver-669250-开发任务.md",
+            "docs/03_开发计划/anchordispatchqueue-加-projectid-列-查询层项目隔离-7bd30c-开发任务.md",
+            "docs/03_开发计划/ccb-bridge-错误-排查-报告型交付-785c77-开发任务.md",
+            "docs/03_开发计划/ccbd-client-构造显式-scope-收紧-eventjournal-project-id-过滤-cf77ed-开发任务.md",
+            "docs/03_开发计划/playwright-双-tab-多项目浏览器层-e2e-新依赖工程初始化-2e2325-开发任务.md",
+            "docs/03_开发计划/server-双项目隔离集成断言-fake-per-project-sockets-fixture-7dbd43-开发任务.md",
+            "docs/03_开发计划/全站多项目隔离审计矩阵-收口证据-0eef2b-开发任务.md",
+            "docs/03_开发计划/前端-url-项目真相源一次性切换-projects-projectid-前缀-智能跳转-7ade61-开发任务.md",
+            "docs/00_文档地图.md",
+            "docs/.ccb/events/journal.jsonl",
+            "docs/.ccb/worktrees/cmq3m1i8r5ac97ea38323ee06.json",
+            "docs/.ccb/drafts/breakdown/cmq3m1i8r5ac97ea38323ee06.json"
+          ]
+        },
+        "merge_stdout": "Merge made by the 'ort' strategy.\n ...\\350\\257\\257\\346\\216\\222\\346\\237\\245-785c77.md\" | 144 +++++++++++++++++++++\n ...\\350\\256\\241\\347\\237\\251\\351\\230\\265-23ee06.md\" | 139 ++++++++++++++++++++\n su-oriel                                           |   2 +-\n 3 files changed, 284 insertions(+), 1 deletion(-)\n create mode 100644 \"docs/05_\\347\\273\\217\\351\\252\\214\\346\\262\\211\\346\\267\\200/ccb-bridge-\\351\\224\\231\\350\\257\\257\\346\\216\\222\\346\\237\\245-785c77.md\"\n create mode 100644 \"docs/05_\\347\\273\\217\\351\\252\\214\\346\\262\\211\\346\\267\\200/\\345\\244\\232\\351\\241\\271\\347\\233\\256\\351\\232\\224\\347\\246\\273\\345\\256\\241\\350\\256\\241\\347\\237\\251\\351\\230\\265-23ee06.md\"\n",
+        "merge_stderr": ""
+      },
       "archived_at": null,
       "archive": null,
       "discarded_at": null,
       "reopened_at": null,
-      "last_error": {
-        "op": "merge",
-        "reason": "canonical_dirty_outside_allowlist",
-        "at": "2026-06-08T04:38:52.009Z",
-        "status": "escalated",
-        "requirementId": "cmq3m1i8r5ac97ea38323ee06",
-        "path": "/home/sue/dev/SU-CCB",
-        "porcelain": "?? docs/02_需求设计/优化-拍板项对话闭环后才落档-kernel节点规则修订-vlr74b-需求.md\n?? docs/05_经验沉淀/slot-terminal-live-history-batch-lessons经验沉淀.md",
-        "space_id": "root"
-      }
+      "last_error": null
     },
     {
       "space_id": "su-ccb-claude-plugin",
@@ -39,11 +59,17 @@
       "branch": "ccb/req-cmq3m1i8r5ac97ea38323ee06",
       "target_branch": "main",
       "base_sha": "69f344bffafb3c7f948402099c2772edae44941d",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
+      "status": "merged",
+      "merged_branch_sha": "69f344bffafb3c7f948402099c2772edae44941d",
+      "target_sha_after_merge": "69f344bffafb3c7f948402099c2772edae44941d",
+      "merged_at": "2026-06-08T04:39:33.752Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "",
+        "merge_stderr": ""
+      },
       "archived_at": null,
       "archive": null,
       "discarded_at": null,
@@ -58,11 +84,17 @@
       "branch": "ccb/req-cmq3m1i8r5ac97ea38323ee06",
       "target_branch": "main",
       "base_sha": "ffec23df5c739c4306c4cea7ca2e7f9a0e12849a",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
+      "status": "merged",
+      "merged_branch_sha": "405eb248b6575f23fe7fa0c22c418d55d02a5e50",
+      "target_sha_after_merge": "405eb248b6575f23fe7fa0c22c418d55d02a5e50",
+      "merged_at": "2026-06-08T04:39:33.951Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "Updating ffec23d..405eb24\nFast-forward\n .gitignore                                         |   6 +\n e2e/README.md                                      |  12 +\n e2e/harness.ts                                     | 532 +++++++++++++++++++++\n e2e/multitab-project-isolation.spec.ts             | 154 ++++++\n package.json                                       |   3 +\n playwright.config.ts                               |  40 ++\n pnpm-lock.yaml                                     |  51 ++\n .../migration.sql                                  |  59 +++\n server/prisma/schema.prisma                        |   3 +\n .../report-anchor-dispatch-queue-project-scope.ts  |   6 +\n .../anchor-broker/anchor-dispatch-queue-policy.ts  |   2 +\n .../anchor-dispatch-queue-project-scope.spec.ts    | 123 +++++\n .../anchor-dispatch-queue-project-scope.ts         |  96 ++++\n .../anchor-broker/anchor-dispatch-worker.spec.ts   |   4 +\n .../anchor-broker/anchor-dispatch-worker.ts        |  38 +-\n .../anchor-requirement-dispatch.routes.spec.ts     |   7 +\n .../anchor-subtask-batch-dispatch.routes.spec.ts   |   1 +\n .../modules/anchor-broker/anchor.routes.spec.ts    |   8 +-\n server/src/modules/anchor-broker/anchor.routes.ts  |   8 +-\n .../anchor-session-resolver.spec.ts                |  44 ++\n .../anchor-terminal/anchor-session-resolver.ts     |  88 ++++\n .../anchor-terminal.manager.spec.ts                |  22 +-\n .../anchor-terminal/anchor-terminal.routes.spec.ts | 236 ++++++++-\n .../anchor-terminal/anchor-terminal.routes.ts      | 122 ++++-\n .../anchor-terminal/anchor-terminal.tmux.spec.ts   |  42 +-\n .../native-terminal.service.spec.ts                |  56 +--\n .../anchor-terminal/native-terminal.service.ts     |  23 +-\n server/src/modules/anchor-terminal/tmux.service.ts |  23 +-\n .../attention-inbox/attention-inbox.service.ts     |   4 +-\n .../src/modules/ccbd-client/ccbd-client.service.ts |  79 ++-\n server/src/modules/ccbd-client/ccbd-client.spec.ts |  71 ++-\n server/src/modules/events/event-journal.schemas.ts |   1 +\n server/src/modules/events/event-journal.service.ts |   1 +\n .../modules/slot-binding/job-slot-router.spec.ts   |  16 +\n server/src/modules/slot-binding/job-slot-router.ts |  18 +-\n .../slot-binding/slot-binding.service.spec.ts      |   4 +\n .../slot-context-reset.service.spec.ts             | 258 +++++++---\n .../slot-binding/slot-context-reset.service.ts     | 100 +++-\n .../src/modules/slot-binding/slot.routes.spec.ts   |   6 +\n server/src/modules/slot-binding/slot.routes.ts     |   2 +\n .../slot-resize/slot-resize.service.spec.ts        |   1 +\n .../src/modules/slot-resize/slot-resize.service.ts |  52 +-\n .../slot-terminal/slot-terminal.service.spec.ts    | 111 ++++-\n .../modules/slot-terminal/slot-terminal.service.ts | 112 +++--\n .../slot-terminal/slot-terminal.true-tmux.spec.ts  |  41 +-\n .../modules/slot-terminal/slot-terminal.ws.spec.ts |   4 +-\n server/src/server-bootstrap.ts                     |  28 +-\n server/src/tests/event-journal-routes.spec.ts      |  56 +++\n .../src/tests/fixtures/per-project-ccbd-sockets.ts | 188 ++++++++\n .../server-project-isolation.integration.spec.ts   | 403 ++++++++++++++++\n web/src/App.tsx                                    | 407 ++++++++++++----\n web/src/components/ai-cli/AiCliPanel.tsx           |   6 +-\n web/src/components/layout/AppShell.tsx             |   4 +-\n web/src/components/layout/Sidebar.tsx              |   4 +-\n .../notifications/NotificationManager.spec.tsx     |  10 +-\n .../notifications/NotificationManager.tsx          |  17 +-\n .../SlotRequirementsFab.spec.tsx                   |   4 +-\n .../slot-requirements-fab/SlotRequirementsFab.tsx  |   8 +-\n .../components/slot-terminal/SlotTerminalPanel.tsx |   4 +-\n .../components/task-detail-v2/AdvancedDrawer.tsx   |   4 +-\n web/src/components/task-detail-v2/AlertStrip.tsx   |   8 +-\n .../task-detail-v2/AnchorStartStrip.spec.tsx       |   4 +-\n .../components/task-detail-v2/AnchorStartStrip.tsx |   5 +-\n .../task-detail-v2/DocumentPreviewDrawer.tsx       |   4 +-\n web/src/lib/project-paths.ts                       |  94 ++++\n web/src/pages/ai-cli/AiCliPage.tsx                 |   4 +-\n web/src/pages/ai-cli/RecordingPlayPage.tsx         |   4 +-\n .../pages/breakdown-review/BreakdownReviewPage.tsx |   6 +-\n web/src/pages/documents/DocumentsPage.spec.tsx     |   6 +-\n web/src/pages/documents/DocumentsPage.tsx          |   4 +-\n web/src/pages/my-work/MyWorkPage.tsx               |   8 +-\n web/src/pages/overview/ActivityFeed.spec.tsx       |   6 +-\n web/src/pages/overview/ActivityFeed.tsx            |  21 +-\n web/src/pages/overview/OverviewPage.tsx            |  12 +-\n .../requirements/RequirementDetailPage.spec.tsx    |  12 +-\n .../pages/requirements/RequirementDetailPage.tsx   |   6 +-\n web/src/pages/requirements/RequirementsPage.tsx    |   4 +-\n .../RequirementDetailPage.spec.tsx.snap            |   2 +-\n web/src/pages/slots/SlotsPage.tsx                  |   4 +-\n web/src/pages/sprints/SprintsPage.tsx              |   9 +-\n web/src/pages/tasks/TaskDetailFullPage.tsx         |   6 +-\n web/src/pages/tasks/TasksBoardView.tsx             |  10 +-\n web/src/stores/project-store.ts                    |  17 +-\n web/src/tests/app-redesign.spec.tsx                |  88 +++-\n web/src/tests/e12-acceptance-snapshots.spec.tsx    |   3 +-\n web/src/tests/silent-refresh.spec.ts               |  34 +-\n web/src/tests/task-detail-v2-acceptance.spec.tsx   |  10 +-\n 87 files changed, 3652 insertions(+), 572 deletions(-)\n create mode 100644 e2e/README.md\n create mode 100644 e2e/harness.ts\n create mode 100644 e2e/multitab-project-isolation.spec.ts\n create mode 100644 playwright.config.ts\n create mode 100644 server/prisma/migrations/20260607143000_anchor_dispatch_queue_project_id/migration.sql\n create mode 100644 server/scripts/report-anchor-dispatch-queue-project-scope.ts\n create mode 100644 server/src/modules/anchor-broker/anchor-dispatch-queue-project-scope.spec.ts\n create mode 100644 server/src/modules/anchor-broker/anchor-dispatch-queue-project-scope.ts\n create mode 100644 server/src/modules/anchor-terminal/anchor-session-resolver.spec.ts\n create mode 100644 server/src/modules/anchor-terminal/anchor-session-resolver.ts\n create mode 100644 server/src/tests/fixtures/per-project-ccbd-sockets.ts\n create mode 100644 server/src/tests/server-project-isolation.integration.spec.ts\n create mode 100644 web/src/lib/project-paths.ts\n",
+        "merge_stderr": ""
+      },
       "archived_at": null,
       "archive": null,
       "discarded_at": null,
@@ -77,11 +109,17 @@
       "branch": "ccb/req-cmq3m1i8r5ac97ea38323ee06",
       "target_branch": "main",
       "base_sha": "646cf721e15624a207b4c59089b491e45b24587d",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
+      "status": "merged",
+      "merged_branch_sha": "646cf721e15624a207b4c59089b491e45b24587d",
+      "target_sha_after_merge": "646cf721e15624a207b4c59089b491e45b24587d",
+      "merged_at": "2026-06-08T04:39:34.127Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "",
+        "merge_stderr": ""
+      },
       "archived_at": null,
       "archive": null,
       "discarded_at": null,
@@ -96,10 +134,10 @@
       "from_space": "su-ccb-claude-plugin",
       "to_space": "root",
       "submodule_path": "su-ccb-claude-plugin",
-      "status": "pending",
-      "synced_commit_sha": null,
-      "noop": false,
-      "synced_at": null,
+      "status": "synced",
+      "synced_commit_sha": "69f344bffafb3c7f948402099c2772edae44941d",
+      "noop": true,
+      "synced_at": "2026-06-08T04:39:34.374Z",
       "last_error": null
     },
     {
@@ -108,10 +146,10 @@
       "from_space": "su-oriel",
       "to_space": "root",
       "submodule_path": "su-oriel",
-      "status": "pending",
-      "synced_commit_sha": null,
-      "noop": false,
-      "synced_at": null,
+      "status": "synced",
+      "synced_commit_sha": "405eb248b6575f23fe7fa0c22c418d55d02a5e50",
+      "noop": true,
+      "synced_at": "2026-06-08T04:39:34.568Z",
       "last_error": null
     },
     {
@@ -120,10 +158,10 @@
       "from_space": "su-ccb-codex-skills",
       "to_space": "root",
       "submodule_path": "su-ccb-codex-skills",
-      "status": "pending",
-      "synced_commit_sha": null,
-      "noop": false,
-      "synced_at": null,
+      "status": "synced",
+      "synced_commit_sha": "646cf721e15624a207b4c59089b491e45b24587d",
+      "noop": true,
+      "synced_at": "2026-06-08T04:39:34.928Z",
       "last_error": null
     }
   ],
@@ -132,16 +170,7 @@
     "schema_version": "implementation-topology-v0.1",
     "content_hash": "7ac179da7822d7cc9454fdb9a3012031c393808cf9ee804a6ad9dae0f1e8e189"
   },
-  "last_error": {
-    "op": "merge",
-    "reason": "canonical_dirty_outside_allowlist",
-    "at": "2026-06-08T04:38:52.009Z",
-    "status": "escalated",
-    "requirementId": "cmq3m1i8r5ac97ea38323ee06",
-    "path": "/home/sue/dev/SU-CCB",
-    "porcelain": "?? docs/02_需求设计/优化-拍板项对话闭环后才落档-kernel节点规则修订-vlr74b-需求.md\n?? docs/05_经验沉淀/slot-terminal-live-history-batch-lessons经验沉淀.md",
-    "space_id": "root"
-  },
+  "last_error": null,
   "created_at": "2026-06-07T14:14:42.991Z",
-  "updated_at": "2026-06-08T04:38:52.009Z"
+  "updated_at": "2026-06-08T04:39:35.119Z"
 }
