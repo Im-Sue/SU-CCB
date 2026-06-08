@@ -11,25 +11,38 @@
       "branch": "ccb/req-chce8igv76fw62d1eusvlr74b",
       "target_branch": "main",
       "base_sha": "5b7fd5a7322baa4b1c2f607f4ac595de25cb6819",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
+      "status": "merged",
+      "merged_branch_sha": "4f5c6c9a04654177b5e42f54139258bfe949fd40",
+      "target_sha_after_merge": "86a09057fb5cbd83498531f1100d7112cd75d2de",
+      "merged_at": "2026-06-08T08:12:56.995Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": {
+          "status": "committed",
+          "committed": true,
+          "commitSha": "c0730dcf023ac274e25e93b9dbc9f9628e73cba4",
+          "paths": [
+            "docs/.ccb/events/journal.jsonl",
+            "docs/00_文档地图.md"
+          ],
+          "allowlist": [
+            "docs/02_需求设计/优化-拍板项对话闭环后才落档-kernel节点规则修订-vlr74b-需求.md",
+            "docs/03_开发计划/拍板项闭环规则-一批文档修订-11-文件-9-修订点-4606eb-开发任务.md",
+            "docs/00_文档地图.md",
+            "docs/.ccb/events/journal.jsonl",
+            "docs/.ccb/worktrees/chce8igv76fw62d1eusvlr74b.json",
+            "docs/.ccb/drafts/breakdown/chce8igv76fw62d1eusvlr74b.json"
+          ]
+        },
+        "merge_stdout": "Merge made by the 'ort' strategy.\n docs/02_需求设计/_模板_需求.md | 12 ++++++------\n 1 file changed, 6 insertions(+), 6 deletions(-)\n",
+        "merge_stderr": ""
+      },
       "archived_at": null,
       "archive": null,
       "discarded_at": null,
       "reopened_at": null,
-      "last_error": {
-        "op": "merge",
-        "reason": "canonical_dirty_outside_allowlist",
-        "at": "2026-06-08T06:53:47.857Z",
-        "status": "escalated",
-        "requirementId": "chce8igv76fw62d1eusvlr74b",
-        "path": "/home/sue/dev/SU-CCB",
-        "porcelain": " M docs/.ccb/worktrees/cmq3m1i8r5ac97ea38323ee06.json\n M docs/02_需求设计/bug-新项目的需求里绑定slot报错-e9f09f-需求.md\n M docs/02_需求设计/bug-项目切换之后似乎有什么操作会数据错乱问题-23ee06-需求.md\n?? docs/02_需求设计/bug-超出slot3的slot会被自动删除-41041a-需求.md\n?? docs/02_需求设计/优化-需求管理页面的优化-d91293-需求.md\n?? docs/02_需求设计/归档按钮门控修复-a654c0-需求.md\n?? docs/03_开发计划/优化-拍板项对话闭环后才落档-kernel节点规则修订-vlr74b-技术设计.md\n?? docs/05_经验沉淀/slot-terminal-live-history-batch-lessons经验沉淀.md",
-        "space_id": "root"
-      }
+      "last_error": null
     },
     {
       "space_id": "su-ccb-claude-plugin",
@@ -39,11 +52,17 @@
       "branch": "ccb/req-chce8igv76fw62d1eusvlr74b",
       "target_branch": "main",
       "base_sha": "69f344bffafb3c7f948402099c2772edae44941d",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
+      "status": "merged",
+      "merged_branch_sha": "5c10c92c30626a1dd324200085a20ae2e76a43f4",
+      "target_sha_after_merge": "5c10c92c30626a1dd324200085a20ae2e76a43f4",
+      "merged_at": "2026-06-08T08:14:22.347Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "Updating 69f344b..5c10c92\nFast-forward\n references/kernel/nodes/archive.node.md            | 38 +++++++++++++------\n references/kernel/nodes/dispatch.node.md           | 19 ++++++++--\n .../kernel/nodes/requirement_analysis.node.md      | 19 +++++-----\n references/kernel/nodes/review.node.md             | 44 ++++++++++++++--------\n references/kernel/nodes/technical_design.node.md   | 12 +++---\n skills/requirement-reanalyze/SKILL.md              |  2 +-\n skills/su-flow/SKILL.md                            |  4 +-\n skills/su-materialize-requirement/SKILL.md         | 14 ++++++-\n skills/su-revise-breakdown/SKILL.md                |  2 +-\n ...50\\241\\346\\235\\277_\\351\\234\\200\\346\\261\\202.md\" | 12 +++---\n 10 files changed, 111 insertions(+), 55 deletions(-)\n",
+        "merge_stderr": ""
+      },
       "archived_at": null,
       "archive": null,
       "discarded_at": null,
@@ -58,11 +77,17 @@
       "branch": "ccb/req-chce8igv76fw62d1eusvlr74b",
       "target_branch": "main",
       "base_sha": "405eb248b6575f23fe7fa0c22c418d55d02a5e50",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
+      "status": "merged",
+      "merged_branch_sha": "405eb248b6575f23fe7fa0c22c418d55d02a5e50",
+      "target_sha_after_merge": "405eb248b6575f23fe7fa0c22c418d55d02a5e50",
+      "merged_at": "2026-06-08T08:14:22.482Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "",
+        "merge_stderr": ""
+      },
       "archived_at": null,
       "archive": null,
       "discarded_at": null,
@@ -77,11 +102,17 @@
       "branch": "ccb/req-chce8igv76fw62d1eusvlr74b",
       "target_branch": "main",
       "base_sha": "646cf721e15624a207b4c59089b491e45b24587d",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
+      "status": "merged",
+      "merged_branch_sha": "646cf721e15624a207b4c59089b491e45b24587d",
+      "target_sha_after_merge": "646cf721e15624a207b4c59089b491e45b24587d",
+      "merged_at": "2026-06-08T08:14:22.577Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "",
+        "merge_stderr": ""
+      },
       "archived_at": null,
       "archive": null,
       "discarded_at": null,
@@ -100,7 +131,16 @@
       "synced_commit_sha": null,
       "noop": false,
       "synced_at": null,
-      "last_error": null
+      "last_error": {
+        "op": "associate",
+        "reason": "association_dirty_outside_path",
+        "at": "2026-06-08T08:14:22.848Z",
+        "association_id": "su-ccb-claude-plugin-to-root",
+        "kind": "git_submodule_gitlink",
+        "to_space": "root",
+        "submodule_path": "su-ccb-claude-plugin",
+        "porcelain": " M docs/00_文档地图.md"
+      }
     },
     {
       "association_id": "su-oriel-to-root",
@@ -133,15 +173,15 @@
     "content_hash": "7ac179da7822d7cc9454fdb9a3012031c393808cf9ee804a6ad9dae0f1e8e189"
   },
   "last_error": {
-    "op": "merge",
-    "reason": "canonical_dirty_outside_allowlist",
-    "at": "2026-06-08T06:53:47.857Z",
-    "status": "escalated",
-    "requirementId": "chce8igv76fw62d1eusvlr74b",
-    "path": "/home/sue/dev/SU-CCB",
-    "porcelain": " M docs/.ccb/worktrees/cmq3m1i8r5ac97ea38323ee06.json\n M docs/02_需求设计/bug-新项目的需求里绑定slot报错-e9f09f-需求.md\n M docs/02_需求设计/bug-项目切换之后似乎有什么操作会数据错乱问题-23ee06-需求.md\n?? docs/02_需求设计/bug-超出slot3的slot会被自动删除-41041a-需求.md\n?? docs/02_需求设计/优化-需求管理页面的优化-d91293-需求.md\n?? docs/02_需求设计/归档按钮门控修复-a654c0-需求.md\n?? docs/03_开发计划/优化-拍板项对话闭环后才落档-kernel节点规则修订-vlr74b-技术设计.md\n?? docs/05_经验沉淀/slot-terminal-live-history-batch-lessons经验沉淀.md",
-    "space_id": "root"
+    "op": "associate",
+    "reason": "association_dirty_outside_path",
+    "at": "2026-06-08T08:14:22.848Z",
+    "association_id": "su-ccb-claude-plugin-to-root",
+    "kind": "git_submodule_gitlink",
+    "to_space": "root",
+    "submodule_path": "su-ccb-claude-plugin",
+    "porcelain": " M docs/00_文档地图.md"
   },
   "created_at": "2026-06-08T06:32:02.915Z",
-  "updated_at": "2026-06-08T06:53:47.857Z"
+  "updated_at": "2026-06-08T08:14:22.848Z"
 }
