@@ -25,7 +25,7 @@ updated: 2026-06-07
 | 设计原则 | 名称知识归 ccbd,Console 只信运行时证据;副作用发送 fail-closed(= 校验不过就拒发,宁可不发不可错发);最小改动面 |
 | 需求来源 | `docs/02_需求设计/bug-新项目的需求里绑定slot报错-e9f09f-需求.md` |
 | 覆盖范围 | option 1(用户默认已定):`slot-terminal.service.ts` session 解析、`slot-context-reset.service.ts` ccbd 路由、`slot-resize.service.ts` 构造适配、对应测试 |
-| 不覆盖 | anchor-terminal `ccb-su-ccb-task-` 硬编码与 bridge 错误(移交 23ee06);ccbd(codex-dual)侧任何改动;`CCB_CCBD_SOCKET_PATH` 全局 override 语义本身 |
+| 不覆盖 | anchor-terminal `ccb-su-ccb-task-` 硬编码与 bridge 错误(移交 23ee06,统一设计见 `bug-项目切换之后似乎有什么操作会数据错乱问题-23ee06-技术设计.md`);ccbd(codex-dual)侧任何改动;`CCB_CCBD_SOCKET_PATH` 全局 override 语义本身 |
 
 ---
 

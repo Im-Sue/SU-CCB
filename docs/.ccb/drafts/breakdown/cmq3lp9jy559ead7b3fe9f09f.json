@@ -1,0 +1,61 @@
+{
+  "schema_version": "breakdown-draft-v0.2",
+  "status": "consumed",
+  "carrier_task_key": "cross-project-slot-binding-fix-e9f09f",
+  "base_task_revision": null,
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot5_claude",
+    "cx_agent": "slot5_codex",
+    "ccb_job_id": "job_0046f204228c"
+  },
+  "plan": {
+    "title": "跨项目 slot 绑定隔离修复(A4+B1)单任务交付——并入 batch-23ee06",
+    "summary": "按技设 td-e9f09f 单任务结论落地:A4 运行时证据交集派生 session(删 ccb-su-ccb- 硬编码)+B1 resetter 按 projectId 路由 fail-closed+slot-resize 构造适配+四层测试。用户拍板(2026-06-07)并入 batch-23ee06 合并执行、分开验收;共享 worktree 严格串行;requirement 归档后置。",
+    "spec_outline_md": "## 交付总览\n\n- 单任务(技设结论:两处改动验收共享回归面,拆分徒增中间态风险,Codex job_339895b8d1bd 同议)。\n- 并入 batch-23ee06 执行序列(pr2 后、pr3/pr4/pr1 前),共享 worktree ../SU-CCB-req-cmq3m1i8r5ac97ea38323ee06 同分支叠 commit;批内 B1 先行使 pr1 类型收紧可直接基于最终签名(协调确认 job_0046f204228c)。\n- 共享约束:严格串行;子模块先 commit 再 superproject gitlink;动工前确认双层 clean;不动 anchor-terminal(pr2 已交付)与 ccbd 侧。\n- requirement 层收尾(delivering/delivered)不在 batch 内,由后续 su-archive 处理。"
+  },
+  "subtasks": [
+    {
+      "order": 1,
+      "section_id": "pr1-a4b1-slot-isolation-fix",
+      "title": "slot 终端解析 A4 + 上下文重置 B1 跨项目隔离修复",
+      "summary": "A4:单次 list-panes -a ∩ runtime.json 交集派生 session,先收敛唯一再产出 candidates;B1:resetSlotContext 按 projectId 查 localPath 构造 per-project client,root canonical 守卫 fail-closed;slot-resize 构造适配;四层测试",
+      "include": true,
+      "priority": "high",
+      "dependencies": [],
+      "implementation_owner": "ccb_codex",
+      "spec_section_md": "## 任务概述\n\n修复两个已实测确证的跨项目隔离 bug(同根因簇、本需求验收):**Bug A**——slot-terminal.service.ts:13 硬编码 `SESSION_PREFIX=\"ccb-su-ccb-\"`,任何目录名≠SU-CCB 的项目终端 resolver 必然 404(「slot terminal unavailable」直接根因);**Bug B**——slot-context-reset.service.ts:49 模块级单例无参 `new CcbdClientService()` 回落 server 自身 CCB 根,bind/release 后的 `/new` 被 send-keys 进 CCB 项目同名 slot panes(跨项目串扰直接根因,`input.projectId` 只回显不参与路由)。修法按技设 td-e9f09f 定稿:A4「运行时证据交集」+B1「按 projectId 路由 fail-closed」。\n\n## 任务分解\n\n1. **A4 session 派生解析**(`slot-terminal/slot-terminal.service.ts`):删 `SESSION_PREFIX`(:13);`resolveSessionName`+`listPanes` 合并为单次 `tmux -S <socket> list-panes -a`(format: session/window/pane_id/pane_index)与 `<projectRoot>/.ccb/agents/*/runtime.json` 交集;**先收敛唯一 session 再产出 candidates**——匹配 pane 的 session 集合 size==0 → NotFound(\"panes not found\")、size>=2 → NotFound(\"not uniquely resolvable\");`list-panes -a` 输出重复 pane_id → NotFound(fail-loud,不让 Map 覆盖掩盖);descriptor.sessionName 语义=派生事实仅作返回/诊断。\n2. **B1 按 projectId 路由的上下文重置**(`slot-binding/slot-context-reset.service.ts`):构造签名 → `{ store?, clientFactory?, runTmux? }`,新增 Prisma store 默认实现(查 `project.localPath`);`resetSlotContext` 前段:`store.findProjectLocalPath(input.projectId)` 查不到 → failed \"project_local_path_missing\" 拒发零 client 构造 → `clientFactory(localPath)`(默认 `(root)=>new CcbdClientService({projectRoot:root})`)→ `projectView()` 异常 → failed(best-effort 现状语义)→ **root 守卫**:canonical(view.project.root) ≟ canonical(localPath)(双侧 realpath 优先、resolve+斜杠归一降级),mismatch → failed \"project_root_mismatch\" 拒发(fail-closed,`CCB_CCBD_SOCKET_PATH` 全局 override 场景的唯一防线);后段 windows/agents/pane/send-keys 不变。bind 两条消费路径(slot.routes.ts:92-118、slot-binding.service.ts:554-573)与 release(slot.routes.ts:270-279)同路修复。\n3. **slot-resize 适配**(`slot-resize/slot-resize.service.ts:122`):默认 `contextResetterFactory` 适配新构造签名,resize 业务逻辑不动。\n4. **测试四层**:单元(slot-context-reset.service.spec 更新:fake store+clientFactory 捕获 projectRoot/localPath 缺失/root mismatch 三路径+既有 sent/skipped/failed 回归)、单元(slot-terminal.service.spec 更新:非 SU-CCB session 名解析/残留 session 忽略/跨 session NotFound/重复 paneId NotFound/零匹配 NotFound/**main 组在外来名 session 可解析**)、单元(slot-resize 既有 spec 编译+回归)、集成(slot-terminal.true-tmux.spec session 名参数化为非 SU-CCB 名)。\n\n## 验收标准\n\n- 新项目(目录名≠SU-CCB)绑定 slot 后详情页双 pane 正常,不再 `slot terminal unavailable`;main 组 agent 终端在新旧两类项目均可解析。\n- 项目 X bind/release slot-N,项目 Y 的 slot-N 终端会话零影响——**bind 与 release 两条 callback 路径都有「不打错项目 /new」断言**。\n- root mismatch(含 `CCB_CCBD_SOCKET_PATH` 设置场景)→ failed 拒发且零 tmux 调用;localPath 缺失 → failed 且零 client 构造。\n- 重复 paneId/匹配 pane 跨 session → fail-loud NotFound,无静默取第一。\n- `slot-terminal.ws.ts` 键入路径(每条 input 触发解析,:831-888)覆盖且无 ccbd 往返(纯 tmux+fs)。\n- CCB 项目自身绑定/解绑/终端行为回归通过;slot-resize 既有 spec 编译+回归通过。\n- 全仓绿口径(批内既定):排除 requirement-status-rollup.spec.ts 2 既有失败;偶发 SQLite/timeout 抖动单独复跑通过即可。\n\n## 边界 / 不做项\n\n- **共享 worktree**(`../SU-CCB-req-cmq3m1i8r5ac97ea38323ee06`,用户拍板并入 batch-23ee06):严格串行;动工前确认 superproject 与 su-oriel 双层 clean;子模块先 commit 再提交 gitlink;基于批内最新子模块 commit 叠加。\n- **requirement 归档后置**:本任务终态只到 dev_task done;e9f09f requirement 层 delivering/delivered 由后续 su-archive 处理(无独立 worktree state,届时特殊处理);回执须单独说明「共享 worktree,requirement 归档后置」。\n- 不动 anchor-terminal(pr2 已交付其 scope/resolver);不动 ccbd(codex-dual)侧;不改 `CCB_CCBD_SOCKET_PATH` env 语义;不做 client 缓存(bind/release 低频,每次构造换简单性)。\n\n> 派生自:技设 td-e9f09f 全文(A4/B1/四章处理规则/五章测试)+ 协调协商 job_0046f204228c findings 3(验收点展开)。"
+    }
+  ],
+  "generated_at": "2026-06-07T15:07:18.757Z",
+  "updated_at": "2026-06-07T15:07:19.270Z",
+  "requirement_id": "cmq3lp9jy559ead7b3fe9f09f",
+  "carrier_task_id": "cmq3lp9jy559ead7b3fe9f09f",
+  "review_history": [
+    {
+      "at": "2026-06-07T15:07:18.765Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-06-07T15:07:18.906Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-06-07T15:07:19.004Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-06-07T15:07:19.270Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-06-07T15:07:19.004Z",
+  "approved_by": "user",
+  "consumed_at": "2026-06-07T15:07:19.270Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "28432f9423e01a358b7d9695143d4aad3db42cb5816b97f3f769e4de96d30d80"
+}

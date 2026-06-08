@@ -1,0 +1,155 @@
+{
+  "schema_version": "breakdown-draft-v0.2",
+  "status": "consumed",
+  "carrier_task_key": "multiproject-isolation-full-23ee06",
+  "base_task_revision": null,
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot5_claude",
+    "cx_agent": "slot5_codex",
+    "ccb_job_id": "job_8f232f64ad73"
+  },
+  "plan": {
+    "title": "多项目隔离完整档八切交付(URL scope+server 防御纵深+审计+双层验证)",
+    "summary": "按技设 td-23ee06 四批次拆 8 切:批1 止血 pr1(ccbd 构造收紧+EventJournal 过滤)∥pr2(anchor-terminal 归属校验+去硬编码);批1b pr3(ADQ migration+查询层隔离);批2 pr4(前端 URL 真相源,L 单切);批3 pr5(Bug C 排查,报告型不入 blocking chain)∥pr6(server 集成断言)→pr7(Playwright 双 tab e2e)∥pr8(审计矩阵收口)。跨需求前置:e9f09f A4+B1 单任务先合(pr1 dispatch 门槛)。",
+    "spec_outline_md": "## 交付总览\n\n- 用户拍板(2026-06-07):完整档;多 tab 多项目必须支持;Playwright 引入;ADQ 加列回填不过分兼容(DB 可重建投影);旧链接智能跳转。\n- 架构主线:URL 是项目身份唯一真相源(前端);runtime 通道无显式 scope 不放行(server);审计矩阵+双层测试给证明。\n- 顺序:pr1∥pr2∥pr5 → pr3(schema 单列) → pr4(前端正交可提前) → pr6(依赖 pr1-3) → pr7(依赖 pr4+pr6) ∥ pr8(依赖 pr1-4)。\n- 跨需求前置:e9f09f 单任务(A4+B1)先合并——pr1 的类型收紧会让未修的无参 resetter 编译失败,不等待会被迫范围侵入。\n- 共享约束:不动 ccbd(codex-dual)侧;不触 docs/99_归档/;Bug A/B 修复实现不在本需求(归 e9f09f);技设排除项不得回流。\n- 文件冲突声明:pr1 范围显式排除 job-slot-router.ts(类型适配若需要归 pr3),pr1×pr3 零交叉;pr5 纯排查不落代码;pr6/pr7/pr8 只增不改。\n- 体量:pr1=M、pr2=M、pr3=M(测试夹具更新量勿低估)、pr4=L、pr5=M、pr6=M、pr7=M、pr8=M。"
+  },
+  "subtasks": [
+    {
+      "order": 1,
+      "section_id": "pr1-ccbd-scope-hardening",
+      "title": "ccbd client 构造显式 scope 收紧 + EventJournal project_id 过滤",
+      "summary": "CcbdClientServiceOptions 三选一必填联合类型,删构造内 resolveCcbProjectRoot 隐式 fallback;构造点适配;EventJournal list 加可选 project_id 过滤。前置:e9f09f B1 先合并",
+      "include": true,
+      "priority": "high",
+      "dependencies": [],
+      "implementation_owner": "ccb_codex",
+      "spec_section_md": "## 任务概述\n\n把「连到哪个项目的 ccbd」从可以不说(默认回落 server 自己的项目)改成必须明说:`CcbdClientService` 构造参数改为 `projectRoot | socketPath | anchorSocketResolver` 三选一必填的联合类型,构造函数里删掉 `resolveCcbProjectRoot()` 隐式回落(ccbd-client.service.ts:122)。这是技设 D2a——B1 修了当前肇事者,本切防未来新增。同捎 D2c:EventJournal 查询端点加可选 `project_id` 过滤(model 已有字段,纯查询扩展)。\n\n## 任务分解\n\n1. `ccbd-client.service.ts`:options 联合类型必填化;`resolveCcbProjectRoot`/`resolveCcbdSocketPath` 保留为公开导出函数(合法的 server 自身根场景显式传参,意图可见)。\n2. 构造点适配:生产 13 处已显式传参(类型签名波及预期零或最小 diff);测试中 25 处 `resolveCcbProjectRoot` 调用点显式化。**范围排除**:`job-slot-router.ts` 一概不动——若类型变更导致其编译失败,适配工作移交 pr3(同文件单一任务改,避免并发冲突)。\n3. `event-journal.schemas.ts`(:360-371 query schema)+ `event-journal.routes.ts`:加可选 `project_id` 过滤参数,不传=现行为(向后兼容)。\n\n## 验收标准\n\n- 无参 `new CcbdClientService()` 编译失败(类型层面禁止,有编译错误示例为证)。\n- 全仓 server 测试绿;tsc/lint 干净。\n- EventJournal 过滤单测:传 project_id 只返回该项目事件;不传行为不变。\n\n## 边界 / 不做项\n\n- **dispatch 门槛(跨需求前置)**:e9f09f 单任务(A4+B1)合并后才派本切——其 B1 未合时 `slot-context-reset.service.ts:49` 仍有无参构造,本切的类型收紧会被迫顺手修 Bug B,范围侵入。\n- 不动 `job-slot-router.ts`(归 pr3);不动 anchor-terminal(归 pr2);不改 `CCB_CCBD_SOCKET_PATH` env 语义(尖角已由 e9f09f root 守卫覆盖)。\n\n> 派生自:技设 D2a/D2c + 拆分协商 job_be3f979b8931 finding 1(e9f09f 前置)。"
+    },
+    {
+      "order": 2,
+      "section_id": "pr2-anchor-terminal-scope",
+      "title": "anchor-terminal 项目归属校验 + 去 ccb-su-ccb-task- 硬编码(共享 resolver)",
+      "summary": "panes/ws 按 AnchorAllocation.projectId 主路径校验(subjectId 反查仅 legacy 兜底);抽共享 anchor session resolver 删两处硬编码,多候选 fail-loud",
+      "include": true,
+      "priority": "high",
+      "dependencies": [],
+      "implementation_owner": "ccb_codex",
+      "spec_section_md": "## 任务概述\n\nanchor 终端通道是已核验的可写通道(ws 支持 request_write/input/resize,anchor-terminal.routes.ts:186/201/213),但 `resolveAnchor` 按 anchorId 全局查、无项目归属校验——错误项目上下文拿到 anchorId 就能向别的项目的 anchor 终端写入。本切加归属校验(技设 D2d),并清理 `ccb-su-ccb-task-` 硬编码×2(技设 D4,e9f09f 移交项),session 解析对齐 A4「运行时证据」思路。\n\n## 任务分解\n\n1. 归属校验:panes/ws 入口按 **`AnchorAllocation.projectId` 主路径**校验(schema.prisma:247,字段已存在);`projectId` 为 null 的 legacy 行降级走 subjectId→requirement/task 反查一致性兜底;两路都查不到(孤儿 anchor)→ fail-closed 拒绝。recordings/cast 同步审计,按需加 scope 过滤。\n2. 调用方传 scope:校验需要调用方声明期望项目——panes/ws 的 query 增加 projectId(或等效上下文),与前端调用点同步(前端当前消费点改动量小,实施时核定)。\n3. **抽共享 anchor session resolver**:`tmux.service.ts:8` 与 `native-terminal.service.ts:12` 各有一套 `resolveAnchorSession` 与硬编码前缀——抽成单一共享 resolver 再删两处硬编码,否则双实现漂移。解析以 AnchorAllocation.anchorPath 等登记证据反推 session;多候选不唯一即 fail-loud,删除 `sessions[0]` 静默取第一。\n4. 29 处测试引用 `ccb-su-ccb` 字面量联动更新(参数化 session 名)。\n\n## 验收标准\n\n- 跨项目 anchorId 调用 panes/ws → 403/404;孤儿 anchor → 拒绝;合法同项目调用不受影响(集成测试覆盖)。\n- 非 SU-CCB 目录名项目的 anchor/worktree 终端可解析(参数化 session 名测试)。\n- 共享 resolver 单测:多候选 fail-loud;两个 service 均消费共享实现(grep 无残留硬编码)。\n- recordings/cast 给出明确 scope 结论:若加过滤,测试覆盖跨项目拒绝;若不加,以代码/数据证据说明无跨项目泄漏风险(结论同步登记 pr8 矩阵行)。\n- 全仓绿;tsc/lint 干净。\n\n## 边界 / 不做项\n\n- 不动 slot-terminal(e9f09f A4 范围);不动终端 attach/lease/recording 机制本身;不改 ccbd 侧命名规则。\n- 与 pr1 文件零交叉(本切只动 anchor-terminal 模块)。\n\n> 派生自:技设 D2d/D4 + 协商 finding 2/3(allocation.projectId 主路径已核验;共享 resolver 防漂移)。"
+    },
+    {
+      "order": 3,
+      "section_id": "pr3-adq-migration",
+      "title": "AnchorDispatchQueue 加 projectId 列 + 查询层项目隔离",
+      "summary": "schema 加列(nullable)+best-effort 回填+脏终态行清理;enqueue 上下文直写;tick 查询层 WHERE;queue policy/slot.routes 查询面与测试夹具全量补齐",
+      "include": true,
+      "priority": "high",
+      "dependencies": [],
+      "implementation_owner": "ccb_codex",
+      "spec_section_md": "## 任务概述\n\n派工队列目前没有「属于哪个项目」字段,tick() 全局取行再事后跳过别项目——无法证明查询层隔离。本切按技设 D2b 与用户拍板(2026-06-07:DB 是可重建投影,历史行不过分兼容)落地:加列、回填、查询层过滤。**注意:这是有状态 schema 变更,独立批次(批1b),不与代码止血批混合。**\n\n## 任务分解\n\n1. `schema.prisma`:AnchorDispatchQueue 加 `projectId String?`(nullable 列,向后兼容回滚——回滚代码不回滚列);prisma migration + generate。\n2. 回填脚本(migration 内或伴随脚本):按 subjectId→requirement/task 反查归属 best-effort 回填;**终态行**(completed/failed)查不到归属→直接 DELETE+计数;**active 行**(pending/submitted)查不到(预期为零)→标记+报告;migration 输出清理报告计数。\n3. enqueue 全部写入点:派发上下文直写 projectId(禁止反查兜底——反查是 bug 温床);代码层对新行强制非空。\n4. `job-slot-router.ts` tick():查询改 `WHERE status=pending AND projectId=…`(:174-198 的事后 continue 删除);若 pr1 的类型收紧波及本文件构造点(:373),编译适配在本切一并完成。\n5. 影响面补全(协商 finding 4):queue policy、slot.routes 中的队列查询同步过滤;测试夹具中大量 `anchorDispatchQueue.create/createMany` 补 projectId——**夹具更新量大是已知风险,勿低估**。\n\n## 验收标准\n\n- migration 测试三路径:正确回填/终态脏行清理+计数/active 脏行标记。\n- 双项目 fixture:tick 零跨项目取行(查询层断言,不是处理层 continue)。\n- enqueue 单测:新行 projectId 必填;全仓绿。\n\n## 边界 / 不做项\n\n- AnchorAllocation 不加列(已有 projectId 字段,schema.prisma:247);EventJournal 不动(pr1 范围)。\n- 不改派发/路由业务逻辑,只动队列的 scope 维度。\n\n> 派生自:技设 D2b/六章 + 用户拍板「不过分兼容」+ 协商 finding 4(去 pr1 依赖、影响面补全)。"
+    },
+    {
+      "order": 4,
+      "section_id": "pr4-url-scope",
+      "title": "前端 URL 项目真相源一次性切换(/projects/:projectId/ 前缀+智能跳转)",
+      "summary": "18 条路由迁前缀;ProjectScopeProvider 三态;store 降级只读投影+setter 封死;全部导航面(navigate/Link/href/pathname 判断/通知深链)改 path helper;旧链接智能跳转",
+      "include": true,
+      "priority": "high",
+      "dependencies": [],
+      "implementation_owner": "ccb_codex",
+      "spec_section_md": "## 任务概述\n\n现在网址里没有「项目」概念,tab 的项目身份只存在页面内存里,刷新/轮询/fallback 都可能让它悄悄漂移。本切按技设 D1 做一次性切换:每个网址带 `/projects/:projectId/` 前缀,URL 成为项目身份唯一真相源,天然多 tab 安全。**L 体量单切是有意为之**:拆开会产生「路由带前缀而导航还是旧路径」的断链中间态。\n\n## 任务分解\n\n1. `App.tsx`:18 条路由全部迁入 `/projects/:projectId/` 前缀;新增 ProjectScopeProvider layout route——useParams 取 projectId 校验三态(存在→同步 store 渲染;不存在→显式「项目不存在」页;projects 未加载→等待后再判)。\n2. `[NEW] web/src/lib/project-paths.ts`:path helper(全部路径构造单点收口)+ `useProjectScope()`(新代码唯一身份入口)。\n3. `project-store.ts`:删 `projects[0]` 静默 fallback(:44-49);`selectProject` 删业务写路径改 navigate 语义;`selectedProjectId` 唯一写入者=URL 同步器——**setter 封死,允许并鼓励同切内新增小型 lint/单测固化该约束**(防回潮)。\n4. 导航面全量改 helper(协商 finding 5 补全,作为回归清单):~30 处 `useNavigate`/`navigate(`;**`<Link to`/`href` 面包屑**;**`getPageTitle`/`renderGlobalAction` 的 pathname 判断逻辑**;**NotificationManager deep-link 生成**;**AnchorStartStrip 的 `/slots` 旧路径**;命令面板跳转;FAB。\n5. 旧链接智能跳转(用户拍板):`/requirements/:id`、`/tasks/:id`、`/documents/:id` 按 id 查归属 projectId → redirect 到带前缀路径;查无归属或其他旧路径(`/overview` 等)→ 项目选择页;30s silentRefresh 只刷数据不再改变身份。\n6. 测试面:**MemoryRouter 测试中的旧路由全部更新**;三态 Provider 单测;redirect 三类+查无单测。\n\n## 验收标准\n\n- 刷新/新开 tab 身份零漂移(URL 决定);双 tab 不同项目互不影响(手工冒烟,自动化归 pr7)。\n- 旧书签三类 id 链接自动跳到正确项目;其余进项目选择页。\n- 业务代码调用 `selectProject` 写身份 → lint/编译拦截。\n- 全部 web 测试绿(含 MemoryRouter 路由更新);tsc/lint 干净。\n\n## 边界 / 不做项\n\n- 246 处 `selectedProjectId` 消费点**不强制全改**(过渡方案:store 是只读投影最终一致;新代码用 useProjectScope;渐进收敛不在本切)。\n- 不动 server;不改 API 路径契约。\n\n> 派生自:技设 D1/四章 + 用户拍板(多 tab 必须支持/智能跳转)+ 协商 finding 5(导航面补全)与 open_question 2 裁量(允许同切加 lint)。"
+    },
+    {
+      "order": 5,
+      "section_id": "pr5-bugc-investigation",
+      "title": "「CCB bridge 错误」排查(报告型交付)",
+      "summary": "双 tab 复现+reload_rejected/reload_failed 双路径检查清单;交付确证或排除+根因链+复现步骤+处置判断;纯排查不落代码",
+      "include": true,
+      "priority": "medium",
+      "dependencies": [],
+      "implementation_owner": "ccb_codex",
+      "spec_section_md": "## 任务概述\n\n用户报告的第一个现象「CCB tab 添加 slot 报 CCB bridge 错误」至今证据未闭环——resize 链路显式传 projectRoot 属正确模式(slot-resize.service.ts:120-122),不能赖在 default resetter 根因上。本切是**排查型任务**:交付的是结论三件套,不是代码 PR;不进代码批次的 blocking chain,可最早并行。\n\n## 任务分解\n\n1. 复现:双 tab(CCB+另一项目)并行场景下对 CCB 执行添加 slot(resize 扩容),记录精确报错文案与 server 日志。\n2. 双路径检查清单:**reload_rejected**(「ccb bridge 拒绝了拓扑变更」,SlotsPage.tsx:51)→ 检查 ccb.config 与请求 diff、bridge 拒绝原因码;**reload_failed**(「ccb reload 执行失败」,SlotsPage.tsx:52)→ 检查 ccbd 进程状态、socket 通信、reload 执行日志。\n3. 旁证排查:确认现象是否与双 tab 状态有关(单 tab 能否复现)、是否与 e9f09f Bug B 的 /new 副作用时序相关。\n4. 产出排查报告:确证或排除 + 根因链(file:line 证据)+ 复现步骤 + 处置判断(归本需求修/另立需求/环境问题关闭)。\n\n## 验收标准\n\n- 报告三件套齐全,根因链每个环节有日志或代码证据。\n- 无法复现时:给出已排除路径清单+建议的日志增强点(作为报告建议,不在本切落地),结论标注「未复现,按 X 条件再触发」。\n\n## 边界 / 不做项\n\n- **纯排查不落代码**:若需日志增强,在报告中提出建议由后续批次落地(避免与 pr1 并发碰 slot-resize 文件)。\n- 修复动作不在本切:处置判断输出后由用户决定归属。\n\n> 派生自:技设 D3 + 协商 finding 7(报告型任务不入 blocking chain)。"
+    },
+    {
+      "order": 6,
+      "section_id": "pr6-server-isolation-integration",
+      "title": "server 双项目隔离集成断言(fake per-project sockets fixture)",
+      "summary": "双项目 fake ccbd sockets fixture 基建+bind/release/resize/cancel 全链路落点断言(send-keys/socket 写入只进目标项目);为 pr7 复用",
+      "include": true,
+      "priority": "medium",
+      "dependencies": [
+        "pr1-ccbd-scope-hardening",
+        "pr2-anchor-terminal-scope",
+        "pr3-adq-migration"
+      ],
+      "implementation_owner": "ccb_codex",
+      "spec_section_md": "## 任务概述\n\n「命令真正落到正确项目的 socket」不能靠 UI 测试证明(技设 D6 双层验收的落点层)。本切搭双项目 fake ccbd sockets fixture 并写全链路集成断言——与 Playwright 浏览器层(pr7)分开:两类验证工程混在一切会变 L+ 且失败归因混乱(协商 finding 6)。\n\n## 任务分解\n\n1. fixture 基建:双项目(两个临时 projectRoot+各自 fake ccbd socket/fake tmux 层)可复用 fixture,参考既有 ccbd-client.spec 的 socketPath 注入模式;fixture 设计为 pr7 的 Playwright 后端可复用。\n2. 集成断言(server vitest):bind/release/resize/cancel-current-job 四条链路,双项目并发执行,断言每条链路的 ccbd 调用与 send-keys 只落目标项目 socket,另一项目 socket 零写入。\n3. 队列隔离断言:双项目入队,tick 按 projectId 只取本项目行(消费 pr3 的查询层过滤)。\n4. anchor-terminal 归属断言:跨项目 anchorId 拒绝路径(消费 pr2)。\n\n## 验收标准\n\n- 四链路双项目断言绿:目标 socket 有预期写入,非目标 socket 严格零写入。\n- fixture 文档化(README 或注释):pr7 可直接复用启动。\n- 全仓绿;不修改任何生产代码(只增测试与 fixture;发现 bug 回对应切片修)。\n\n## 边界 / 不做项\n\n- 不含浏览器层(pr7);不跑真 tmux(e9f09f 已有真 tmux 用例先例,本切 fake 层即可)。\n- 跨需求前置:e9f09f A4+B1 已合并(bind 链路落点断言验的就是 B1 行为)。\n\n> 派生自:技设 D6(落点层)/五章 + 协商 finding 6(拆分)与 risks(fixture 复杂度)。"
+    },
+    {
+      "order": 7,
+      "section_id": "pr7-playwright-multitab-e2e",
+      "title": "Playwright 双 tab 多项目浏览器层 e2e(新依赖工程初始化)",
+      "summary": "Playwright 工程初始化(用户已拍板引入)+双 context 双项目用例:绑定互不串扰/刷新身份不漂移/轮询不改身份/旧链接跳转/无效 projectId 报错",
+      "include": true,
+      "priority": "medium",
+      "dependencies": [
+        "pr4-url-scope",
+        "pr6-server-isolation-integration"
+      ],
+      "implementation_owner": "ccb_codex",
+      "spec_section_md": "## 任务概述\n\n多 tab 多项目并发是用户拍板「必须支持」的使用方式,没有浏览器层自动化它会持续回归。本切初始化 Playwright 工程(新 devDependency,用户 2026-06-07 已拍板)并落双 context 用例——双层验收的浏览器层,与 pr6 落点层互不替代。\n\n## 任务分解\n\n1. Playwright 工程初始化:su-oriel 内新 e2e 目录/工程(devDependency 进 package.json;CI 可选接入实施时定);против真 server+pr6 的双项目 fixture 启动。\n2. 双 context 用例(每条双 tab 双项目):①A tab 绑 slot、B tab 观察自身项目 slot 零变化(配合 pr6 断言);②刷新后身份不漂移(URL 决定);③30s 轮询不改变身份;④旧格式链接智能跳转(三类 id+查无);⑤无效 projectId 显式「项目不存在」页;⑥sidebar 切项目=导航(URL 变化)。\n3. 用例与 pr6 fixture 的接线文档。\n\n## 验收标准\n\n- 六类用例稳定绿(容忍合理重试);本地一条命令可跑。\n- 不修改生产代码;发现 bug 回对应切片修。\n- 全仓既有测试不受影响。\n\n## 边界 / 不做项\n\n- 不替代 pr6 的落点断言;不做性能/视觉测试;CI 集成深度实施时按现有工程惯例定。\n\n> 派生自:技设 D6(浏览器层)/五章 + 用户拍板(Playwright 引入进验收口径)。"
+    },
+    {
+      "order": 8,
+      "section_id": "pr8-audit-matrix",
+      "title": "全站多项目隔离审计矩阵(收口证据)",
+      "summary": "入口×projectId 来源×隔离结论矩阵:246 消费点按文件归并/10 scoped 端点/4 anchor-terminal 端点/15 构造点,每行挂证据;落点 docs/05_经验沉淀/",
+      "include": true,
+      "priority": "medium",
+      "dependencies": [
+        "pr1-ccbd-scope-hardening",
+        "pr2-anchor-terminal-scope",
+        "pr3-adq-migration",
+        "pr4-url-scope"
+      ],
+      "implementation_owner": "ccb_codex",
+      "spec_section_md": "## 任务概述\n\n完整档的收口交付:用一张审计矩阵证明「全站隔离状态」,把「看代码应该没问题」变成逐行有证据的结论(技设 D5)。在 pr1-pr4 合并后做,矩阵记录的是修复后终态。\n\n## 任务分解\n\n1. 审计面(技设八章+事实清单):前端 246 处 selectedProjectId 消费点(按文件归并审计,标注:已迁 useProjectScope/只读投影最终一致/风险残留);server 10 个 projectId-scoped slot/terminal 端点;4 个 anchor-terminal 端点(pr2 后状态);15 个 CcbdClientService 构造点(pr1 后状态);队列/EventJournal 查询(pr3/pr1 后状态)。\n2. 矩阵格式:入口 × projectId 来源(URL 路径段/请求参数/allocation 字段/构造参数) × 隔离结论(绿:查询层或类型层隔离/黄:最终一致或反查兜底/红:残留风险),每行挂测试名或 file:line 证据。\n3. 红黄项处置:红项升级用户;黄项给出收敛建议(渐进收敛 backlog,不在本切实施)。\n4. 落点:`docs/05_经验沉淀/`(常青参考,文件名含 23ee06 短 id;由本切按目录契约最终确认)。\n\n## 验收标准\n\n- 矩阵覆盖上述全部审计面,零「未审计」空行;每行结论可点击验证(测试名/file:line)。\n- 红项为零或已逐项升级用户;黄项有收敛建议。\n- 矩阵作为 review 节点的验收输入之一(需求验收口径:扫描面交付风险清单矩阵)。\n\n## 边界 / 不做项\n\n- 纯文档+审计交付,不改代码;发现新串扰风险→记录矩阵红项并升级,不在本切顺手修。\n- 与 pr7 并行无冲突(都是只增层)。\n\n> 派生自:技设 D5/五章 + 需求验收口径(矩阵三件套)+ 协商 open_question 3 裁量(落点 05_经验沉淀)。"
+    }
+  ],
+  "generated_at": "2026-06-07T14:00:00.329Z",
+  "updated_at": "2026-06-07T14:08:12.262Z",
+  "requirement_id": "cmq3m1i8r5ac97ea38323ee06",
+  "carrier_task_id": "cmq3m1i8r5ac97ea38323ee06",
+  "review_history": [
+    {
+      "at": "2026-06-07T14:00:00.332Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-06-07T14:08:10.540Z",
+      "actor": "ai",
+      "action": "edited"
+    },
+    {
+      "at": "2026-06-07T14:08:10.792Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-06-07T14:08:10.930Z",
+      "actor": "user",
+      "action": "status_changed"
+    },
+    {
+      "at": "2026-06-07T14:08:12.262Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-06-07T14:08:10.930Z",
+  "approved_by": "user",
+  "consumed_at": "2026-06-07T14:08:12.262Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "8da0587b44c17898083802f051006f8365936b0aa2fb695bfce2da9b6bbbf5f8"
+}
