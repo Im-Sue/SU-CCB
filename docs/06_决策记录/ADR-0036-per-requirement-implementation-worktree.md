@@ -4,22 +4,10 @@ title: per-需求实施 worktree · 字段驱动的非 canonical 代码隔离
 status: active
 decided_at: 2026-05-26
 last_updated: 2026-06-07
-parent_adrs:
-  - ADR-0023  # plugin sovereignty（本 ADR amend 决策 2 的 worktree 归属）
-  - ADR-0032  # α-X slot topology（本 ADR refine 决策 1.4 的 opt-in 场景）
-related_adrs:
-  - ADR-0018  # task anchor runtime（每需求强制 worktree 已被 ADR-0032 废止）
-consult_evidence:
-  - job_a3bbe8b3fc7e  # main_codex consult / rep_f66fb0b1a03b
-  - job_32f2decc1cf9  # cmpworktreearchive260604 技术设计共识
-  - job_177c0723a3ee  # autonomous-batch 执行序与自指风险核对
-  - job_99a3e338f0fa  # cmpmultispacemerge260606 技术设计协商
-tags:
-  - worktree
-  - plugin-sovereignty
-  - code-isolation
-  - ccb-execute
-  - su-materialize
+parent_adrs: [ADR-0023, ADR-0032]  # ADR-0023: plugin sovereignty（本 ADR amend 决策 2 的 worktree 归属）; ADR-0032: α-X slot topology（本 ADR refine 决策 1.4 的 opt-in 场景）
+related_adrs: [ADR-0018]  # ADR-0018: task anchor runtime（每需求强制 worktree 已被 ADR-0032 废止）
+consult_evidence: [job_a3bbe8b3fc7e, job_32f2decc1cf9, job_177c0723a3ee, job_99a3e338f0fa]  # job_a3bbe8b3fc7e: main_codex consult / rep_f66fb0b1a03b; job_32f2decc1cf9: cmpworktreearchive260604 技术设计共识; job_177c0723a3ee: autonomous-batch 执行序与自指风险核对; job_99a3e338f0fa: cmpmultispacemerge260606 技术设计协商
+tags: [worktree, plugin-sovereignty, code-isolation, ccb-execute, su-materialize]
 ---
 
 # ADR-0036: per-需求实施 worktree · 字段驱动的非 canonical 代码隔离

@@ -8,10 +8,8 @@ last_updated: 2026-05-14
 decider: Claude
 reviewer: User
 consulted: Codex（R1 / R1-b / R2 / R3 / R4）
-related_tasks:
-  - ccb-pm-platform-mvp-planning
-notes:
-  - 原 markdown bullet 格式 status "accepted (pending step1_approval)"。项目已按本 ADR 实施 v0.3.x 工作流内核 + v0.4 ReactiveScheduler + Console V2 + 多 Anchor runtime，step1 隐式落实，故 2026-05-14 batch 规范化 status 为 active。
+related_tasks: [ccb-pm-platform-mvp-planning]
+notes: [原 markdown bullet 格式 status "accepted (pending step1_approval)"。项目已按本 ADR 实施 v0.3.x 工作流内核 + v0.4 ReactiveScheduler + Console V2 + 多 Anchor runtime，step1 隐式落实，故 2026-05-14 batch 规范化 status 为 active。]
 ---
 
 # ADR-0001: CCB 自研 workflow engine；vibeman 及类似产品仅作 reference

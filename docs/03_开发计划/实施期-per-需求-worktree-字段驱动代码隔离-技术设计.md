@@ -5,11 +5,8 @@ title: 实施期 per-需求 worktree · 技术设计（4 设计点定死）
 status: drafting
 created: 2026-06-01
 updated: 2026-06-01
-references:
-  - docs/06_决策记录/ADR-0036-per-requirement-implementation-worktree.md
-  - docs/02_需求设计/实施期-per-需求-worktree-字段驱动代码隔离-260526-需求.md
-consult_evidence:
-  - job_ad8e238d96de  # slot1_codex tech-design consult / rep_764b14480736
+references: [docs/06_决策记录/ADR-0036-per-requirement-implementation-worktree.md, docs/02_需求设计/实施期-per-需求-worktree-字段驱动代码隔离-260526-需求.md]
+consult_evidence: [job_ad8e238d96de]  # job_ad8e238d96de: slot1_codex tech-design consult / rep_764b14480736
 ---
 
 # 实施期 per-需求 worktree · 技术设计

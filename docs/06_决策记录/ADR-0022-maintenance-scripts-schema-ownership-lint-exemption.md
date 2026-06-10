@@ -5,15 +5,8 @@ date: 2026-05-17
 status: accepted
 owner: claude
 reviewer: ccb_codex (collab rep_3444ad9f2ab0, 0.82 confidence)
-related:
-  - ADR-0014-projection-outbox-worker
-  - ADR-0019-entity-field-ownership-and-sync-direction
-  - ADR-0021-status-repair-primitive-three-layer
-addresses:
-  - F5/F8 epic 引入的 schema-ownership-lint 规则首次真跑（PR `task/cmp7zz0g9016aqrz6yeoi9tmm` 修对 workflow 后）暴露 24 处历史欠债
-  - 23/24 集中在 src/maintenance/ 一次性数据迁移脚本
-  - 逐处包 primitiveExecutor.run 会与外层 prisma.$transaction 产生嵌套事务语义问题
-  - 缺少明确的"治理通道豁免边界"决策记录，未来再有同类脚本会反复争议
+related: [ADR-0014-projection-outbox-worker, ADR-0019-entity-field-ownership-and-sync-direction, ADR-0021-status-repair-primitive-three-layer]
+addresses: [F5/F8 epic 引入的 schema-ownership-lint 规则首次真跑（PR `task/cmp7zz0g9016aqrz6yeoi9tmm` 修对 workflow 后）暴露 24 处历史欠债, 23/24 集中在 src/maintenance/ 一次性数据迁移脚本, 逐处包 primitiveExecutor.run 会与外层 prisma.$transaction 产生嵌套事务语义问题, 缺少明确的"治理通道豁免边界"决策记录，未来再有同类脚本会反复争议]
 ---
 
 # ADR-0022 · maintenance/ 一次性脚本 schema-ownership-lint 豁免

@@ -4,12 +4,8 @@ title: plugin / skill 范式重构 · 共识落档（v1 草案）
 authored_by: Claude（与用户多轮对话 + ccb_codex 二次 consult 综合）
 authored_at: 2026-05-20
 status: draft-pending-product-sample
-related_adrs:
-  - ADR-0023  # plugin sovereignty 主决策（本文档是其下游具体化）
-  - ADR-0023 Addendum (2026-05-19)  # 节点≠流水线工序的哲学锚点
-consult_evidence:
-  - rep_ddca4d7d3581  # codex 一轮 consult（工程细节倾向，已修正）
-  - rep_c5ec94da955a  # codex 二轮 consult（产品语义对齐 + 3 项增量）
+related_adrs: [ADR-0023, ADR-0023 Addendum (2026-05-19)]  # ADR-0023: plugin sovereignty 主决策（本文档是其下游具体化）; ADR-0023 Addendum (2026-05-19): 节点≠流水线工序的哲学锚点
+consult_evidence: [rep_ddca4d7d3581, rep_c5ec94da955a]  # rep_ddca4d7d3581: codex 一轮 consult（工程细节倾向，已修正）; rep_c5ec94da955a: codex 二轮 consult（产品语义对齐 + 3 项增量）
 next_step: 起草产品语义样张（2 个节点示例 + 多 AI 协商样例）
 ---
 

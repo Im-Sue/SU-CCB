@@ -8,24 +8,12 @@ decider: Claude
 reviewer: ccb_codex
 related_adr: [ADR-0011, ADR-0012, ADR-0013, ADR-0014, ADR-0017]
 amends: [ADR-0014]
-related_tasks:
-  - md-db-drift-treatment-v1（紧急修复 P0/P1 · archived 2026-05-14 commit bb59349）
-  - 2026-05-14-md-db-drift-treatment-followups（治理 backlog F1-F6）
-  - 2026-05-14-f2-s1-rollup-cancel-status-boundary（dispatch_ready）
-  - 2026-05-14-f2-s2-epic-replan-primitive（dispatch_ready）
-  - 2026-05-14-f2-s3-materialize-cas-primitive（dispatch_ready）
-  - 2026-05-14-f7-primitive-executor-hardening（backlog）
-consult_refs:
-  - codex round 1-5（紧急修复阶段，5 轮收敛主体方向）
-  - codex round 2 follow-up rep_718cdd67aa2d（F2 范围澄清：6→7 处 + primitiveExecutor 空壳定位）
+related_tasks: [md-db-drift-treatment-v1（紧急修复 P0/P1 · archived 2026-05-14 commit bb59349）, 2026-05-14-md-db-drift-treatment-followups（治理 backlog F1-F6）, 2026-05-14-f2-s1-rollup-cancel-status-boundary（dispatch_ready）, 2026-05-14-f2-s2-epic-replan-primitive（dispatch_ready）, 2026-05-14-f2-s3-materialize-cas-primitive（dispatch_ready）, 2026-05-14-f7-primitive-executor-hardening（backlog）]
+consult_refs: [codex round 1-5（紧急修复阶段，5 轮收敛主体方向）, codex round 2 follow-up rep_718cdd67aa2d（F2 范围澄清：6→7 处 + primitiveExecutor 空壳定位）]
 deprecated_in: null
 removed_in: null
 grace_window: null
-impacted_components:
-  - apps-ccb-console-server
-  - docs/.ccb/requirements
-  - docs/.ccb/state
-  - references/schema-ownership-matrix.yaml
+impacted_components: [apps-ccb-console-server, docs/.ccb/requirements, docs/.ccb/state, references/schema-ownership-matrix.yaml]
 ---
 
 # ADR-0019 · Entity-Field Ownership & Sync Direction Protocol

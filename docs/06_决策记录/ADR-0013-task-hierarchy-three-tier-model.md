@@ -9,10 +9,7 @@ deciders: [user, claude (designer), ccb_codex (reviewer)]
 consulted: ccb_codex
 informed: 全 plugin/console 维护者
 supersedes: null
-related:
-  - ADR-0010 (su-flow facade)
-  - ADR-0011 (reactive scheduler)
-  - ADR-0012 (task projection consistency)
+related: [ADR-0010 (su-flow facade), ADR-0011 (reactive scheduler), ADR-0012 (task projection consistency)]
 parent_spec: docs/.ccb/specs/active/2026-05-09-task-hierarchy-three-tier-model.md
 parent_design: docs/03_开发计划/ccb-plan/2026-05-09-task-hierarchy-three-tier-model-技术设计.md
 ---

@@ -8,12 +8,8 @@ decider: 用户（基于 Phase 4 audit + Phase 2b/2b-hotfix 暴露的债务）
 reviewer: ccb_codex（rep_967c972f9d9d audit）
 codename: entity-field-ownership-v1
 related_doc: docs/03_开发计划/ccb-plan/2026-05-21-plugin-sovereignty-roadmap.md
-parent_adrs:
-  - ADR-0023  # plugin sovereignty 主决策
-  - ADR-0024  # plugin primitive runtime
-  - ADR-0030  # plugin node paradigm
-implements_via:
-  - SP-Phase4 实施 spec（4a 内 ADR-0026 lint 实施）
+parent_adrs: [ADR-0023, ADR-0024, ADR-0030]  # ADR-0023: plugin sovereignty 主决策; ADR-0024: plugin primitive runtime; ADR-0030: plugin node paradigm
+implements_via: [SP-Phase4 实施 spec（4a 内 ADR-0026 lint 实施）]
 phase: 4
 ---
 

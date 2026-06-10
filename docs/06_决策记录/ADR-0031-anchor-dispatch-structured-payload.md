@@ -8,11 +8,8 @@ decider: 用户（基于 Phase 2a hotfix `feedback_b64` 暴露的协议缺陷）
 reviewer: ccb_codex（rep_53bc842dce57 audit 提出）
 codename: anchor-dispatch-structured-payload
 related_doc: docs/03_开发计划/ccb-plan/2026-05-21-plugin-sovereignty-roadmap.md
-parent_adrs:
-  - ADR-0023  # plugin sovereignty 主决策
-  - ADR-0030  # plugin node paradigm
-implements_via:
-  - SP-ADR0031-impl 实施 spec
+parent_adrs: [ADR-0023, ADR-0030]  # ADR-0023: plugin sovereignty 主决策; ADR-0030: plugin node paradigm
+implements_via: [SP-ADR0031-impl 实施 spec]
 ---
 
 # ADR-0031: Anchor Dispatch 协议改进 · Structured JSON Payload

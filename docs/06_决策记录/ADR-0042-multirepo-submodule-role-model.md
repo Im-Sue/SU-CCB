@@ -7,9 +7,7 @@ last_updated: 2026-06-02
 decider: 用户（multi-repo 拆分 / console 更名 SU-Oriel / 全部换 Im-Sue 新仓 / submodule 版本绑定 / 角色化获取）+ Claude 设计与执行
 reviewer: slot4_codex（需求风险 / 命名 / technical_design / task_breakdown 共 4 轮协商）
 codename: multirepo-submodule
-related_doc:
-  - docs/02_需求设计/项目目录结构重构-multirepo四仓-713c13-需求.md
-  - docs/03_开发计划/项目目录结构重构-multirepo四仓-技术设计.md
+related_doc: [docs/02_需求设计/项目目录结构重构-multirepo四仓-713c13-需求.md, docs/03_开发计划/项目目录结构重构-multirepo四仓-技术设计.md]
 parent_adrs: []
 related_adrs: []
 ---

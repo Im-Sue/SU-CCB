@@ -7,13 +7,11 @@ decider: Claude
 reviewer: ccb_codex
 related_epic: task-hierarchy-three-tier-model
 related_adr: [ADR-0013]
-related_tasks:
-  - task-hierarchy-m2-console-backend  # 3d 部分
+related_tasks: [task-hierarchy-m2-console-backend]  # task-hierarchy-m2-console-backend: 3d 部分
 deprecated_in: null
 removed_in: null
 grace_window: open-ended（直至触发重启条件）
-impacted_components:
-  - apps-ccb-console-server (prisma schema only — 不变更)
+impacted_components: [apps-ccb-console-server (prisma schema only — 不变更)]
 ---
 
 # ADR-0015: 显式延后 hierarchy 模型的 DB CHECK + TRIGGER raw SQL

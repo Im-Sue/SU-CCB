@@ -5,12 +5,8 @@ date: 2026-05-15
 status: accepted
 owner: claude
 reviewer: ccb_codex (consult rep_d094c9c45b04)
-related:
-  - ADR-0013-task-hierarchy-three-tier-model
-  - ADR-0017-epic-multi-pr-materialization
-  - ADR-0019-entity-field-ownership-and-sync-direction
-supersedes_partial:
-  - currentNode='backlog' 私自标记的所有 spec/state/test 用法
+related: [ADR-0013-task-hierarchy-three-tier-model, ADR-0017-epic-multi-pr-materialization, ADR-0019-entity-field-ownership-and-sync-direction]
+supersedes_partial: [currentNode='backlog' 私自标记的所有 spec/state/test 用法]
 ---
 
 # ADR-0020 · Follow-up 作为来源标记，取消 backlog task 概念

@@ -10,10 +10,7 @@ related_task: e11-t1-adr-su-flow-convergence
 deprecated_in: "0.4-v1"
 removed_in: "0.4-v2"
 grace_window: "v0.4 v2 release OR at least 90 天 wall-clock after decided_at, whichever is later"
-impacted_components:
-  - claude-plugin-distribution
-  - codex-skills-distribution
-  - docs-ccb-workspace
+impacted_components: [claude-plugin-distribution, codex-skills-distribution, docs-ccb-workspace]
 ---
 
 # ADR-0010: KA-10 /ccb:su-flow Public Facade Convergence

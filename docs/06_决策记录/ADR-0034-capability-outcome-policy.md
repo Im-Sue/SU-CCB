@@ -7,28 +7,12 @@ last_updated: 2026-05-23
 decider: 用户 paradigm 拍板 + Claude 拍板 outcome-canonical / 禁裸 set_* / 风险归档 approval ref
 reviewer: ccb_codex（round 1-3 设计协商）
 codename: capability-outcome-policy
-related_doc:
-  - docs/.ccb/requirements/active/2026-05-23-phase5-v1x-governance-enhancement.md
-  - docs/02_需求设计/ccb-plan/2026-05-22-phase5-governance-backlog.md
-parent_adrs:
-  - ADR-0023   # plugin sovereignty 主决策
-  - ADR-0024   # primitive runtime（applyCapabilityOutcome write 路径基座）
-  - ADR-0030   # plugin node paradigm（节点 = capability）
-amends:
-  - ADR-0025   # reconcile apply 必须走 applyCapabilityOutcome
-  - ADR-0026   # Requirement.rollupStatus/Progress 改 derived read model
-prerequisite_adrs:
-  - ADR-0024
-  - ADR-0030
-consult_evidence:
-  - job_8eda8aa7f7ba   # round 1 漂移盘点 + D 混合（事后发现流水线视角偏差）
-  - job_25c59f101ff0   # round 2 paradigm reframing → capability outcome policy
-  - job_ce3fc5a05d0b   # round 3 outline 前 6 约束吸收 + 退出协商
-impacted_components:
-  - apps-ccb-console-server
-  - apps-ccb-console-web
-  - claude-plugin-distribution
-  - docs-ccb-workspace
+related_doc: [docs/.ccb/requirements/active/2026-05-23-phase5-v1x-governance-enhancement.md, docs/02_需求设计/ccb-plan/2026-05-22-phase5-governance-backlog.md]
+parent_adrs: [ADR-0023, ADR-0024, ADR-0030]  # ADR-0023: plugin sovereignty 主决策; ADR-0024: primitive runtime（applyCapabilityOutcome write 路径基座）; ADR-0030: plugin node paradigm（节点 = capability）
+amends: [ADR-0025, ADR-0026]  # ADR-0025: reconcile apply 必须走 applyCapabilityOutcome; ADR-0026: Requirement.rollupStatus/Progress 改 derived read model
+prerequisite_adrs: [ADR-0024, ADR-0030]
+consult_evidence: [job_8eda8aa7f7ba, job_25c59f101ff0, job_ce3fc5a05d0b]  # job_8eda8aa7f7ba: round 1 漂移盘点 + D 混合（事后发现流水线视角偏差）; job_25c59f101ff0: round 2 paradigm reframing → capability outcome policy; job_ce3fc5a05d0b: round 3 outline 前 6 约束吸收 + 退出协商
+impacted_components: [apps-ccb-console-server, apps-ccb-console-web, claude-plugin-distribution, docs-ccb-workspace]
 ---
 
 # ADR-0034: Capability Outcome Policy · plugin 状态变更治理

@@ -12,21 +12,12 @@ deprecated_in: null
 removed_in: null
 grace_window: null
 revision: v2 · post-RFC-alignment
-related:
-  - ADR-0010
-  - ADR-0011
-  - ADR-0013 (parent ADR)
-  - ADR-0014
-  - ADR-0018 (task-anchor-runtime · v2 alignment 派生)
+related: [ADR-0010, ADR-0011, ADR-0013 (parent ADR), ADR-0014, ADR-0018 (task-anchor-runtime · v2 alignment 派生)]
 consult_evidence:
-  round_1: job_4cd1140330bc (codex, status: needs-refine-before-active)
-  round_2: job_53fada2f90d6 (codex, pending_round_3: 空)
+  round_1: "job_4cd1140330bc (codex, status: needs-refine-before-active)"
+  round_2: "job_53fada2f90d6 (codex, pending_round_3: 空)"
 rfc_ref: docs/01_架构设计/ccb-plan/2026-05-13-e17-epic-multi-pr-alignment-rfc.md
-impacted_components:
-  - apps-ccb-console-server
-  - apps-ccb-console-web
-  - claude-plugin-distribution
-  - kernel-references
+impacted_components: [apps-ccb-console-server, apps-ccb-console-web, claude-plugin-distribution, kernel-references]
 ---
 
 # ADR-0017: ADR-0013 Addendum — Epic Multi-PR Materialization

@@ -4,34 +4,17 @@ title: Task Anchor Runtime —— 每 Epic 独立 CCB Anchor + Console MultiAnch
 status: active
 decided_at: 2026-05-13
 last_updated: 2026-05-14
-amendments:
-  - 2026-05-14 · Addendum · direct_pr subtask 独立 anchor 例外（F6-A1）
+amendments: [2026-05-14 · Addendum · direct_pr subtask 独立 anchor 例外（F6-A1）]
 decider: Claude
 reviewer: ccb_codex
 related_epic: epic-console-task-anchor-runtime
-related_tasks:
-  - ta1-task-anchor-bootstrap
-  - ta2-multi-anchor-broker
-  - ta3-create-task-dialog-v2
-  - ta4-cross-anchor-timeline
-  - ta5-anchor-lifecycle-recovery
-  - ta6-xterm-web-attach
-supersedes_specs:
-  - st1-rich-config-slot-schema
-  - st2-slot-allocator-ccbd-integration
-  - st3-create-task-dialog-ui
-  - st4-active-sessions-panel-timeline
-  - st5-stop-append-resume
-consult_evidence:
-  - job_550836b235e0  # round 1
-  - job_029817e70a60  # round 2
+related_tasks: [ta1-task-anchor-bootstrap, ta2-multi-anchor-broker, ta3-create-task-dialog-v2, ta4-cross-anchor-timeline, ta5-anchor-lifecycle-recovery, ta6-xterm-web-attach]
+supersedes_specs: [st1-rich-config-slot-schema, st2-slot-allocator-ccbd-integration, st3-create-task-dialog-ui, st4-active-sessions-panel-timeline, st5-stop-append-resume]
+consult_evidence: [job_550836b235e0, job_029817e70a60]  # job_550836b235e0: round 1; job_029817e70a60: round 2
 deprecated_in: null
 removed_in: null
 grace_window: null
-impacted_components:
-  - apps-ccb-console-server
-  - apps-ccb-console-web
-  - docs-ccb-workspace
+impacted_components: [apps-ccb-console-server, apps-ccb-console-web, docs-ccb-workspace]
 ---
 
 # ADR-0018: Task Anchor Runtime

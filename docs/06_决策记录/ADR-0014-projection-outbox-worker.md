@@ -9,13 +9,11 @@ reviewer: ccb_codex
 implementation_batch: 2026-05-10-batch-m2-3c-implementation (5 slice all pass)
 related_epic: task-hierarchy-three-tier-model
 related_adr: [ADR-0012, ADR-0013, ADR-0016]
-related_tasks:
-  - task-hierarchy-m2-3c-projection-outbox-worker (implemented in commits eee5865 → e860bf6)
+related_tasks: [task-hierarchy-m2-3c-projection-outbox-worker (implemented in commits eee5865 → e860bf6)]
 deprecated_in: null
 removed_in: null
 grace_window: null
-impacted_components:
-  - apps-ccb-console-server
+impacted_components: [apps-ccb-console-server]
 ---
 
 # ADR-0014: ProjectionOutbox Worker

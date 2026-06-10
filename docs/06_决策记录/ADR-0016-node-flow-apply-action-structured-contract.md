@@ -7,15 +7,12 @@ decider: Claude
 reviewer: ccb_codex (2 rounds plan review fail)
 related_epic: pr13-task-detail-rewrite-fix
 related_adr: [ADR-0011, ADR-0015]
-related_tasks:
-  - pr13-fix-f1-deferred-minimal-cleanup
+related_tasks: [pr13-fix-f1-deferred-minimal-cleanup]
 deprecated_in: null
 removed_in: null
 grace_window: null
 deferred_until: ReactiveScheduler user_arbitration_submitted apply 链路接通（见 §Trigger conditions）
-impacted_components:
-  - apps-ccb-console-server (modules/tasks/task-node-flow) — 仅最小 cleanup
-  - apps-ccb-console-web (lib/use-task-node-flow + components/task-detail-v2/NodeActions) — 仅最小 cleanup
+impacted_components: [apps-ccb-console-server (modules/tasks/task-node-flow) — 仅最小 cleanup, apps-ccb-console-web (lib/use-task-node-flow + components/task-detail-v2/NodeActions) — 仅最小 cleanup]
 ---
 
 # ADR-0016: Node-Flow Action 结构化契约 — Deferred-with-Trigger

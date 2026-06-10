@@ -7,31 +7,14 @@ last_updated: 2026-05-23
 decider: 用户（4 轮 codex 协商后拍板核心方向）+ Claude（实施细节 + 拍板 prerequisites/data model/ownership）
 reviewer: ccb_codex（round 1-4 设计协商 + round 5 outline audit rep_e59a8a3ace7d）
 codename: alpha-x-multiwindow-slot-topology
-related_doc:
-  - docs/02_需求设计/ccb-plan/2026-05-23-phase5-issue2-alpha-x-worktree-model-conclusion.md
-  - docs/.ccb/requirements/active/2026-05-23-phase5-v1x-governance-enhancement.md
-parent_adrs:
-  - ADR-0023
-  - ADR-0024
-supersedes:
-  - ADR-0018
-amends:
-  - ADR-0023
-prerequisite_adrs:
-  - ADR-0024
-consult_evidence:
-  - job_f340e24f8913   # round 1 治理根因
-  - job_c53fa0f0dedd   # round 2 模型选型 α/β/γ/δ
-  - job_a3369bdcde38   # round 3 α 工程可行性 X/Y/W
-  - job_38bcb48dba37   # round 4 ccb 7.0 形态
-  - job_abb3a8830b74   # round 5 outline audit
+related_doc: [docs/02_需求设计/ccb-plan/2026-05-23-phase5-issue2-alpha-x-worktree-model-conclusion.md, docs/.ccb/requirements/active/2026-05-23-phase5-v1x-governance-enhancement.md]
+parent_adrs: [ADR-0023, ADR-0024]
+supersedes: [ADR-0018]
+amends: [ADR-0023]
+prerequisite_adrs: [ADR-0024]
+consult_evidence: [job_f340e24f8913, job_c53fa0f0dedd, job_a3369bdcde38, job_38bcb48dba37, job_abb3a8830b74]  # job_f340e24f8913: round 1 治理根因; job_c53fa0f0dedd: round 2 模型选型 α/β/γ/δ; job_a3369bdcde38: round 3 α 工程可行性 X/Y/W; job_38bcb48dba37: round 4 ccb 7.0 形态; job_abb3a8830b74: round 5 outline audit
 upstream_reference: github.com/bfly123/claude_codex_bridge v7.0.3
-impacted_components:
-  - apps-ccb-console-server
-  - apps-ccb-console-web
-  - claude-plugin-distribution
-  - codex-skills-distribution
-  - docs-ccb-workspace
+impacted_components: [apps-ccb-console-server, apps-ccb-console-web, claude-plugin-distribution, codex-skills-distribution, docs-ccb-workspace]
 ---
 
 # ADR-0032: Console Plugin · ccb 7.0 Multi-Window Topology + α-X Worktree 模型

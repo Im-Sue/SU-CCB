@@ -8,11 +8,8 @@ status: delivered
 source: discussion
 output_mode: spec_plan_task
 parent_epic: v1.0 plugin sovereignty
-references:
-  - docs/06_决策记录/ADR-0036-per-requirement-implementation-worktree.md
-  - docs/02_需求设计/实施期-per-需求-worktree-字段驱动代码隔离-260526-需求.md
-consult_evidence:
-  - job_9db4523eeb15  # main_codex consult（worktree 生命周期分层重构）
+references: [docs/06_决策记录/ADR-0036-per-requirement-implementation-worktree.md, docs/02_需求设计/实施期-per-需求-worktree-字段驱动代码隔离-260526-需求.md]
+consult_evidence: [job_9db4523eeb15]  # job_9db4523eeb15: main_codex consult（worktree 生命周期分层重构）
 analysis_input_hash: b61e58ae379d63e80ae71174f3907937a1d29229f03c51a128ee9a76e2fc34a6
 analysis_applied_at: 2026-06-04T14:36:07.055Z
 ---

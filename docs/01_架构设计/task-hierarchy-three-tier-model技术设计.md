@@ -1,6 +1,7 @@
 ---
-doc_type: technical_design
+doc_type: architecture
 title: "CCB 任务模型三层重构技术设计"
+updated: 2026-06-10
 ---
 
 # CCB 任务模型三层重构 — 技术设计 (R2 修订版)

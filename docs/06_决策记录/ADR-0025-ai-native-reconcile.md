@@ -8,12 +8,8 @@ decider: 用户（基于父需求 §1 + Phase 3 audit）
 reviewer: ccb_codex（rep_4f49ef73fed0 audit）
 codename: ai-native-reconcile
 related_doc: docs/03_开发计划/ccb-plan/2026-05-21-plugin-sovereignty-roadmap.md
-parent_adrs:
-  - ADR-0023  # plugin sovereignty 主决策
-  - ADR-0024  # plugin primitive runtime（Phase 1）
-  - ADR-0030  # plugin node paradigm
-implements_via:
-  - SP-Phase3-impl 实施 spec（3a / 3b / 3c 内部闸口）
+parent_adrs: [ADR-0023, ADR-0024, ADR-0030]  # ADR-0023: plugin sovereignty 主决策; ADR-0024: plugin primitive runtime（Phase 1）; ADR-0030: plugin node paradigm
+implements_via: [SP-Phase3-impl 实施 spec（3a / 3b / 3c 内部闸口）]
 phase: 3
 ---
 

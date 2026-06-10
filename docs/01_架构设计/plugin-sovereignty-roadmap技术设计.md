@@ -1,6 +1,7 @@
 ---
-doc_type: technical_design
+doc_type: architecture
 title: "Plugin Sovereignty 路线图"
+updated: 2026-06-10
 ---
 
 # Plugin Sovereignty 路线图

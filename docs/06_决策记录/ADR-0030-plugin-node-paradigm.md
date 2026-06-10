@@ -9,23 +9,10 @@ reviewer: ccb_codex
 codename: ai-orchestrator-paradigm
 related_doc: docs/02_需求设计/ccb-plugin/2026-05-20-plugin-product-semantics-sample-v2.md
 related_consensus: docs/.ccb/decisions/2026-05-20-plugin-skill-redesign-consensus.md
-consult_evidence:
-  - rep_ddca4d7d3581
-  - rep_c5ec94da955a
-  - rep_343858374258
-  - rep_0eece5b2c9b2
-  - rep_4a954d5dda22
-supersedes_normative:
-  - 旧 node-manifest-schema.yaml fixed_actions.steps 范式
-  - 旧 SKILL.md "thin facade 引用 manifest" 范式
-related_adrs:
-  - ADR-0023  # plugin sovereignty（主决策）
-  - ADR-0023 Addendum  # 节点≠流水线工序
-  - ADR-0024  # plugin-side primitive runtime（待起草）
-  - ADR-0028  # 两层实体
-  - ADR-0029  # 大状态指令层
-implements_via:
-  - SP-A11  # plugin / skill / kernel 全量重写
+consult_evidence: [rep_ddca4d7d3581, rep_c5ec94da955a, rep_343858374258, rep_0eece5b2c9b2, rep_4a954d5dda22]
+supersedes_normative: [旧 node-manifest-schema.yaml fixed_actions.steps 范式, 旧 SKILL.md "thin facade 引用 manifest" 范式]
+related_adrs: [ADR-0023, ADR-0023 Addendum, ADR-0024, ADR-0028, ADR-0029]  # ADR-0023: plugin sovereignty（主决策）; ADR-0023 Addendum: 节点≠流水线工序; ADR-0024: plugin-side primitive runtime（待起草）; ADR-0028: 两层实体; ADR-0029: 大状态指令层
+implements_via: [SP-A11]  # SP-A11: plugin / skill / kernel 全量重写
 ---
 
 # ADR-0030: SKILL.md / 节点 manifest 新形态规范

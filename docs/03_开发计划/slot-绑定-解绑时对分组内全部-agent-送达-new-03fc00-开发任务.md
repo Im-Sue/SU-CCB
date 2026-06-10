@@ -2,9 +2,10 @@
 task_id: subtask-af2d2703fc00
 title: slot 绑定/解绑时对分组内全部 agent 送达 /new
 doc_type: dev_task
-status: reviewing
-current_node: dispatch
-node_substate: awaiting_codex_pickup
+status: done
+current_node: archive
+node_substate: archived
+review_status: passed
 priority: medium
 requirement_id: cmpl40j1ve2d3820066c75fdb
 section_id: pr1-slot-context-reset-new

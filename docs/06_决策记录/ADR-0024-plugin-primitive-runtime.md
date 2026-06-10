@@ -8,15 +8,10 @@ decider: 用户（Claude + ccb_codex 二轮 consult 后拍板）
 reviewer: ccb_codex
 codename: plugin-write-runtime
 related_doc: docs/03_开发计划/ccb-plan/2026-05-21-plugin-sovereignty-roadmap.md
-parent_adrs:
-  - ADR-0023  # plugin sovereignty 主决策
-  - ADR-0030  # SKILL.md / 节点 manifest 新形态规范
-consult_evidence:
-  - rep_bc4597221453  # codex 一轮 4-Phase 拓扑
-  - rep_0bf6e84e73c2  # codex 二轮逐条反质疑（runtime 提前到 Phase 1）
+parent_adrs: [ADR-0023, ADR-0030]  # ADR-0023: plugin sovereignty 主决策; ADR-0030: SKILL.md / 节点 manifest 新形态规范
+consult_evidence: [rep_bc4597221453, rep_0bf6e84e73c2]  # rep_bc4597221453: codex 一轮 4-Phase 拓扑; rep_0bf6e84e73c2: codex 二轮逐条反质疑（runtime 提前到 Phase 1）
 phase: 1
-implements_via:
-  - Phase 1 实施 SP（待 ADR 落档后单独写）
+implements_via: [Phase 1 实施 SP（待 ADR 落档后单独写）]
 ---
 
 # ADR-0024: Plugin-side Primitive Runtime（最小写入运行时）

@@ -5,14 +5,8 @@ date: 2026-05-15
 status: accepted
 owner: claude
 reviewer: ccb_codex (consult rep_1e453cd95cbc, high confidence)
-related:
-  - ADR-0011-reactive-scheduler
-  - ADR-0020-followup-as-source-marker
-addresses:
-  - 实施流"快路径"绕过节点 transition 导致 task 状态漂移（ADR-0011 历史债）
-  - 7 个 maintenance 脚本各自独立，二次漂移风险高
-  - 缺少用户友好的状态/进度/归档操作入口
-  - AI Agent 与 UI 操作的入口不统一
+related: [ADR-0011-reactive-scheduler, ADR-0020-followup-as-source-marker]
+addresses: [实施流"快路径"绕过节点 transition 导致 task 状态漂移（ADR-0011 历史债）, 7 个 maintenance 脚本各自独立，二次漂移风险高, 缺少用户友好的状态/进度/归档操作入口, AI Agent 与 UI 操作的入口不统一]
 ---
 
 # ADR-0021 · Status-repair primitive + 三层架构

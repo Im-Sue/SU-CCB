@@ -7,26 +7,13 @@ last_updated: 2026-05-23
 decider: 用户 paradigm（参考 prediction_market）+ Claude 拍板 cap=7 / exception 需 approval ref / 优先拆 Requirement / B 重组 outcome_contracts schema
 reviewer: ccb_codex（round 1 / rep_8beb3e587abd, round 2 / rep_5309321530cf）
 codename: subtask-granularity
-related_doc:
-  - docs/.ccb/requirements/active/2026-05-23-phase5-v1x-governance-enhancement.md
-  - docs/02_需求设计/ccb-plan/2026-05-22-phase5-governance-backlog.md
-parent_adrs:
-  - ADR-0023   # plugin sovereignty
-  - ADR-0030   # capability paradigm
-  - ADR-0034   # capability outcome policy
-amends:
-  - ADR-0034   # SubTask outcome_contracts 引用 policy 表
-related_adrs:
-  - ADR-0032   # slot binding 协调（1 Requirement = 1 slot）
-  - ADR-0033   # Phase 3 合并实施 spec 含本 ADR 输出
-consult_evidence:
-  - job_c2b12d18e1d4   # round 1 两层物化 paradigm + E+D+A+C
-  - job_6458655d909c   # round 2 audit + B 重组 outcome_contracts + 退出协商
+related_doc: [docs/.ccb/requirements/active/2026-05-23-phase5-v1x-governance-enhancement.md, docs/02_需求设计/ccb-plan/2026-05-22-phase5-governance-backlog.md]
+parent_adrs: [ADR-0023, ADR-0030, ADR-0034]  # ADR-0023: plugin sovereignty; ADR-0030: capability paradigm; ADR-0034: capability outcome policy
+amends: [ADR-0034]  # ADR-0034: SubTask outcome_contracts 引用 policy 表
+related_adrs: [ADR-0032, ADR-0033]  # ADR-0032: slot binding 协调（1 Requirement = 1 slot）; ADR-0033: Phase 3 合并实施 spec 含本 ADR 输出
+consult_evidence: [job_c2b12d18e1d4, job_6458655d909c]  # job_c2b12d18e1d4: round 1 两层物化 paradigm + E+D+A+C; job_6458655d909c: round 2 audit + B 重组 outcome_contracts + 退出协商
 upstream_reference: /mnt/f/python/web3/prediction_market/docs/
-impacted_components:
-  - apps-ccb-console-server
-  - claude-plugin-distribution
-  - docs-ccb-workspace
+impacted_components: [apps-ccb-console-server, claude-plugin-distribution, docs-ccb-workspace]
 size_exception: false
 ---
 

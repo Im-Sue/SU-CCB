@@ -8,12 +8,8 @@ decider: 用户（基于 Phase 4 audit + Phase 1 已实质实现 EventJournal ap
 reviewer: ccb_codex（rep_967c972f9d9d audit）
 codename: eventjournal-v1
 related_doc: docs/03_开发计划/ccb-plan/2026-05-21-plugin-sovereignty-roadmap.md
-parent_adrs:
-  - ADR-0023  # plugin sovereignty 主决策
-  - ADR-0024  # plugin primitive runtime（Phase 1 EventJournal append 实施）
-  - ADR-0026  # entity field ownership
-implements_via:
-  - SP-Phase4 实施 spec（4b 内 ProjectionOutbox 删除 + Console event store 收敛）
+parent_adrs: [ADR-0023, ADR-0024, ADR-0026]  # ADR-0023: plugin sovereignty 主决策; ADR-0024: plugin primitive runtime（Phase 1 EventJournal append 实施）; ADR-0026: entity field ownership
+implements_via: [SP-Phase4 实施 spec（4b 内 ProjectionOutbox 删除 + Console event store 收敛）]
 phase: 4
 ---
 

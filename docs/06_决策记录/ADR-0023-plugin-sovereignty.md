@@ -9,35 +9,10 @@ reviewer: ccb_codex (6 rounds consult)
 clean_start: true
 codename: plugin-sovereignty
 related_doc: docs/01_架构设计/ccb-plan/2026-05-17-v1.0-plugin-sovereignty.md
-consult_evidence:
-  - job_cce8bd55182a  # round 1 baseline
-  - job_f2f425747d01  # round 2 infrastructure
-  - job_2c53550e11d0  # round 2 verbatim patch
-  - job_169ff6d00b99  # round 3 tech stack + UI buttons
-  - job_60a01c53558c  # round 4 risks
-  - job_479b6557503d  # round 4.5 reconcile logic
-  - job_3ea2d6009b2b  # round 5 deliverables
-  - job_797f7337ed4d  # round 6 clean-start simplification
-supersedes_as_normative_baseline:
-  - ADR-0001  # self-built engine (有效定位被本 ADR 吸收)
-  - ADR-0010  # su-flow facade (入口语义被本 ADR 吸收)
-  - ADR-0011  # ReactiveScheduler (Console driver 语义失效)
-  - ADR-0012  # task projection consistency (被新真相源模型覆盖)
-  - ADR-0014  # ProjectionOutbox worker (DB→file 方向冲突，ProjectionOutbox 在 v1.0 不存在)
-  - ADR-0017  # epic multi-pr materialization (模型保留，draft 写入路径替代)
-  - ADR-0018  # task anchor runtime (anchor 模型被本 ADR 吸收)
-  - ADR-0019  # field ownership (被 ADR-0026 完全替代)
-new_companion_adrs:
-  - ADR-0024  # plugin-side primitive runtime + md-first
-  - ADR-0025  # AI-native reconcile + diff log
-  - ADR-0026  # entity field ownership v1.0
-  - ADR-0027  # EventJournal v1.0
-impacted_components:
-  - apps-ccb-console-server
-  - apps-ccb-console-web
-  - claude-plugin-distribution
-  - codex-skills-distribution
-  - docs-ccb-workspace
+consult_evidence: [job_cce8bd55182a, job_f2f425747d01, job_2c53550e11d0, job_169ff6d00b99, job_60a01c53558c, job_479b6557503d, job_3ea2d6009b2b, job_797f7337ed4d]  # job_cce8bd55182a: round 1 baseline; job_f2f425747d01: round 2 infrastructure; job_2c53550e11d0: round 2 verbatim patch; job_169ff6d00b99: round 3 tech stack + UI buttons; job_60a01c53558c: round 4 risks; job_479b6557503d: round 4.5 reconcile logic; job_3ea2d6009b2b: round 5 deliverables; job_797f7337ed4d: round 6 clean-start simplification
+supersedes_as_normative_baseline: [ADR-0001, ADR-0010, ADR-0011, ADR-0012, ADR-0014, ADR-0017, ADR-0018, ADR-0019]  # ADR-0001: self-built engine (有效定位被本 ADR 吸收); ADR-0010: su-flow facade (入口语义被本 ADR 吸收); ADR-0011: ReactiveScheduler (Console driver 语义失效); ADR-0012: task projection consistency (被新真相源模型覆盖); ADR-0014: ProjectionOutbox worker (DB→file 方向冲突，ProjectionOutbox 在 v1.0 不存在); ADR-0017: epic multi-pr materialization (模型保留，draft 写入路径替代); ADR-0018: task anchor runtime (anchor 模型被本 ADR 吸收); ADR-0019: field ownership (被 ADR-0026 完全替代)
+new_companion_adrs: [ADR-0024, ADR-0025, ADR-0026, ADR-0027]  # ADR-0024: plugin-side primitive runtime + md-first; ADR-0025: AI-native reconcile + diff log; ADR-0026: entity field ownership v1.0; ADR-0027: EventJournal v1.0
+impacted_components: [apps-ccb-console-server, apps-ccb-console-web, claude-plugin-distribution, codex-skills-distribution, docs-ccb-workspace]
 deprecated_in: null
 removed_in: null
 grace_window: null

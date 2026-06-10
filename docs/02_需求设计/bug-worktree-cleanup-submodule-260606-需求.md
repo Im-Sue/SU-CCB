@@ -7,10 +7,7 @@ updated: 2026-06-06T10:05:00.000Z
 status: delivered
 source: archive-reflection (req cmpworktreearchive260604 收尾实战)
 parent_epic: v1.0 plugin sovereignty
-references:
-  - docs/06_决策记录/ADR-0036-per-requirement-implementation-worktree.md
-  - docs/02_需求设计/per-需求worktree-归档分层修复与预览式归档-260604-需求.md
-  - su-ccb-claude-plugin/lib/worktree/index.mjs
+references: [docs/06_决策记录/ADR-0036-per-requirement-implementation-worktree.md, docs/02_需求设计/per-需求worktree-归档分层修复与预览式归档-260604-需求.md, su-ccb-claude-plugin/lib/worktree/index.mjs]
 analysis_input_hash: f4e51dead885fa2d63bd12b41e79b9def2ca0394f8bdc1221cb7c6f962b45fd4
 analysis_applied_at: 2026-06-06T10:09:11.100Z
 ---

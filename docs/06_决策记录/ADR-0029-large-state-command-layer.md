@@ -7,15 +7,8 @@ last_updated: 2026-05-19
 decider: Claude (with user authorization)
 reviewer: ccb_codex (consult round 4 §F + round 6 §F)
 related_doc: docs/02_需求设计/ccb-plan/2026-05-18-sp-a10-three-tier-model-consult.md
-companion_adrs:
-  - ADR-0023  # plugin sovereignty 总纲
-  - ADR-0028  # 两层实体模型 + anchor subject 泛化
-  - ADR-0030  # plugin/skill/kernel 实现机制（待论证）
-impacted_components:
-  - apps-ccb-console-server
-  - apps-ccb-console-web
-  - claude-plugin-distribution
-  - docs-ccb-workspace
+companion_adrs: [ADR-0023, ADR-0028, ADR-0030]  # ADR-0023: plugin sovereignty 总纲; ADR-0028: 两层实体模型 + anchor subject 泛化; ADR-0030: plugin/skill/kernel 实现机制（待论证）
+impacted_components: [apps-ccb-console-server, apps-ccb-console-web, claude-plugin-distribution, docs-ccb-workspace]
 ---
 
 # ADR-0029: Large-State Command Layer + Boundary Standard + Event Contract

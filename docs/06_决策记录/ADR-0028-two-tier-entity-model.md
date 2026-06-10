@@ -7,18 +7,9 @@ last_updated: 2026-05-19
 decider: Claude (with user authorization)
 reviewer: ccb_codex (consult rounds 1-7)
 related_doc: docs/02_需求设计/ccb-plan/2026-05-18-sp-a10-three-tier-model-consult.md
-companion_adrs:
-  - ADR-0023  # plugin sovereignty 总纲（addendum 2026-05-19 引入 AI orchestrator + capability registry 哲学）
-  - ADR-0029  # 大状态独立指令原则
-  - ADR-0030  # plugin/skill/kernel 实现机制（待论证）
-supersedes_as_normative_baseline:
-  - ADR-0013  # 三层模型源决策（本 ADR 回归 §D8 原意）
-  - ADR-0017  # Epic Multi-PR materialization v2（kind=epic carrier 工程绕路被本 ADR 取代）
-impacted_components:
-  - apps-ccb-console-server
-  - apps-ccb-console-web
-  - claude-plugin-distribution
-  - docs-ccb-workspace
+companion_adrs: [ADR-0023, ADR-0029, ADR-0030]  # ADR-0023: plugin sovereignty 总纲（addendum 2026-05-19 引入 AI orchestrator + capability registry 哲学）; ADR-0029: 大状态独立指令原则; ADR-0030: plugin/skill/kernel 实现机制（待论证）
+supersedes_as_normative_baseline: [ADR-0013, ADR-0017]  # ADR-0013: 三层模型源决策（本 ADR 回归 §D8 原意）; ADR-0017: Epic Multi-PR materialization v2（kind=epic carrier 工程绕路被本 ADR 取代）
+impacted_components: [apps-ccb-console-server, apps-ccb-console-web, claude-plugin-distribution, docs-ccb-workspace]
 ---
 
 # ADR-0028: Two-Tier Entity Model + Anchor Subject Generalization

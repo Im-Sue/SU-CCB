@@ -4,11 +4,8 @@ title: ADR-0018 Addendum · Anchor Terminal Read-Write Attach
 status: active
 decided_at: 2026-05-16
 parent_adr: ADR-0018
-related_specs:
-  - docs/.ccb/specs/active/2026-05-16-ta8b-read-write-attach.md
-impacted_components:
-  - apps-ccb-console-server
-  - apps-ccb-console-web
+related_specs: [docs/.ccb/specs/active/2026-05-16-ta8b-read-write-attach.md]
+impacted_components: [apps-ccb-console-server, apps-ccb-console-web]
 ---
 
 # ADR-0018 Addendum: Anchor Terminal Read-Write Attach

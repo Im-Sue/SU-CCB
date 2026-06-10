@@ -6,13 +6,11 @@ decided_at: 2026-05-08
 decider: Claude
 reviewer: ccb_codex
 related_epic: ccb-console-task-projection-consistency
-related_tasks:
-  - ccb-console-task-projection-bugfix
+related_tasks: [ccb-console-task-projection-bugfix]
 deprecated_in: null
 removed_in: null
 grace_window: null
-impacted_components:
-  - apps-ccb-console-server
+impacted_components: [apps-ccb-console-server]
 ---
 
 # ADR-0012: Task Projection Consistency

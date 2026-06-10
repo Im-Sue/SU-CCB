@@ -8,25 +8,12 @@ last_updated: 2026-05-23
 decider: 用户 paradigm shift（议题 3 治理服务 v1.0 后长期 plugin/skills 管理）+ 路径 A（ADR 大方向先落档 → 启动议题 4 → 合并实施 spec）+ Claude 拍板 Q1-Q3
 reviewer: ccb_codex（round 1 / rep_e0081d2530a1, round 2 / rep_b4476ca9483d, round 3 / rep_b820f44ea562）
 codename: document-taxonomy
-related_doc:
-  - docs/.ccb/requirements/active/2026-05-23-phase5-v1x-governance-enhancement.md
-  - docs/02_需求设计/ccb-plan/2026-05-22-phase5-governance-backlog.md
+related_doc: [docs/.ccb/requirements/active/2026-05-23-phase5-v1x-governance-enhancement.md, docs/02_需求设计/ccb-plan/2026-05-22-phase5-governance-backlog.md]
 parent_adrs: []
-related_adrs:
-  - ADR-0012   # task projection consistency（path-as-semantics 现有依赖）
-  - ADR-0026
-  - ADR-0027
-  - ADR-0030
-  - ADR-0034
-consult_evidence:
-  - job_db865fbb9142   # round 1 现状盘点 + D 三层规则
-  - job_f5e3cc3d946e   # round 2 prediction_market paradigm → C 混合
-  - job_efececaf6144   # round 3 主动清理 + C 拆分（policy + cleanup spec）
+related_adrs: [ADR-0012, ADR-0026, ADR-0027, ADR-0030, ADR-0034]  # ADR-0012: task projection consistency（path-as-semantics 现有依赖）
+consult_evidence: [job_db865fbb9142, job_f5e3cc3d946e, job_efececaf6144]  # job_db865fbb9142: round 1 现状盘点 + D 三层规则; job_f5e3cc3d946e: round 2 prediction_market paradigm → C 混合; job_efececaf6144: round 3 主动清理 + C 拆分（policy + cleanup spec）
 upstream_reference: /mnt/f/python/web3/prediction_market/docs/
-impacted_components:
-  - apps-ccb-console-server
-  - claude-plugin-distribution
-  - docs-ccb-workspace
+impacted_components: [apps-ccb-console-server, claude-plugin-distribution, docs-ccb-workspace]
 size_exception: true
 size_exception_reason: 含长期治理 paradigm + 主动清理策略 + keep list 类别 + 实施 phase 分工，分拆会丢上下文
 ---

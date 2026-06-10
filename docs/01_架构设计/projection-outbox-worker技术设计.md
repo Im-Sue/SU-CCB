@@ -1,6 +1,7 @@
 ---
-doc_type: technical_design
+doc_type: architecture
 title: "ProjectionOutbox Worker 技术设计"
+updated: 2026-06-10
 ---
 
 # ProjectionOutbox Worker 设计大纲

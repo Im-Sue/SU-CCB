@@ -6,17 +6,11 @@ decided_at: 2026-05-06
 decider: Claude
 reviewer: ccb_codex
 related_epic: e14-ka2-reactive-scheduler
-related_tasks:
-  - e14-t0-reactive-scheduler-contract-rfc
-  - e14-t1-reactive-scheduler-core-engine
-  - e14-t2-policy-profile-handlers
+related_tasks: [e14-t0-reactive-scheduler-contract-rfc, e14-t1-reactive-scheduler-core-engine, e14-t2-policy-profile-handlers]
 deprecated_in: null
 removed_in: null
 grace_window: null
-impacted_components:
-  - apps-ccb-console-server
-  - claude-plugin-distribution
-  - kernel-references
+impacted_components: [apps-ccb-console-server, claude-plugin-distribution, kernel-references]
 ---
 
 # ADR-0011: KA-2 ReactiveScheduler — v0.4 second-wave 终态决策

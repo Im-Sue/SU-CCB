@@ -8,11 +8,7 @@ status: delivered
 source: discussion
 output_mode: spec_plan_task
 parent_epic: v1.0 plugin sovereignty
-references:
-  - docs/.ccb/decisions/ADR-0036-per-requirement-implementation-worktree.md
-  - docs/.ccb/decisions/ADR-0032-alpha-x-multiwindow-slot-topology.md
-  - docs/.ccb/decisions/ADR-0023-plugin-sovereignty.md
-  - docs/.ccb/requirements/active/2026-05-23-phase5-v1x-governance-enhancement.md
+references: [docs/.ccb/decisions/ADR-0036-per-requirement-implementation-worktree.md, docs/.ccb/decisions/ADR-0032-alpha-x-multiwindow-slot-topology.md, docs/.ccb/decisions/ADR-0023-plugin-sovereignty.md, docs/.ccb/requirements/active/2026-05-23-phase5-v1x-governance-enhancement.md]
 analysis_input_hash: 61be7a05d630f1ba341a08e64511c4c593ef4a910bb5d8da4be393005c6634bf
 analysis_applied_at: 2026-06-01T13:02:59.101Z
 ---
