@@ -1,42 +1,38 @@
 # Quickstart：5-10 分钟跑通一次 SU-CCB 文档修复
 
+> 受众：开发者。本文演示 `spec → review → execute → archive` 协作闭环；只想快速看控制台的评估者，请走 [SU-Oriel 5 分钟路径](https://github.com/Im-Sue/SU-Oriel#quick-eval)。
+
 这份 quickstart 用一个极小的 SU-CCB 自身文档修复任务演示完整协作链路：
 起草 spec、Codex review、Codex execute、review 后 archive，并用 lint 与 git log 确认结果。
 全程只走命令行，不需要启动 console。
 
 ## 前置条件
 
-- Node.js 18+。
-- pnpm 由 corepack 管理；如果 `pnpm: not found`，先看
-  [apps/ccb-console/README.md](../apps/ccb-console/README.md) 的 troubleshooting。
+- 已按 [install.md](install.md) 完成开发者安装；版本要求以 [README 环境与版本](../README.md#versions) 为准。
 - Git 已配置 `user.name` 和 `user.email`。
 - 已安装并可调用 `ccb` CLI。
+- Claude plugin 子仓已初始化，能访问 `su-ccb-claude-plugin/references/kernel/`。
 
 ```bash
-node --version
-corepack --version
-pnpm --version
 git --version
 ccb ask --help
-# 期望输出片段：v18.x 或更高；pnpm 10.25.0；git version ...；Usage: ccb ask ...
+# 期望输出片段：git version ...；Usage: ccb ask ...
 ```
 
-## 1. 克隆主仓并安装依赖
+## 1. 克隆主仓并确认基线
 
 ```bash
-git clone https://github.com/<your-org>/SU-CCB.git
+git clone --recursive https://github.com/<your-org>/SU-CCB.git
 cd SU-CCB
-corepack enable
-pnpm install --frozen-lockfile
-# 期望输出片段：Lockfile is up to date；Done in ...
+# 已 clone 但没拉 submodule：git submodule update --init --recursive
 ```
 
 先确认当前分支和基线验证。
 
 ```bash
 git status --short --branch
-python3 references/kernel/tools/lint_all.py --legacy-baseline
-# 期望输出片段：## main...origin/main；ALL_GREEN: yes；EXIT_STATUS: legacy_baseline_warn
+python3 su-ccb-claude-plugin/references/kernel/tools/lint_all.py
+# 期望输出片段：## main...origin/main；ALL_GREEN: yes
 ```
 
 ## 2. 起一个极小 spec
@@ -71,7 +67,7 @@ mode: execute
 ## 硬约束
 
 - 只允许修改 README.md。
-- 不修改 references/kernel/、docs/.ccb/state/ 或 archive 文件。
+- 不修改 su-ccb-claude-plugin/references/kernel/、docs/.ccb/state/ 或 archive 文件。
 - 不启动 dev-server.sh。
 
 ## 不做
@@ -82,8 +78,8 @@ mode: execute
 ## 验收
 
 - `git diff -- README.md` 只包含 1 处文案修正。
-- `python3 references/kernel/tools/lint_spec.py docs/.ccb/specs/active/2026-05-02-quickstart-doc-typo.md` 通过。
-- `python3 references/kernel/tools/lint_all.py --legacy-baseline` 输出 `ALL_GREEN: yes`。
+- `python3 su-ccb-claude-plugin/references/kernel/tools/lint_spec.py docs/.ccb/specs/active/2026-05-02-quickstart-doc-typo.md` 通过。
+- `python3 su-ccb-claude-plugin/references/kernel/tools/lint_all.py` 输出 `ALL_GREEN: yes`。
 EOF
 # 期望输出片段：Switched to a new branch 'quickstart-doc-typo'
 ```
@@ -91,7 +87,7 @@ EOF
 校验 spec 自身。
 
 ```bash
-python3 references/kernel/tools/lint_spec.py docs/.ccb/specs/active/2026-05-02-quickstart-doc-typo.md
+python3 su-ccb-claude-plugin/references/kernel/tools/lint_spec.py docs/.ccb/specs/active/2026-05-02-quickstart-doc-typo.md
 # 期望输出片段：SUMMARY；FAILED: 0
 ```
 
@@ -143,7 +139,7 @@ CLI 形态。不要在 review 未通过时移动 spec。
 mkdir -p docs/.ccb/specs/archive
 git mv docs/.ccb/specs/active/2026-05-02-quickstart-doc-typo.md \
   docs/.ccb/specs/archive/2026-05-02-quickstart-doc-typo.md
-python3 references/kernel/tools/lint_all.py --legacy-baseline
+python3 su-ccb-claude-plugin/references/kernel/tools/lint_all.py
 git commit -m "chore(quickstart): archive demo spec"
 # 期望输出片段：ALL_GREEN: yes；chore(quickstart): archive demo spec
 ```

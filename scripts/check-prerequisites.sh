@@ -94,6 +94,23 @@ check_build_tools() {
   ok "gcc/g++/make present"
 }
 
+check_ccb() {
+  command_required "ccb" "ccb" "安装 claude_codex_bridge: https://github.com/SeemSeam/claude_codex_bridge#readme"
+  local raw actual
+  raw="$(ccb --print-version 2>&1 || ccb --help 2>&1 || true)"
+  actual="$(first_version "${raw}")"
+  if [[ -n "${actual}" ]]; then
+    ok "ccb ${actual} present"
+  else
+    ok "ccb present"
+  fi
+}
+
+check_tmux() {
+  command_required "tmux" "tmux" "macOS 执行 brew install tmux；Ubuntu/WSL 执行 sudo apt install -y tmux"
+  ok "tmux present"
+}
+
 check_wsl_if_windows() {
   local kernel_name
   kernel_name="$(uname -s 2>/dev/null || true)"
@@ -107,11 +124,23 @@ check_wsl_if_windows() {
   fi
 }
 
+print_manual_checks() {
+  echo
+  echo "PREREQ_NOTE: 仅提示 / 需手动确认"
+  echo "PREREQ_NOTE: CLI 存在 ≠ 已登录、已 init、plugin 已启用；本脚本无法自动验证以下状态:"
+  echo "PREREQ_NOTE: - Claude CLI 与 Codex CLI 已完成登录鉴权"
+  echo "PREREQ_NOTE: - 当前项目已执行 /ccb:su-init"
+  echo "PREREQ_NOTE: - ccb@SU-CCB plugin 已在系统级 Claude Code 启用"
+}
+
 check_version "Node" "node" "18" "使用 nvm install 20 && nvm use 20"
 check_pnpm
 check_version "git" "git" "2.30" "macOS 执行 brew install git；Ubuntu/WSL 执行 sudo apt install -y git"
 check_version "python3" "python3" "3.8" "macOS 执行 brew install python；Ubuntu/WSL 执行 sudo apt install -y python3"
 check_build_tools
+check_ccb
+check_tmux
 check_wsl_if_windows
+print_manual_checks
 
-ok "all prerequisites satisfied"
+ok "all automatically verifiable prerequisites satisfied"
