@@ -2,7 +2,7 @@
 id: chce8igv76fw62d1eusvlr74b
 title: 优化：拍板项对话闭环后才落档——kernel 节点规则修订
 doc_type: requirement
-status: planning
+status: delivered
 created: 2026-06-07T14:18:39.086Z
 analysis_input_hash: 8de209a4588fbe676be88eab2e7d701e489ec165e6569063c98c1f6a5c2a98a7
 analysis_applied_at: 2026-06-07T14:31:15.365Z
