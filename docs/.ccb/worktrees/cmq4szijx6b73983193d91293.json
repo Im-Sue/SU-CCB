@@ -1,7 +1,7 @@
 {
   "schema_version": "requirement-worktree-v0.2",
   "requirement_id": "cmq4szijx6b73983193d91293",
-  "aggregate_status": "escalated",
+  "aggregate_status": "merged",
   "spaces": [
     {
       "space_id": "root",
@@ -11,25 +11,41 @@
       "branch": "ccb/req-cmq4szijx6b73983193d91293",
       "target_branch": "main",
       "base_sha": "deec910a4a6f4a2314612acc240311109bc16103",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
+      "status": "merged",
+      "merged_branch_sha": "deec910a4a6f4a2314612acc240311109bc16103",
+      "target_sha_after_merge": "962f1f58c86adf382734e5554db45dd33870bf9f",
+      "merged_at": "2026-06-10T11:09:39.386Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": {
+          "status": "committed",
+          "committed": true,
+          "commitSha": "962f1f58c86adf382734e5554db45dd33870bf9f",
+          "paths": [
+            "docs/.ccb/events/journal.jsonl"
+          ],
+          "allowlist": [
+            "docs/02_需求设计/优化-需求管理页面的优化-d91293-需求.md",
+            "docs/03_开发计划/优化-需求管理页面的优化-d91293-技术设计.md",
+            "docs/03_开发计划/需求看板分组优化-推进中拆分-已搁置改名-列内滚动-首页活跃口径-549c0c-开发任务.md",
+            "docs/00_文档地图.md",
+            "docs/.ccb/events/journal.jsonl",
+            "docs/.ccb/worktrees/cmq4szijx6b73983193d91293.json",
+            "docs/.ccb/drafts/breakdown/cmq4szijx6b73983193d91293.json"
+          ],
+          "tolerated_paths": [
+            "docs/.ccb/worktrees/cmq4tn9ub44963ca7baa654c0.json"
+          ]
+        },
+        "merge_stdout": "",
+        "merge_stderr": ""
+      },
       "archived_at": null,
       "archive": null,
       "discarded_at": null,
       "reopened_at": null,
-      "last_error": {
-        "op": "merge",
-        "reason": "canonical_dirty_outside_allowlist",
-        "at": "2026-06-10T05:40:46.370Z",
-        "status": "escalated",
-        "requirementId": "cmq4szijx6b73983193d91293",
-        "path": "/home/sue/dev/SU-CCB",
-        "porcelain": " M docs/02_需求设计/bug-worktree-cleanup-submodule-260606-需求.md\n M docs/02_需求设计/bug-超出slot3的slot会被自动删除-41041a-需求.md\n M docs/02_需求设计/per-需求worktree-归档分层修复与预览式归档-260604-需求.md\n M docs/02_需求设计/per-需求实施空间-多空间收尾与拓扑声明-260606-需求.md\n M docs/02_需求设计/优化-合并洁净度按需求隔离与节点产物落commit-mgsync-需求.md\n M docs/02_需求设计/实施期-per-需求-worktree-字段驱动代码隔离-260526-需求.md\n M docs/03_开发计划/实施期-per-需求-worktree-字段驱动代码隔离-技术设计.md\n M docs/06_决策记录/2026-05-20-plugin-skill-redesign-consensus.md\n M docs/06_决策记录/ADR-0001-ccb-self-built-engine-reference-only.md\n M docs/06_决策记录/ADR-0010-ka10-su-flow-facade-convergence.md\n M docs/06_决策记录/ADR-0011-ka2-reactive-scheduler.md\n M docs/06_决策记录/ADR-0012-task-projection-consistency.md\n M docs/06_决策记录/ADR-0013-task-hierarchy-three-tier-model.md\n M docs/06_决策记录/ADR-0014-projection-outbox-worker.md\n M docs/06_决策记录/ADR-0015-defer-db-check-trigger-raw-sql.md\n M docs/06_决策记录/ADR-0016-node-flow-apply-action-structured-contract.md\n M docs/06_决策记录/ADR-0017-epic-multi-pr-materialization.md\n M docs/06_决策记录/ADR-0018-addendum-anchor-read-write-attach.md\n M docs/06_决策记录/ADR-0018-task-anchor-runtime.md\n M docs/06_决策记录/ADR-0019-entity-field-ownership-and-sync-direction.md\n M docs/06_决策记录/ADR-0020-followup-as-source-marker.md\n M docs/06_决策记录/ADR-0021-status-repair-primitive-three-layer.md\n M docs/06_决策记录/ADR-0022-maintenance-scripts-schema-ownership-lint-exemption.md\n M docs/06_决策记录/ADR-0023-plugin-sovereignty.md\n M docs/06_决策记录/ADR-0024-plugin-primitive-runtime.md\n M docs/06_决策记录/ADR-0025-ai-native-reconcile.md\n M docs/06_决策记录/ADR-0026-entity-field-ownership.md\n M docs/06_决策记录/ADR-0027-eventjournal-v1.md\n M docs/06_决策记录/ADR-0028-two-tier-entity-model.md\n M docs/06_决策记录/ADR-0029-large-state-command-layer.md\n M docs/06_决策记录/ADR-0030-plugin-node-paradigm.md\n M docs/06_决策记录/ADR-0031-anchor-dispatch-structured-payload.md\n M docs/06_决策记录/ADR-0032-alpha-x-multiwindow-slot-topology.md\n M docs/06_决策记录/ADR-0033-document-taxonomy-naming-lifecycle.md\n M docs/06_决策记录/ADR-0034-capability-outcome-policy.md\n M docs/06_决策记录/ADR-0035-subtask-granularity-two-layer-materialization.md\n M docs/06_决策记录/ADR-0036-per-requirement-implementation-worktree.md\n M docs/06_决策记录/ADR-0042-multirepo-submodule-role-model.md\n M su-oriel\n?? docs/.ccb/assets/requirements/cmq7mj42v10e7ef5f4eebadfe/688965295ae035dbd0533ea7f9da22df0c15162c55c38aa413949fe4a5388b2e.png\n?? docs/.ccb/drafts/breakdown/cm6241561f52fc0d749mgsync.json\n?? docs/.ccb/drafts/breakdown/cmq4tn9ub44963ca7baa654c0.json\n?? docs/.ccb/worktrees/cm6241561f52fc0d749mgsync.json\n?? docs/.ccb/worktrees/cmq4tn9ub44963ca7baa654c0.json\n?? docs/02_需求设计/bug-通知相关的消息没有展示出来-ebadfe-需求.md\n?? docs/03_开发计划/adr-0043-合并洁净度安全模型修订留档-adr-0036-amended-by-指针-d7d9a5-开发任务.md\n?? docs/03_开发计划/主仓写锁-withcanonicalrepolock-三条写主仓路径接线-注入式并发测试-17a178-开发任务.md\n?? docs/03_开发计划/优化-合并洁净度按需求隔离与节点产物落commit-mgsync-技术设计.md\n?? docs/03_开发计划/合并洁净度三态-classifier-allowlist-补-technical-design-tolerated-pa-73fd31-开发任务.md\n?? docs/03_开发计划/归档按钮门控-delivered-delivering-确认弹窗提示-门三态测试-1842fc-开发任务.md",
-        "space_id": "root"
-      }
+      "last_error": null
     },
     {
       "space_id": "su-ccb-claude-plugin",
@@ -39,11 +55,17 @@
       "branch": "ccb/req-cmq4szijx6b73983193d91293",
       "target_branch": "main",
       "base_sha": "74de38b2e1d665e475e34dd726fed37f45dfd0aa",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
+      "status": "merged",
+      "merged_branch_sha": "74de38b2e1d665e475e34dd726fed37f45dfd0aa",
+      "target_sha_after_merge": "0d99a4554c9a5335bea0449d44e327bd2ed81b6f",
+      "merged_at": "2026-06-10T11:09:39.503Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "",
+        "merge_stderr": ""
+      },
       "archived_at": null,
       "archive": null,
       "discarded_at": null,
@@ -58,11 +80,17 @@
       "branch": "ccb/req-cmq4szijx6b73983193d91293",
       "target_branch": "main",
       "base_sha": "45117f4db78a6eca01e0d157f56553b510f3a5ee",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
+      "status": "merged",
+      "merged_branch_sha": "63c09291e4de590aa396d5ae7d430e629a680b80",
+      "target_sha_after_merge": "762c5def877cbc444ad5202accaf4f214cfbf7c4",
+      "merged_at": "2026-06-10T11:09:39.616Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "Auto-merging web/src/pages/overview/OverviewPage.tsx\nAuto-merging web/src/tests/__snapshots__/e12-acceptance-snapshots.spec.tsx.snap\nAuto-merging web/src/tests/e12-acceptance-snapshots.spec.tsx\nMerge made by the 'ort' strategy.\n web/src/lib/requirement-board-config.ts            |  12 ++-\n web/src/lib/ui-mapping.ts                          |  25 +++--\n web/src/pages/overview/OverviewPage.tsx            |   8 +-\n .../pages/requirements/RequirementsPage.module.css |  16 +++\n web/src/tests/OverviewPage.spec.tsx                | 108 +++++++++++++++++++++\n web/src/tests/RequirementsPage.spec.tsx            |  39 ++++++--\n .../e12-acceptance-snapshots.spec.tsx.snap         |  36 ++++++-\n web/src/tests/e12-acceptance-snapshots.spec.tsx    |   6 +-\n web/src/tests/ui-mapping.spec.ts                   |  23 ++++-\n 9 files changed, 238 insertions(+), 35 deletions(-)\n create mode 100644 web/src/tests/OverviewPage.spec.tsx\n",
+        "merge_stderr": ""
+      },
       "archived_at": null,
       "archive": null,
       "discarded_at": null,
@@ -77,11 +105,17 @@
       "branch": "ccb/req-cmq4szijx6b73983193d91293",
       "target_branch": "main",
       "base_sha": "646cf721e15624a207b4c59089b491e45b24587d",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
+      "status": "merged",
+      "merged_branch_sha": "646cf721e15624a207b4c59089b491e45b24587d",
+      "target_sha_after_merge": "646cf721e15624a207b4c59089b491e45b24587d",
+      "merged_at": "2026-06-10T11:09:39.730Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "",
+        "merge_stderr": ""
+      },
       "archived_at": null,
       "archive": null,
       "discarded_at": null,
@@ -96,10 +130,10 @@
       "from_space": "su-ccb-claude-plugin",
       "to_space": "root",
       "submodule_path": "su-ccb-claude-plugin",
-      "status": "pending",
-      "synced_commit_sha": null,
-      "noop": false,
-      "synced_at": null,
+      "status": "synced",
+      "synced_commit_sha": "0d99a4554c9a5335bea0449d44e327bd2ed81b6f",
+      "noop": true,
+      "synced_at": "2026-06-10T11:11:40.794Z",
       "last_error": null
     },
     {
@@ -108,10 +142,10 @@
       "from_space": "su-oriel",
       "to_space": "root",
       "submodule_path": "su-oriel",
-      "status": "pending",
-      "synced_commit_sha": null,
+      "status": "synced",
+      "synced_commit_sha": "64a09198b2ce5a5d454cc86a067acf468e2a7783",
       "noop": false,
-      "synced_at": null,
+      "synced_at": "2026-06-10T11:11:40.975Z",
       "last_error": null
     },
     {
@@ -120,10 +154,10 @@
       "from_space": "su-ccb-codex-skills",
       "to_space": "root",
       "submodule_path": "su-ccb-codex-skills",
-      "status": "pending",
-      "synced_commit_sha": null,
-      "noop": false,
-      "synced_at": null,
+      "status": "synced",
+      "synced_commit_sha": "646cf721e15624a207b4c59089b491e45b24587d",
+      "noop": true,
+      "synced_at": "2026-06-10T11:11:41.128Z",
       "last_error": null
     }
   ],
@@ -132,16 +166,7 @@
     "schema_version": "implementation-topology-v0.1",
     "content_hash": "7ac179da7822d7cc9454fdb9a3012031c393808cf9ee804a6ad9dae0f1e8e189"
   },
-  "last_error": {
-    "op": "merge",
-    "reason": "canonical_dirty_outside_allowlist",
-    "at": "2026-06-10T05:40:46.370Z",
-    "status": "escalated",
-    "requirementId": "cmq4szijx6b73983193d91293",
-    "path": "/home/sue/dev/SU-CCB",
-    "porcelain": " M docs/02_需求设计/bug-worktree-cleanup-submodule-260606-需求.md\n M docs/02_需求设计/bug-超出slot3的slot会被自动删除-41041a-需求.md\n M docs/02_需求设计/per-需求worktree-归档分层修复与预览式归档-260604-需求.md\n M docs/02_需求设计/per-需求实施空间-多空间收尾与拓扑声明-260606-需求.md\n M docs/02_需求设计/优化-合并洁净度按需求隔离与节点产物落commit-mgsync-需求.md\n M docs/02_需求设计/实施期-per-需求-worktree-字段驱动代码隔离-260526-需求.md\n M docs/03_开发计划/实施期-per-需求-worktree-字段驱动代码隔离-技术设计.md\n M docs/06_决策记录/2026-05-20-plugin-skill-redesign-consensus.md\n M docs/06_决策记录/ADR-0001-ccb-self-built-engine-reference-only.md\n M docs/06_决策记录/ADR-0010-ka10-su-flow-facade-convergence.md\n M docs/06_决策记录/ADR-0011-ka2-reactive-scheduler.md\n M docs/06_决策记录/ADR-0012-task-projection-consistency.md\n M docs/06_决策记录/ADR-0013-task-hierarchy-three-tier-model.md\n M docs/06_决策记录/ADR-0014-projection-outbox-worker.md\n M docs/06_决策记录/ADR-0015-defer-db-check-trigger-raw-sql.md\n M docs/06_决策记录/ADR-0016-node-flow-apply-action-structured-contract.md\n M docs/06_决策记录/ADR-0017-epic-multi-pr-materialization.md\n M docs/06_决策记录/ADR-0018-addendum-anchor-read-write-attach.md\n M docs/06_决策记录/ADR-0018-task-anchor-runtime.md\n M docs/06_决策记录/ADR-0019-entity-field-ownership-and-sync-direction.md\n M docs/06_决策记录/ADR-0020-followup-as-source-marker.md\n M docs/06_决策记录/ADR-0021-status-repair-primitive-three-layer.md\n M docs/06_决策记录/ADR-0022-maintenance-scripts-schema-ownership-lint-exemption.md\n M docs/06_决策记录/ADR-0023-plugin-sovereignty.md\n M docs/06_决策记录/ADR-0024-plugin-primitive-runtime.md\n M docs/06_决策记录/ADR-0025-ai-native-reconcile.md\n M docs/06_决策记录/ADR-0026-entity-field-ownership.md\n M docs/06_决策记录/ADR-0027-eventjournal-v1.md\n M docs/06_决策记录/ADR-0028-two-tier-entity-model.md\n M docs/06_决策记录/ADR-0029-large-state-command-layer.md\n M docs/06_决策记录/ADR-0030-plugin-node-paradigm.md\n M docs/06_决策记录/ADR-0031-anchor-dispatch-structured-payload.md\n M docs/06_决策记录/ADR-0032-alpha-x-multiwindow-slot-topology.md\n M docs/06_决策记录/ADR-0033-document-taxonomy-naming-lifecycle.md\n M docs/06_决策记录/ADR-0034-capability-outcome-policy.md\n M docs/06_决策记录/ADR-0035-subtask-granularity-two-layer-materialization.md\n M docs/06_决策记录/ADR-0036-per-requirement-implementation-worktree.md\n M docs/06_决策记录/ADR-0042-multirepo-submodule-role-model.md\n M su-oriel\n?? docs/.ccb/assets/requirements/cmq7mj42v10e7ef5f4eebadfe/688965295ae035dbd0533ea7f9da22df0c15162c55c38aa413949fe4a5388b2e.png\n?? docs/.ccb/drafts/breakdown/cm6241561f52fc0d749mgsync.json\n?? docs/.ccb/drafts/breakdown/cmq4tn9ub44963ca7baa654c0.json\n?? docs/.ccb/worktrees/cm6241561f52fc0d749mgsync.json\n?? docs/.ccb/worktrees/cmq4tn9ub44963ca7baa654c0.json\n?? docs/02_需求设计/bug-通知相关的消息没有展示出来-ebadfe-需求.md\n?? docs/03_开发计划/adr-0043-合并洁净度安全模型修订留档-adr-0036-amended-by-指针-d7d9a5-开发任务.md\n?? docs/03_开发计划/主仓写锁-withcanonicalrepolock-三条写主仓路径接线-注入式并发测试-17a178-开发任务.md\n?? docs/03_开发计划/优化-合并洁净度按需求隔离与节点产物落commit-mgsync-技术设计.md\n?? docs/03_开发计划/合并洁净度三态-classifier-allowlist-补-technical-design-tolerated-pa-73fd31-开发任务.md\n?? docs/03_开发计划/归档按钮门控-delivered-delivering-确认弹窗提示-门三态测试-1842fc-开发任务.md",
-    "space_id": "root"
-  },
+  "last_error": null,
   "created_at": "2026-06-10T05:15:49.952Z",
-  "updated_at": "2026-06-10T05:40:46.370Z"
+  "updated_at": "2026-06-10T11:11:41.206Z"
 }
