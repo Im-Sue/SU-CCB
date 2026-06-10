@@ -1,7 +1,7 @@
 {
   "schema_version": "requirement-worktree-v0.2",
   "requirement_id": "cmq4tn9ub44963ca7baa654c0",
-  "aggregate_status": "escalated",
+  "aggregate_status": "merged",
   "spaces": [
     {
       "space_id": "root",
@@ -142,20 +142,11 @@
       "from_space": "su-ccb-claude-plugin",
       "to_space": "root",
       "submodule_path": "su-ccb-claude-plugin",
-      "status": "pending",
-      "synced_commit_sha": null,
-      "noop": false,
-      "synced_at": null,
-      "last_error": {
-        "op": "associate",
-        "reason": "association_dirty_outside_path",
-        "at": "2026-06-10T09:34:00.780Z",
-        "association_id": "su-ccb-claude-plugin-to-root",
-        "kind": "git_submodule_gitlink",
-        "to_space": "root",
-        "submodule_path": "su-ccb-claude-plugin",
-        "porcelain": " M docs/.ccb/worktrees/cm6241561f52fc0d749mgsync.json\n M docs/02_需求设计/bug-超出slot3的slot会被自动删除-41041a-需求.md\n M docs/02_需求设计/优化-合并洁净度按需求隔离与节点产物落commit-mgsync-需求.md\n?? docs/.ccb/drafts/breakdown/cmq4szijx6b73983193d91293.json\n?? docs/.ccb/drafts/breakdown/cmq7mj42v10e7ef5f4eebadfe.json\n?? docs/.ccb/worktrees/cmq4szijx6b73983193d91293.json\n?? docs/02_需求设计/bug-通知相关的消息没有展示出来-ebadfe-需求.md\n?? docs/03_开发计划/bug-通知相关的消息没有展示出来-ebadfe-技术设计.md\n?? docs/03_开发计划/需求看板分组优化-推进中拆分-已搁置改名-列内滚动-首页活跃口径-549c0c-开发任务.md"
-      }
+      "status": "synced",
+      "synced_commit_sha": "0d99a4554c9a5335bea0449d44e327bd2ed81b6f",
+      "noop": true,
+      "synced_at": "2026-06-10T11:06:52.101Z",
+      "last_error": null
     },
     {
       "association_id": "su-oriel-to-root",
@@ -163,10 +154,10 @@
       "from_space": "su-oriel",
       "to_space": "root",
       "submodule_path": "su-oriel",
-      "status": "pending",
-      "synced_commit_sha": null,
+      "status": "synced",
+      "synced_commit_sha": "cbdbc7ae2b004978d5c6afe38d0de8e04fe0199a",
       "noop": false,
-      "synced_at": null,
+      "synced_at": "2026-06-10T11:06:52.545Z",
       "last_error": null
     },
     {
@@ -175,10 +166,10 @@
       "from_space": "su-ccb-codex-skills",
       "to_space": "root",
       "submodule_path": "su-ccb-codex-skills",
-      "status": "pending",
-      "synced_commit_sha": null,
-      "noop": false,
-      "synced_at": null,
+      "status": "synced",
+      "synced_commit_sha": "646cf721e15624a207b4c59089b491e45b24587d",
+      "noop": true,
+      "synced_at": "2026-06-10T11:06:52.743Z",
       "last_error": null
     }
   ],
@@ -187,16 +178,7 @@
     "schema_version": "implementation-topology-v0.1",
     "content_hash": "7ac179da7822d7cc9454fdb9a3012031c393808cf9ee804a6ad9dae0f1e8e189"
   },
-  "last_error": {
-    "op": "associate",
-    "reason": "association_dirty_outside_path",
-    "at": "2026-06-10T09:34:00.780Z",
-    "association_id": "su-ccb-claude-plugin-to-root",
-    "kind": "git_submodule_gitlink",
-    "to_space": "root",
-    "submodule_path": "su-ccb-claude-plugin",
-    "porcelain": " M docs/.ccb/worktrees/cm6241561f52fc0d749mgsync.json\n M docs/02_需求设计/bug-超出slot3的slot会被自动删除-41041a-需求.md\n M docs/02_需求设计/优化-合并洁净度按需求隔离与节点产物落commit-mgsync-需求.md\n?? docs/.ccb/drafts/breakdown/cmq4szijx6b73983193d91293.json\n?? docs/.ccb/drafts/breakdown/cmq7mj42v10e7ef5f4eebadfe.json\n?? docs/.ccb/worktrees/cmq4szijx6b73983193d91293.json\n?? docs/02_需求设计/bug-通知相关的消息没有展示出来-ebadfe-需求.md\n?? docs/03_开发计划/bug-通知相关的消息没有展示出来-ebadfe-技术设计.md\n?? docs/03_开发计划/需求看板分组优化-推进中拆分-已搁置改名-列内滚动-首页活跃口径-549c0c-开发任务.md"
-  },
+  "last_error": null,
   "created_at": "2026-06-10T05:23:27.561Z",
-  "updated_at": "2026-06-10T09:34:00.780Z"
+  "updated_at": "2026-06-10T11:06:52.825Z"
 }
