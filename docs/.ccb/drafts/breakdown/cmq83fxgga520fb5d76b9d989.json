@@ -1,0 +1,102 @@
+{
+  "schema_version": "breakdown-draft-v0.2",
+  "status": "consumed",
+  "carrier_task_key": "first-use-init-guide-b9d989",
+  "base_task_revision": null,
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot3_claude",
+    "cx_agent": "slot3_codex",
+    "ccb_job_id": "job_e6f5b0f81585"
+  },
+  "generated_at": "2026-06-10T15:28:33.234Z",
+  "updated_at": "2026-06-10T15:35:30.513Z",
+  "plan": {
+    "title": "首次使用·项目导航初始化门控 + 概览整页引导 · 4 片",
+    "summary": "按技设 td-b9d989 v1.1 拆 4 片:pr1 状态地基(onboarding store slice + ensureOnboarding + useProjectOnboardingGate + ui-store onboarding-required modal 与触发 pid 锚定);pr2 Sidebar 项目组锁定 + OnboardingRequiredModal + App 渲染(依赖 pr1);pr3 抽 useProjectOnboardingActions + banner 行为等价重构(依赖 pr1,不碰 OverviewPage);pr4 ProjectSetupGuide 整页两步引导 + OverviewPage ready 切换(依赖 pr3)。owner 全 claude(web 前端由 Claude 亲自实施)。slot3_codex 协商 job_e6f5b0f81585 执行视角认可 4 片,补强:pid 锚定在 pr1 用 ui-store 专用字段定型、pr3 保持 banner public props 不变以不碰 OverviewPage、补 CSS/spec 文件清单、pr3 行为不变与 pr4 卸载时序的验收点。",
+    "spec_outline_md": "## 交付总览\n\n- 串并行:pr1(地基)→ 之后 pr2 与 pr3 可并行(都只依赖 pr1)→ pr4 依赖 pr3。owner 全 `claude`,实际由 Claude 顺序实施。\n- pr1 onboarding 状态地基 → pr2 Sidebar 锁定 + 引导 modal、pr3 actions hook + banner 等价重构 → pr4 概览整页两步引导 + ready 切换。\n\n## 共享约束\n\n- 全部在 `su-oriel/web` 仓;无新依赖、无 DB/schema、无新端点(仅消费既有 `GET /api/projects/{id}/onboarding-status`)。\n- 不 fail-open(loading/error/未就绪一律锁定);in-flight Promise 放模块级 Map 不进 Zustand state;init-job 轮询结果写 store 规避卸载竞态。\n- 命令面板 / 直达 URL 豁免(产品拍板),测试只防误拦,不实现拦截。\n- 技术设计排除项(后端鉴权 / 初始化流程本身 / 业务页占位页方案)禁止回塞。\n\n## 文件冲突(查重叠)\n\n- pr1: `stores/project-store.ts` / `lib/use-project-onboarding-gate.ts`(新) / `stores/ui-store.ts`\n- pr2: `components/layout/Sidebar.tsx`(+css) / `components/projects/OnboardingRequiredModal.tsx`(新,+css) / `App.tsx`\n- pr3: `lib/use-project-onboarding-actions.ts`(新) / `components/projects/ProjectOnboardingBanner.tsx`(+ 既有 spec)\n- pr4: `components/projects/ProjectSetupGuide.tsx`(新,+css) / `pages/overview/OverviewPage.tsx`(+css,+spec)\n- pr2/pr3/pr4 互不重叠;pr3 保持 banner public props 不变以**不碰 OverviewPage**,确保与 pr4 无文件冲突;均只依赖 pr1 产物。\n\n## 为什么这么拆(而不是另一种)\n\n- 不合并 pr1+pr2:状态地基(TTL / in-flight / error / gate / pid 锚定)是高风险地基,值得独立单测;合进 pr2 会混淆回归定位。\n- 不合并 pr3+pr4:先证\"banner 重构行为不变\",再改概览 UX,回归定位更清楚(slot3_codex 执行视角认可)。\n- 不做 1 片大改:Sidebar + 概览 + banner + store 混在一处,审查面过大、回归难定位。\n\n## 用户审查门\n\n- draft 生成后停在 review,等用户确认或 `/ccb:su-revise-breakdown`,**不主动 materialize / dispatch**。\n"
+  },
+  "subtasks": [
+    {
+      "order": 1,
+      "section_id": "pr1-onboarding-state-foundation",
+      "title": "onboarding 状态地基:store slice + gate hook + modal 触发 pid 锚定",
+      "summary": "project-store 新增 onboardingByProject slice 与 ensureOnboarding(模块级 Map 去重 + 30s TTL + loading/error);useProjectOnboardingGate 派生 ready/locked 与 requireInit;ui-store 增 onboarding-required modalType 及 onboardingRequiredProjectId 字段 + openOnboardingRequired(pid) action。不改任何视图。",
+      "spec_section_md": "## 任务概述\n\n**目标对齐**:给\"首次使用初始化门控\"打地基——把项目\"接入状态\"(是否初始化好 CCB 运行时 + 知识库)做成全局唯一一份数据源,让左侧导航、概览、引导框都读同一份,不再各拉各的。本片只建数据与判断地基(store + 派生 hook + 弹框触发通道),**不动任何界面**,合并后界面行为不变、全仓可编译。\n\n> 术语白话:onboarding 状态(= 项目接入就绪信息,来自 `GET /api/projects/{id}/onboarding-status`);ready(= `ccbRuntimeReady && knowledgeBaseReady` 全绿);in-flight 去重(= 同一项目并发请求只发一次,共享同一个 Promise)。\n\n技术设计:`docs/03_开发计划/优化-第一次使用引导问题-b9d989-技术设计.md`(二、三、四章为本片契约)。\n\n## 任务分解\n\n1. `[MODIFY] stores/project-store.ts`:新增 `onboardingByProject: Record<projectId, { value: ProjectOnboardingStatusView | null; fetchedAt: number; loading: boolean; error: string | null }>`;新增 `ensureOnboarding(projectId, { force? })`——模块级 `Map<projectId, Promise>` 做 in-flight 去重、沿用 30s TTL、写 loading/error、成功写 value + fetchedAt。\n2. `[NEW] lib/use-project-onboarding-gate.ts`:`useProjectOnboardingGate(projectId)` → `{ ready, loading, error, requireInit() }`;挂载 / projectId 变化时调 `ensureOnboarding`;`ready = value?.ccbRuntimeReady === true && value?.knowledgeBaseReady === true`;`requireInit()` = `openOnboardingRequired(projectId)`。\n3. `[MODIFY] stores/ui-store.ts`:`modalType` union 增 `\"onboarding-required\"`;新增 `onboardingRequiredProjectId: string | null` 字段 + `openOnboardingRequired(projectId)` action(置 modalType 与 pid);`closeModal` 一并清 `onboardingRequiredProjectId`。\n\n## 验收标准\n\n- [ ] 单元:`useProjectOnboardingGate` 四态——未加载 / loading / error / 未就绪均 `ready=false`;两步全绿 `ready=true`。\n- [ ] 单元:`ensureOnboarding` 并发去重(同 pid 并发只发一次请求、共享 Promise)、TTL 命中复用 / 过期重拉、失败写 error 不抛。\n- [ ] 单元:`openOnboardingRequired(pid)` 置 `modalType=\"onboarding-required\"` 且 `onboardingRequiredProjectId=pid`;`closeModal` 清两者。\n- [ ] typecheck / build 通过;现有界面行为不变(本片不渲染新 UI)。\n\n## 边界 / 不做项\n\n- 不改 Sidebar / OverviewPage / banner 任何视图(归 pr2 / pr3 / pr4)。\n- 不动后端 / API / schema;in-flight Promise 只放模块级 Map,不进 Zustand state。\n- 不在本片消费 modal(pr2 才渲染 onboarding-required modal)。\n\n## 依赖\n\n无(地基片;pr2 / pr3 依赖本片产物)。\n",
+      "priority": "high",
+      "implementation_owner": "claude",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "order": 2,
+      "section_id": "pr2-sidebar-lock-and-modal",
+      "title": "Sidebar 项目组锁定 + 引导 modal",
+      "summary": "Sidebar 项目组消费 gate hook,未就绪渲染锁定 button(非 disabled/可聚焦/点击 openOnboardingRequired 不导航/不模拟 active/loading 显示检测中);新增 OnboardingRequiredModal(CTA 跳锚定 pid 的 /overview + closeModal);App 渲染该 modal。",
+      "spec_section_md": "## 任务概述\n\n**目标对齐**:把左侧\"项目\"组(需求 / 文档 / Slot / 运行)在未初始化时**锁起来**——显示锁图标、点了不跳转、改弹一个\"请先去初始化\"的框,框里按钮把人带回该项目概览。让首次用户不再误点进空页面。门控数据来自 pr1 的 gate hook,本片纯做 Sidebar 锁定渲染 + 引导弹框。\n\n> 术语白话:gated(= 该组导航在未就绪时受门控锁定);触发 pid 锚定(= 弹框记录\"是哪个项目触发的\",CTA 跳那个项目,避免弹框期间切项目跳错)。\n\n技术设计:`docs/03_开发计划/优化-第一次使用引导问题-b9d989-技术设计.md`(二、三章 Sidebar / modal 部分)。\n\n## 任务分解\n\n1. `[MODIFY] components/layout/Sidebar.tsx`(+ `Sidebar.module.css`):navSection 给\"项目\"组标 `gated`;消费 `useProjectOnboardingGate(selectedProjectId)`;`!ready` 时项目组项渲染为锁定 `button`(非 `disabled`、`type=\"button\"`、保留键盘焦点、`aria-disabled=\"true\"`、锁图标 / 弱化样式),点击调 `requireInit()` 不导航、不模拟 active 态;loading 时锁定并显示\"检测中\"语义;`ready` 恢复现有 `NavLink`。非\"项目\"组(工作 / 工具)不受影响。\n2. `[NEW] components/projects/OnboardingRequiredModal.tsx`(+ `.module.css`):读 `onboardingRequiredProjectId`,文案\"项目还没初始化 CCB / 知识库,请先初始化\";`[去概览初始化]` → `navigate(/projects/<锚定 pid>/overview)` + `closeModal`;`[关闭]` → `closeModal`。\n3. `[MODIFY] App.tsx`:在现有 modal 渲染处增加 `modalType === \"onboarding-required\"` 分支渲染 `OnboardingRequiredModal`。\n\n## 验收标准\n\n- [ ] 组件:`!ready` 时\"项目\"组渲染锁定 button(非 disabled、可键盘聚焦、点击触发 `openOnboardingRequired`、不发生导航);`ready` 时恢复 NavLink 正常跳转。\n- [ ] 组件:工作组(概览 / 我的工作)、工具组(项目设置 / AI CLI)在 `!ready` 时始终可达、不被锁。\n- [ ] 组件:loading 态项目组显示锁定 + \"检测中\",不放行。\n- [ ] 组件:modal CTA 跳\"触发时锚定 pid\"的 `/overview`(模拟弹框打开后切项目,仍跳原 pid)+ `closeModal`。\n- [ ] 回归(显式非拦截):命令面板 / 直达 URL / 新建需求(`create-requirement`)入口在 `!ready` 时**不被拦截**(产品接受的豁免),专项断言防误改。\n\n## 边界 / 不做项\n\n- 不改概览页呈现(归 pr4);不动 banner / 初始化流程。\n- 不拦命令面板 / 直达 URL(产品豁免)。\n- modal 不复刻初始化动作,只跳概览复用引导。\n\n## 依赖\n\n> 依赖 pr1:`useProjectOnboardingGate`、ui-store `onboarding-required` modalType 与 `openOnboardingRequired` / `onboardingRequiredProjectId`。pr1 合并前本片不可开工。\n",
+      "priority": "high",
+      "implementation_owner": "claude",
+      "dependencies": [
+        "pr1-onboarding-state-foundation"
+      ],
+      "include": true
+    },
+    {
+      "order": 3,
+      "section_id": "pr3-onboarding-actions-and-banner-refactor",
+      "title": "抽 useProjectOnboardingActions + banner 行为等价重构",
+      "summary": "把 ProjectOnboardingBanner 的检测/动作(复制命令/一键 init/终端)/init-job 轮询抽到 useProjectOnboardingActions(结果写 store);banner 重构为消费该 hook,public props 与行为不变,仍在概览顶部,不碰 OverviewPage。",
+      "spec_section_md": "## 任务概述\n\n**目标对齐**:把概览顶部那条初始化横幅(`ProjectOnboardingBanner`)的\"检测 + 动作(复制命令 / 一键初始化 / 打开终端)+ 初始化任务轮询\"逻辑抽成一个可复用 hook,横幅改成消费这个 hook。**本片是行为等价重构**——重构后横幅外观、动作、轮询行为与重构前完全一致,只是逻辑搬了位置,为 pr4 复用做准备。本片**不碰 OverviewPage**(保持横幅对外 props 不变)。\n\n> 术语白话:init-job 轮询(= 提交 `/ccb:su-init` 后,每 3s 查一次知识库是否就绪,最长 60s);行为等价重构(= 只改代码结构,不改任何用户可见行为)。\n\n技术设计:`docs/03_开发计划/优化-第一次使用引导问题-b9d989-技术设计.md`(二、三章 banner 拆分 + 轮询写 store)。\n\n## 任务分解\n\n1. `[NEW] lib/use-project-onboarding-actions.ts`:`useProjectOnboardingActions(projectId)` 内聚——检测(经 pr1 的 `ensureOnboarding` / store)、动作 `copyCommand` / `initKnowledgeBase` / `openTerminal`、init-job 轮询(3s / 60s,结果写 store 而非组件局部 state)。\n2. `[MODIFY] components/projects/ProjectOnboardingBanner.tsx`:删除组件私有的 `statusCache` / `loadStatus` / 轮询 state,改为消费 `useProjectOnboardingActions`;**对外 props 与三态渲染(runtime-missing / knowledge-missing / ready)保持不变**;仍只挂概览顶部。\n\n## 验收标准\n\n- [ ] 集成:沿用并保持现有 `ProjectOnboardingBanner.spec.tsx` 语义全绿(三态渲染、复制命令、一键 init、重新检测、打开终端)。\n- [ ] 集成:补一条——轮询拿到 `knowledgeBaseReady` 写 store 后,banner UI 切到 ready 态;`su-init` 失败 / 超时文案不回归。\n- [ ] 组件卸载后无 unmounted setState 警告(轮询写 store,不写已卸载组件局部 state)。\n- [ ] typecheck / build 通过;`OverviewPage` 未被改动(git diff 不含该文件)。\n\n## 边界 / 不做项\n\n- **不碰 OverviewPage**(保持 banner public API 稳定,避免与 pr4 文件冲突)。\n- 不做整页引导 / 概览切换(归 pr4)。\n- 不改初始化后端流程、不改 onboarding-status 接口契约。\n\n## 依赖\n\n> 依赖 pr1:`onboardingByProject` store slice 与 `ensureOnboarding`。pr1 合并前本片不可开工。\n",
+      "priority": "high",
+      "implementation_owner": "claude",
+      "dependencies": [
+        "pr1-onboarding-state-foundation"
+      ],
+      "include": true
+    },
+    {
+      "order": 4,
+      "section_id": "pr4-overview-fullpage-guide",
+      "title": "概览整页两步引导 + ready 切换",
+      "summary": "新增 ProjectSetupGuide(整页两步:CCB 运行时 + 知识库,按 ccbRuntimeReady/knowledgeBaseReady 高亮);OverviewPage 持有 actions hook,ready ? 现概览(banner+卡片) : 引导(隐藏指标卡);处理 loading 不抢渲染与卸载时序(写 store)。",
+      "spec_section_md": "## 任务概述\n\n**目标对齐**:实现用户要的\"未初始化时概览整页做初始化引导\"——项目没就绪时,概览不再显示空指标卡,而是整页一个**两步引导**(第①步初始化 CCB 运行时、第②步初始化知识库),照着做完两步,概览自动切回正常数据盘。复用 pr3 的 actions hook,不新造初始化逻辑。\n\n> 术语白话:两步高亮(= 按 `ccbRuntimeReady` / `knowledgeBaseReady` 点亮当前该做哪步);卸载时序(= 就绪后引导组件被卸载的瞬间,轮询的末次结果必须已落 store、不丢、不报 unmounted setState)。\n\n技术设计:`docs/03_开发计划/优化-第一次使用引导问题-b9d989-技术设计.md`(一、四章核心流程 + 十风险)。\n\n## 任务分解\n\n1. `[NEW] components/projects/ProjectSetupGuide.tsx`(+ `.module.css`):整页两步引导,消费 `useProjectOnboardingActions`;步骤① CCB 运行时(复制命令)、步骤② 知识库(一键 init + 打开终端 + 轮询状态);按 `ccbRuntimeReady` / `knowledgeBaseReady` 高亮 / 置完成当前步。\n2. `[MODIFY] pages/overview/OverviewPage.tsx`(+ `OverviewPage.module.css`):在稳定层持有 `useProjectOnboardingActions(selectedProjectId)`(跨\"引导↔数据盘\"切换不卸载);`!ready` → 渲染 `<ProjectSetupGuide>` 且隐藏指标卡;`ready` → 现概览(banner + 指标卡);`loading` / 未加载 → 不抢渲染引导也不渲染数据盘(占位 / 骨架),不 fail-open;把 actions / status 传给 guide(或 guide 自取,二选一,保持单一来源)。\n\n## 验收标准\n\n- [ ] 组件:`!ready` 渲染 `ProjectSetupGuide` 且**不渲染指标卡**;`ready` 渲染现概览(banner + 卡片);store ready 翻转触发切换。\n- [ ] 组件:两步高亮——runtime-missing 高亮步骤①、knowledge-missing 高亮步骤②、ready 不再展示引导。\n- [ ] 时序(fake timers):模拟 init-job 轮询拿到 `knowledgeBaseReady` 写 store → ready 翻转 → guide 卸载;断言 store 末次值保留、无 unmounted setState 警告。\n- [ ] loading 策略:`value=null` / `loading=true` 时概览既不渲染指标卡也不抢渲染错误 / 步骤态(显示检测中 / 骨架)。\n- [ ] typecheck / build 通过;`!selectedProjectId` 的 EmptyState、`loadingData` 分支不回归。\n\n## 边界 / 不做项\n\n- 不做命令面板 / 直达 URL 拦截(产品豁免)。\n- 不改初始化后端流程;不新增 onboarding 接口。\n- 不在 modal 复刻初始化(pr2 的 modal 只跳概览,落到本片引导)。\n\n## 依赖\n\n> 依赖 pr3:`useProjectOnboardingActions`(检测 + 动作 + 轮询写 store)与重构后行为稳定的 banner。pr3 合并前本片不可开工。\n",
+      "priority": "high",
+      "implementation_owner": "claude",
+      "dependencies": [
+        "pr3-onboarding-actions-and-banner-refactor"
+      ],
+      "include": true
+    }
+  ],
+  "requirement_id": "cmq83fxgga520fb5d76b9d989",
+  "carrier_task_id": "cmq83fxgga520fb5d76b9d989",
+  "review_history": [
+    {
+      "at": "2026-06-10T15:28:33.240Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-06-10T15:35:29.396Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "user authorized materialize via /ccb:su-materialize-requirement; payload expected_hash was Console projection (6e98382c), reconciled to on-disk canonical draft"
+    },
+    {
+      "at": "2026-06-10T15:35:29.568Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "approved by user materialize command (b9d989 4-slice draft)"
+    },
+    {
+      "at": "2026-06-10T15:35:30.513Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-06-10T15:35:29.568Z",
+  "approved_by": "user",
+  "consumed_at": "2026-06-10T15:35:30.513Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "32e378a328f2bfe51ce3d5445386715e5040a5aecd5c02c990634e4d2609c850"
+}
