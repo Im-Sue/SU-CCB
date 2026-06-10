@@ -1,0 +1,90 @@
+{
+  "schema_version": "breakdown-draft-v0.2",
+  "status": "consumed",
+  "carrier_task_key": "merge-cleanliness-isolation-mgsync",
+  "base_task_revision": null,
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot1_claude",
+    "cx_agent": "slot1_codex",
+    "ccb_job_id": "job_44bfe8f2a115"
+  },
+  "generated_at": "2026-06-10T04:38:04.453Z",
+  "updated_at": "2026-06-10T04:51:51.073Z",
+  "plan": {
+    "title": "合并洁净度按需求隔离 mgsync · 2 代码 + 1 ADR 顺序交付",
+    "summary": "按技设 td-mgsync O2 落地：pr1 三态 classifier（OWN/TOLERATE/FOREIGN）+ allowlist 补 technical_design；pr2 主仓写锁 withCanonicalRepoLock（.ccb/locks/canonical-repo，防 gate 被自己锁文件触发）+ 注入式并发测试；pr3 ADR-0043 记录 clean-gate 安全模型修订并给 ADR-0036 加 amended_by 指针。Codex 执行视角协商 job_44bfe8f2a115 同议 2+1 切片，修正锁路径与 pr3 依赖（pr1+pr2）。F1 已拆后续需求（用户拍板\"先做1\"）。",
+    "spec_outline_md": "## 交付总览\n\n- 3 个子任务严格顺序交付：pr1 三态 classifier + allowlist 补 technical_design（核心语义）→ pr2 主仓写锁 + 并发测试（并发安全）→ pr3 ADR-0043 安全模型修订留档。\n- 共享约束：代码改动全部在 su-ccb-claude-plugin 子仓（lib/worktree/index.mjs、associations.mjs、worktree.test.mjs）；pr3 仅 docs ADR。pr1/pr2 同文件但严格顺序执行，无并发冲突；pr2 只消费 pr1 定稿的 tolerated_paths 形状，不重塑。\n- 红线：锁文件严禁落 docs/ 树内（gate 会看见自己的锁文件而自爆，Codex job_44bfe8f2a115 抓出）；TOLERATE 绝不代别的需求提交；F1（节点产物即时落 commit）已拆后续需求（用户 2026-06-09 拍板\"先做1\"），不得回流进本批。\n- 已知残留（设计已拍板接受）：新建无绑定常青档（新经验沉淀/新 ADR）合并时仍被拦，人工提交过渡，F1 根治。\n- 用户审查门：draft 生成后停在 review，等用户确认或 /ccb:su-revise-breakdown，不主动 materialize。"
+  },
+  "subtasks": [
+    {
+      "order": 1,
+      "section_id": "pr1-merge-gate-classifier",
+      "title": "合并洁净度三态 classifier + allowlist 补 technical_design + tolerated_paths 诊断",
+      "summary": "canonicalSyncAllowlist 增 technical_design（doc_type+requirement_id 谓词）；新增 classifyDirtyEntry 三态（OWN 提交/TOLERATE 放行不提交/FOREIGN 仍 escalate，删除·rename 读不到 frontmatter 一律保守 FOREIGN）；canonicalSyncCommit 仅 FOREIGN escalate，payload 增去重排序 tolerated_paths，既有字段形状不变；classifier 单元 + vlr74b 重演集成 + 回归。",
+      "spec_section_md": "## 任务概述\n\n把合并前的\"现场检查\"从一刀切改成三类分流。现状：`canonicalSyncCommit` 拿整个主仓 `git status`，只要有任一行路径不在\"本需求白名单\"里就拒绝合并（escalate `canonical_dirty_outside_allowlist`）——并行需求的在途文档互相挡死。本任务改成三态分类：**自己的**（OWN，收拢提交）/ **别人在途的**（TOLERATE，放行但绝不代提交）/ **异己的**（FOREIGN，照旧拦）。同时修白名单缺口：本需求的技术设计稿（`technical_design`）现在不在白名单里，连自己都挡自己。\n\n> 术语白话：allowlist（白名单）＝「这个需求自己该收拾提交的文件清单」；escalate＝「停下来上报人工处理」；porcelain＝`git status --porcelain` 的逐行输出；frontmatter＝md 文件头部 `---` 包起来的元数据。\n\n```\n旧: porcelain 任一行 ∉ allowlist             → escalate（全局严格）\n新: 每行走 classifyDirtyEntry:\n      OWN      (∈ 本需求 allowlist)          → git add + commit\n      TOLERATE (可识别的受管在途档)          → 放行，记 tolerated_paths\n      FOREIGN  (源码/不明/读不出归属)        → escalate（带 tolerated_paths 诊断）\n```\n\n## 任务分解\n\n全部在 `su-ccb-claude-plugin/lib/worktree/index.mjs` + 同目录测试：\n\n1. `canonicalSyncAllowlist`(:309)：增 technical_design——`docs/03_开发计划/` 下 `doc_type===\"technical_design\" && requirement_id===requirementId`（复用 `markdownPathsMatchingFrontmatter`，与 dev_task 谓词并列）。\n2. 新增 `classifyDirtyEntry(entry, allowlist, projectRoot)`，对 porcelain 单行判类（行内多路径时**每条路径都得 OWN/TOLERATE 才放行，任一 FOREIGN 即整行 FOREIGN**）：\n   - OWN：路径 ∈ allowlist。\n   - TOLERATE(bound)：`docs/02_需求设计/**.md` 且 frontmatter `doc_type===\"requirement\"` 且 `id` 存在；或 `docs/03_开发计划/**.md` 且 `doc_type ∈ {technical_design, dev_task}` 且 `requirement_id` 存在（即\"别的需求的同类档\"）。\n   - TOLERATE(coord)：`docs/.ccb/worktrees/*.json`（别的需求 state）与 `docs/.ccb/drafts/breakdown/*.json`（别的需求草案）。\n   - TOLERATE(evergreen-tracked)：`docs/04_模块规格|05_经验沉淀|06_决策记录/**.md` 且**已被 git 跟踪**（复用 `pathExistsOrTracked`/`ls-files` 思路）且 frontmatter `doc_type` 可识别。\n   - FOREIGN：其余一切——源码、未跟踪无绑定常青档、frontmatter 读不出/字段缺失、**文件已删除或 rename 后读不到 frontmatter 且不在 allowlist**（保守拒绝，防吞人工操作）。\n   - frontmatter 读取沿用现有 `parseFrontmatter`（只判字段存在性，不解析多行数组）。\n3. `canonicalSyncCommit`(:360) 改造：提交前/提交后两次检查都走 classifier；仅 FOREIGN 非空才 escalate，payload `porcelain` 只含 FOREIGN 行、新增 `tolerated_paths`（**去重+排序**）；`git add` 仍只对 OWN；成功/noop result 同样带 `tolerated_paths`；**既有字段（status/reason/porcelain/allowlist）形状不变**，下游不需改读。`tolerated_paths` 形状在本任务定稿，pr2 只消费不重塑。\n4. 测试（`lib/worktree/__tests__/worktree.test.mjs`）：\n   - 单元：classifier 各类（OWN / bound / coord / evergreen-tracked / FOREIGN）；rename `a -> b` 双路径；带空格/引号路径；删除 allowlist 外文件 → FOREIGN；未跟踪新建常青档 → FOREIGN；源码改动 → FOREIGN。\n   - 集成（重演 vlr74b）：主仓同时脏「本需求 td + 多个其它需求档 + 其它需求 state/draft」→ 只提交本需求路径、其余 tolerated、merge 推进；再加任一源码/未跟踪常青脏 → escalate 且 payload 带 tolerated_paths。\n   - 回归：既有 canonicalSync 相关用例按新语义适配，其余 merge 用例不变。\n\n## 验收标准\n\n1. 本需求 technical_design 入 allowlist 并被提交；其它需求的 requirement/technical_design/dev_task/state/draft 全部 TOLERATE（不提交、不 escalate）。\n2. 源码改动、未跟踪无绑定常青档、读不出 frontmatter 的删除/rename 路径 → 仍 escalate `canonical_dirty_outside_allowlist`，payload 含 FOREIGN 行 porcelain + 去重排序的 tolerated_paths。\n3. TOLERATE 路径绝不出现在 `git add`/commit 中。\n4. rename/引号/空格路径用例全绿；既有字段形状不变（porcelain/reason/status/allowlist 仍在、含义不变）。\n5. plugin 仓 worktree 测试套件全绿；不动 associations.mjs、不加锁（pr2 范围）。\n\n## 边界 / 不做项\n\n- 不实现仓库锁（pr2）；不改 submodule association 隔离；不改 breakdown/dev_task schema；不动 Console。\n- TOLERATE 边界以技术设计三、四章为准，不得擅自放宽（尤其不得容忍未跟踪常青档）。\n\n> 来源：技术设计 td-mgsync（四、核心流程／八、变更清单）+ Codex 协商 job_121967901242（三态边界）／job_44bfe8f2a115（G7 验收增补、删除/rename 保守判定）。\n",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "order": 2,
+      "section_id": "pr2-canonical-repo-lock",
+      "title": "主仓写锁 withCanonicalRepoLock + 三条写主仓路径接线 + 注入式并发测试",
+      "summary": "复用 withFileLock 实现 withCanonicalRepoLock，锁文件 .ccb/locks/canonical-repo（严禁 docs/ 树内，防 gate 自爆）；锁序固定 requirement→canonical；接线单空间 merge、多空间 root mergeOneSpace、association root gitlink commit；LockTimeoutError 转结构化 canonical_repo_lock_timeout escalation + 事件；注入挂起式并发断言 + 锁文件不污染 status + 超时 + 回归测试。",
+      "spec_section_md": "## 任务概述\n\npr1 放宽合并洁净度检查后，旧逻辑\"别人脏就挡\"带来的**隐性串行**消失了——多个需求可能真的同时往主仓做 `git add/commit/merge`，互相踩 index/HEAD。本任务加一把**主仓写锁**：同一时间只允许一个需求执行主仓的提交/合并临界区。\n\n> 术语白话：临界区＝「同一时刻只能有一个人在里面干活的代码段」；锁文件＝「占坑文件，谁建成功谁持锁」；LockTimeoutError＝「等锁超时」。\n\n```\n锁序（固定，防死锁）: withRequirementLock(per-需求) ──之后──► withCanonicalRepoLock(per-主仓)\n覆盖临界区:\n  单空间 merge:   canonicalSyncCommit + root merge 段（index.mjs:1575 起）\n  多空间 merge:   root space 的 mergeOneSpace（:859）\n  association:    toSpace=root 的 sync/verify 段（associations.mjs:178-198 root gitlink add/commit）\n```\n\n## 任务分解\n\n1. 新增 `withCanonicalRepoLock(projectRoot, fn, options)`：复用 `lib/runtime/file-lock.mjs` 的 `withFileLock`；锁目标 **`.ccb/locks/canonical-repo`**（项目级 `.ccb/`，与现有 `lockTargetPath`（index.mjs:74 → `.ccb/locks/worktree/<id>`）同目录约定）。**严禁放 `docs/` 下任何位置**——`withFileLock` 会创建 `<target>.lock/owner.json`，若落在 docs 树内会被 `canonicalSyncCommit` 的 porcelain 看见，gate 被自己的锁文件触发误报（Codex 协商抓出的自爆点）。\n2. 接线（锁序固定为先 requirement 锁后 canonical 锁，绝不反向）：\n   - `mergeRequirementWorktree`(:1465) 单空间路径：包住 canonicalSyncCommit + merge + headSha 段。\n   - `mergeMultiSpaceRequirementWorktree` / `mergeOneSpace`(:859)：包住 root space 分支（canonicalSyncCommit + merge）。\n   - `runAssociationExecutor`(:942)：toSpace 为 root 的 sync/verify（root gitlink add/commit）段。submodule toSpace 不加锁。\n3. 超时语义：`LockTimeoutError` **不裸抛**，转结构化 escalation `canonical_repo_lock_timeout`（payload 含 requirementId/锁路径，holder 信息可得则带）+ EventJournal 事件——保持 merge/archive 的 escalation 契约（裸抛会破坏调用方处理；前科：cleanup 对 submodule worktree 裸抛非 escalated 的事故）。\n4. 测试：\n   - 并发（确定性，不靠计时；Codex G3 策略）：通过 git 执行注入，让需求 A 的 root commit/merge 在临界区内挂起 → 断言需求 B 未进入任何 root mutating git 命令 → 释放 A → 断言 A、B 都完成、git log 顺序可解释、最终 status clean。\n   - 锁文件不污染：持锁期间主仓 `git status --porcelain --untracked-files=all` 不含锁路径。\n   - 超时：制造持锁不放 → B 得到 `canonical_repo_lock_timeout` escalation + journal 事件，无裸抛。\n   - 回归：既有 worktree_dirty/target_branch/merge_conflict/cleanup 用例不变。\n\n## 验收标准\n\n1. 两需求并发 merge 被串行化，root index/HEAD 无竞争损坏（注入式断言，非 sleep/计时）。\n2. 锁文件位于 `.ccb/locks/canonical-repo*`，git status 全程不可见。\n3. lock 超时产生结构化 `canonical_repo_lock_timeout` escalation + EventJournal 事件，不裸抛。\n4. 单空间、多空间 root、association root gitlink 三条写主仓路径全部在锁内；submodule 路径不受影响。\n5. 锁序全程 requirement→canonical，无反向获取；plugin 仓测试套件全绿。\n\n## 边界 / 不做项\n\n- 不重塑 pr1 的 classifier/tolerated_paths 形状（只消费）。\n- 不引入新锁机制/依赖（只复用 withFileLock）；不做跨进程之外的分布式锁。\n- 不动 submodule 内部 association 隔离逻辑。\n\n> 来源：技术设计 td-mgsync（二、四、八）+ Codex 协商 job_44bfe8f2a115（G3 注入式并发断言、G4 锁序与结构化超时、锁路径自爆点）。\n",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr1-merge-gate-classifier"
+      ],
+      "include": true
+    },
+    {
+      "order": 3,
+      "section_id": "pr3-adr-0043-clean-gate-amendment",
+      "title": "ADR-0043 合并洁净度安全模型修订留档 + ADR-0036 amended_by 指针",
+      "summary": "新建 ADR-0043 记录 clean-gate 从全局严格改为按需求隔离+有界容忍+主仓写锁（含否决项、已知残留、F1 延期拍板）；ADR-0036 frontmatter 加一行 amended_by: ADR-0043，结论原文零改动。Claude 直写（<200 行），依赖 pr1+pr2 定稿形态。",
+      "spec_section_md": "## 任务概述\n\n把这次\"合并洁净度安全模型\"的修订写成正式决策记录（ADR-0043），并在被修订的 ADR-0036 上留一行指针。背景：ADR-0036（per-需求实施 worktree）当年明确选了\"合并前主仓必须全局干净\"；本需求把它改成\"按需求隔离 + 有界容忍 + 主仓写锁\"。改安全模型必须留档，否则后人读 0036 会按旧规矩理解 merge gate。\n\n> 术语白话：ADR＝架构决策记录，一事一档、定稿后不改写结论，只能被新 ADR 修订（amend）或取代（supersede）。\n\n## 任务分解\n\n1. 新建 `docs/06_决策记录/ADR-0043-合并洁净度按需求隔离与主仓写锁.md`（<200 行，Claude 直写）：\n   - 背景：vlr74b 实证的并行互挡 + allowlist 漏 technical_design。\n   - 决策：三态 classifier（OWN/TOLERATE/FOREIGN，边界同技术设计）+ withCanonicalRepoLock（`.ccb/locks/canonical-repo`）+ tolerated_paths 诊断；F1（节点产物即时落 commit）拆后续需求（用户 2026-06-09 拍板\"先做1\"）。\n   - 否决项：blanket 容忍全 docs；ADR 按 related_doc 反查入 allowlist（现有 parser 不支持多行数组，留 F1/后续）；本需求一并做 F1。\n   - 后果：已知残留——新建无绑定常青档仍挡合并，人工提交过渡，F1 根治。\n   - 引用：需求档 mgsync、技术设计 td-mgsync、ADR-0036、协商 job_121967901242 / job_44bfe8f2a115。\n2. `ADR-0036` frontmatter 加一行 `amended_by: ADR-0043`（不改其结论原文）。\n\n## 验收标准\n\n1. ADR-0043 落 `docs/06_决策记录/`，frontmatter 含 id / doc_type: adr / status，全文 <200 行。\n2. 三态边界、锁、残留取舍、F1 延期与用户拍板均有记录；引用齐全。\n3. ADR-0036 仅新增 amended_by 指针一行，结论原文零改动。\n\n## 边界 / 不做项\n\n- 不改 0036 正文结论；不在 ADR 里重复搬技术设计细节（链接即可）；不写实施代码。\n\n> 来源：Codex 协商 job_44bfe8f2a115 G6（新 ADR 而非改写历史决策）。\n",
+      "priority": "medium",
+      "implementation_owner": "claude",
+      "dependencies": [
+        "pr1-merge-gate-classifier",
+        "pr2-canonical-repo-lock"
+      ],
+      "include": true
+    }
+  ],
+  "requirement_id": "cm6241561f52fc0d749mgsync",
+  "carrier_task_id": "cm6241561f52fc0d749mgsync",
+  "review_history": [
+    {
+      "at": "2026-06-10T04:38:04.456Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-06-10T04:51:50.422Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "user-initiated materialize via /ccb:su-materialize-requirement (job_ff46338b3884)"
+    },
+    {
+      "at": "2026-06-10T04:51:50.575Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "approval expressed by user materialize command; paiban-scan v1 clean; Codex consult job_44bfe8f2a115 baked into draft"
+    },
+    {
+      "at": "2026-06-10T04:51:51.073Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-06-10T04:51:50.575Z",
+  "approved_by": "user",
+  "consumed_at": "2026-06-10T04:51:51.073Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "cf45558c4df36c2c8cbd8388d2f1db57dc99285282d6a279f0cf6d7bf46225e7"
+}
