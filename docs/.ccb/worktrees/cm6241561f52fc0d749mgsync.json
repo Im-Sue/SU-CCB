@@ -1,7 +1,7 @@
 {
   "schema_version": "requirement-worktree-v0.2",
   "requirement_id": "cm6241561f52fc0d749mgsync",
-  "aggregate_status": "escalated",
+  "aggregate_status": "archived",
   "spaces": [
     {
       "space_id": "root",
@@ -11,27 +11,57 @@
       "branch": "ccb/req-cm6241561f52fc0d749mgsync",
       "target_branch": "main",
       "base_sha": "deec910a4a6f4a2314612acc240311109bc16103",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
-      "archived_at": null,
-      "archive": null,
+      "status": "archived",
+      "merged_branch_sha": "088f4cd7876bc50d2ddda5f3ab14f7a006f0044a",
+      "target_sha_after_merge": "0f11f77076d4f5eecc464676783f7ded30df90cf",
+      "merged_at": "2026-06-10T08:07:20.278Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": {
+          "status": "committed",
+          "committed": true,
+          "commitSha": "59ba3c00322c7bf064a7fa8f67e58f758358485c",
+          "paths": [
+            "docs/.ccb/events/journal.jsonl",
+            "docs/.ccb/worktrees/cm6241561f52fc0d749mgsync.json",
+            "docs/00_文档地图.md"
+          ],
+          "allowlist": [
+            "docs/02_需求设计/优化-合并洁净度按需求隔离与节点产物落commit-mgsync-需求.md",
+            "docs/03_开发计划/优化-合并洁净度按需求隔离与节点产物落commit-mgsync-技术设计.md",
+            "docs/03_开发计划/adr-0043-合并洁净度安全模型修订留档-adr-0036-amended-by-指针-d7d9a5-开发任务.md",
+            "docs/03_开发计划/主仓写锁-withcanonicalrepolock-三条写主仓路径接线-注入式并发测试-17a178-开发任务.md",
+            "docs/03_开发计划/合并洁净度三态-classifier-allowlist-补-technical-design-tolerated-pa-73fd31-开发任务.md",
+            "docs/00_文档地图.md",
+            "docs/.ccb/events/journal.jsonl",
+            "docs/.ccb/worktrees/cm6241561f52fc0d749mgsync.json",
+            "docs/.ccb/drafts/breakdown/cm6241561f52fc0d749mgsync.json"
+          ],
+          "tolerated_paths": [
+            "docs/.ccb/drafts/breakdown/cmq4szijx6b73983193d91293.json",
+            "docs/.ccb/drafts/breakdown/cmq4tn9ub44963ca7baa654c0.json",
+            "docs/.ccb/drafts/breakdown/cmq7mj42v10e7ef5f4eebadfe.json",
+            "docs/.ccb/worktrees/cmq4szijx6b73983193d91293.json",
+            "docs/.ccb/worktrees/cmq4tn9ub44963ca7baa654c0.json",
+            "docs/02_需求设计/bug-超出slot3的slot会被自动删除-41041a-需求.md",
+            "docs/02_需求设计/bug-通知相关的消息没有展示出来-ebadfe-需求.md",
+            "docs/03_开发计划/bug-通知相关的消息没有展示出来-ebadfe-技术设计.md",
+            "docs/03_开发计划/归档按钮门控-delivered-delivering-确认弹窗提示-门三态测试-1842fc-开发任务.md",
+            "docs/03_开发计划/需求看板分组优化-推进中拆分-已搁置改名-列内滚动-首页活跃口径-549c0c-开发任务.md"
+          ]
+        },
+        "merge_stdout": "Merge made by the 'ort' strategy.\n ...ADR-0036-per-requirement-implementation-worktree.md |  1 +\n .../ADR-0043-合并洁净度按需求隔离与主仓写锁.md     | 72 ++++++++++++++++++++++\n 2 files changed, 73 insertions(+)\n create mode 100644 docs/06_决策记录/ADR-0043-合并洁净度按需求隔离与主仓写锁.md\n",
+        "merge_stderr": ""
+      },
+      "archived_at": "2026-06-10T09:32:18.331Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "088f4cd7876bc50d2ddda5f3ab14f7a006f0044a"
+      },
       "discarded_at": null,
       "reopened_at": null,
-      "last_error": {
-        "op": "merge",
-        "reason": "merge_conflict",
-        "at": "2026-06-10T08:04:07.038Z",
-        "space_id": "root",
-        "targetBranch": "main",
-        "branch": "ccb/req-cm6241561f52fc0d749mgsync",
-        "path": "/home/sue/dev/SU-CCB-req-cm6241561f52fc0d749mgsync",
-        "warnings": [],
-        "stderr": "",
-        "stdout": "Auto-merging docs/06_决策记录/ADR-0036-per-requirement-implementation-worktree.md\nCONFLICT (content): Merge conflict in docs/06_决策记录/ADR-0036-per-requirement-implementation-worktree.md\nAutomatic merge failed; fix conflicts and then commit the result.\n"
-      }
+      "last_error": null
     },
     {
       "space_id": "su-ccb-claude-plugin",
@@ -41,13 +71,22 @@
       "branch": "ccb/req-cm6241561f52fc0d749mgsync",
       "target_branch": "main",
       "base_sha": "74de38b2e1d665e475e34dd726fed37f45dfd0aa",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
-      "archived_at": null,
-      "archive": null,
+      "status": "archived",
+      "merged_branch_sha": "0d99a4554c9a5335bea0449d44e327bd2ed81b6f",
+      "target_sha_after_merge": "0d99a4554c9a5335bea0449d44e327bd2ed81b6f",
+      "merged_at": "2026-06-10T08:07:20.399Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "Updating 74de38b..0d99a45\nFast-forward\n lib/worktree/__tests__/worktree.test.mjs | 501 ++++++++++++++++++++++++++++++-\n lib/worktree/associations.mjs            |  95 +++---\n lib/worktree/index.mjs                   | 432 +++++++++++++++++++-------\n 3 files changed, 884 insertions(+), 144 deletions(-)\n",
+        "merge_stderr": ""
+      },
+      "archived_at": "2026-06-10T09:32:18.489Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "0d99a4554c9a5335bea0449d44e327bd2ed81b6f"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -60,13 +99,22 @@
       "branch": "ccb/req-cm6241561f52fc0d749mgsync",
       "target_branch": "main",
       "base_sha": "45117f4db78a6eca01e0d157f56553b510f3a5ee",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
-      "archived_at": null,
-      "archive": null,
+      "status": "archived",
+      "merged_branch_sha": "45117f4db78a6eca01e0d157f56553b510f3a5ee",
+      "target_sha_after_merge": "71101fa1bb4f4658ea96124f7eb865ed389c8759",
+      "merged_at": "2026-06-10T08:07:20.472Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "",
+        "merge_stderr": ""
+      },
+      "archived_at": "2026-06-10T09:32:18.609Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "45117f4db78a6eca01e0d157f56553b510f3a5ee"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -79,13 +127,22 @@
       "branch": "ccb/req-cm6241561f52fc0d749mgsync",
       "target_branch": "main",
       "base_sha": "646cf721e15624a207b4c59089b491e45b24587d",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
-      "archived_at": null,
-      "archive": null,
+      "status": "archived",
+      "merged_branch_sha": "646cf721e15624a207b4c59089b491e45b24587d",
+      "target_sha_after_merge": "646cf721e15624a207b4c59089b491e45b24587d",
+      "merged_at": "2026-06-10T08:07:20.540Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "",
+        "merge_stderr": ""
+      },
+      "archived_at": "2026-06-10T09:32:18.696Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "646cf721e15624a207b4c59089b491e45b24587d"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -98,10 +155,10 @@
       "from_space": "su-ccb-claude-plugin",
       "to_space": "root",
       "submodule_path": "su-ccb-claude-plugin",
-      "status": "pending",
-      "synced_commit_sha": null,
+      "status": "synced",
+      "synced_commit_sha": "e5831a6e7015fe75b2685c44192e6d099f88fb95",
       "noop": false,
-      "synced_at": null,
+      "synced_at": "2026-06-10T09:27:13.753Z",
       "last_error": null
     },
     {
@@ -110,10 +167,10 @@
       "from_space": "su-oriel",
       "to_space": "root",
       "submodule_path": "su-oriel",
-      "status": "pending",
-      "synced_commit_sha": null,
-      "noop": false,
-      "synced_at": null,
+      "status": "synced",
+      "synced_commit_sha": "e5831a6e7015fe75b2685c44192e6d099f88fb95",
+      "noop": true,
+      "synced_at": "2026-06-10T09:27:13.753Z",
       "last_error": null
     },
     {
@@ -122,10 +179,10 @@
       "from_space": "su-ccb-codex-skills",
       "to_space": "root",
       "submodule_path": "su-ccb-codex-skills",
-      "status": "pending",
-      "synced_commit_sha": null,
-      "noop": false,
-      "synced_at": null,
+      "status": "synced",
+      "synced_commit_sha": "e5831a6e7015fe75b2685c44192e6d099f88fb95",
+      "noop": true,
+      "synced_at": "2026-06-10T09:27:13.753Z",
       "last_error": null
     }
   ],
@@ -134,18 +191,7 @@
     "schema_version": "implementation-topology-v0.1",
     "content_hash": "7ac179da7822d7cc9454fdb9a3012031c393808cf9ee804a6ad9dae0f1e8e189"
   },
-  "last_error": {
-    "op": "merge",
-    "reason": "merge_conflict",
-    "at": "2026-06-10T08:04:07.038Z",
-    "space_id": "root",
-    "targetBranch": "main",
-    "branch": "ccb/req-cm6241561f52fc0d749mgsync",
-    "path": "/home/sue/dev/SU-CCB-req-cm6241561f52fc0d749mgsync",
-    "warnings": [],
-    "stderr": "",
-    "stdout": "Auto-merging docs/06_决策记录/ADR-0036-per-requirement-implementation-worktree.md\nCONFLICT (content): Merge conflict in docs/06_决策记录/ADR-0036-per-requirement-implementation-worktree.md\nAutomatic merge failed; fix conflicts and then commit the result.\n"
-  },
+  "last_error": null,
   "created_at": "2026-06-10T05:07:54.291Z",
-  "updated_at": "2026-06-10T08:04:07.038Z"
+  "updated_at": "2026-06-10T09:32:18.747Z"
 }

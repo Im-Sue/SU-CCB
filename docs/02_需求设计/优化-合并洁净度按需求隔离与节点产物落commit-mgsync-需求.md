@@ -2,7 +2,7 @@
 id: cm6241561f52fc0d749mgsync
 title: 优化：节点产物即时落 commit + 合并洁净度按需求隔离 + 设计稿/ADR 进 allowlist
 doc_type: requirement
-status: planning
+status: delivered
 created: 2026-06-08T07:42:15.103Z
 expression_spec: v1
 ---
