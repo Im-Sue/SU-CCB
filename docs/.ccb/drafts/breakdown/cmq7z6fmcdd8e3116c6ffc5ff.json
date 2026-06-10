@@ -1,0 +1,147 @@
+{
+  "schema_version": "breakdown-draft-v0.2",
+  "status": "consumed",
+  "carrier_task_key": "onboarding-docs-teardown-ffc5ff",
+  "base_task_revision": null,
+  "generated_at": "2026-06-10T15:45:44.196Z",
+  "updated_at": "2026-06-10T15:50:26.740Z",
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot1_claude",
+    "cx_agent": "slot1_codex",
+    "ccb_job_id": "job_06001e4e5d60"
+  },
+  "plan": {
+    "title": "治理:oriel的自动运行问题 —— onboarding 文档治理 + ccb kill 收尾(跨 4 仓 / 7 切片)",
+    "summary": "把三种使用角色的上手按仓分开落、命令单一真相源(组件 README 放权威块、角色 README 链接锚点)、'关不掉'治成文档化 ccb kill 收尾。7 个纯文档/脚本子任务跨 SU-CCB + su-oriel + plugin + codex-skills 四仓;无运行代码、无 schema/API、不改 oriel 行为。owner 统一 ccb_codex。",
+    "spec_outline_md": "## 拆分概要\n\n把 requirement ffc5ff(治理:oriel 的自动运行问题)按技术设计落成 **7 个纯文档/脚本子任务**,跨 **SU-CCB + su-oriel + su-ccb-claude-plugin + su-ccb-codex-skills 四仓**。核心顺序:**先建\"组件命令真相源锚点\"(pr1/pr2),再做链接它们的角色 README(pr3/pr4),再修旧文档(pr6),最后只读验收(pr7)**。\n\n- 命令单一真相源:组件 README 放唯一可复制命令块(带锚点);角色 README 只写顺序 + 链接,绝不复制。\n- 跨子仓纪律:改子仓的任务(pr1/pr2/pr3)完成定义含\"子仓 commit+push,主仓抬该子仓 gitlink\"。\n- pr7 纯只读验证,不改第二个脚本;机器 grep 一律限本次 6 个用户入口文件,禁扫全仓(历史档仍含 apps/ccb-console 历史引用)。\n- owner 统一 ccb_codex(文档/脚本写作 = Codex remit);不引依赖、不改 schema/API、不改 oriel 行为。\n\n执行顺序(Codex 建议):pr1‖pr2 → pr3 → pr4 → pr5(可与 pr3/pr4 并行) → pr6 → pr7。"
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-plugin-readme-anchor",
+      "order": 1,
+      "title": "plugin README 安装锚点 + 命令真相源(系统级)",
+      "summary": "su-ccb-claude-plugin README install 段加锚点、强调系统级,把混入的 codex-skills 命令改为链接",
+      "spec_section_md": "## 一、任务概述\n\n把 `su-ccb-claude-plugin/README.md` 的安装段做成\"命令真相源\":给它稳定锚点(`#install`),只放本组件自己的安装命令(`/plugin marketplace add` + `/plugin install ccb@SU-CCB`),并讲清\"装在**系统级** Claude Code CLI,再起 CCB/Oriel,CCB 会把系统级 settings 投影进每个 agent\"。现有\"快速开始\"里**混入的 codex-skills 安装命令改成链接**到 codex-skills README——落实\"谁拥有组件谁放命令、别处只链接\"。纯文档,子仓改动。\n\n## 二、任务分解\n\n- `su-ccb-claude-plugin/README.md`「快速开始」段:\n  - 给 plugin 安装命令块加可被别仓链接的锚点(稳定标题或 `<a id=\"install\">`)。\n  - 补一句\"先在系统级 Claude Code 装 plugin,再起 CCB/Oriel;CCB 把系统级 `~/.claude/settings.json` 投影进每个 slot\"(**不写** \"plugins 目录软链继承\")。\n  - 把第 2 步 codex-skills 的 `$skill-installer` 两行**改成一句话 + 链接**到 su-ccb-codex-skills README 的 install 锚点,不再复制完整命令。\n- 不动 README 其它段(理念/流程/命令表/依赖表)。\n\n## 三、验收标准\n\n- [ ] plugin README 有可被别仓链接的 install 锚点。\n- [ ] install 块含 `/plugin install ccb@SU-CCB` 且出现\"系统级\"措辞。\n- [ ] `rg '\\$skill-installer' su-ccb-claude-plugin/README.md` 0 命中(已改为链接)。\n- [ ] 子仓 commit+push;主仓抬 su-ccb-claude-plugin gitlink。\n\n## 四、边界 / 禁止\n\n- 只改 `su-ccb-claude-plugin/README.md`。不碰 skills/lib/kernel。\n- 不复制 codex-skills 命令(单一真相源)。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr2-codex-skills-readme-anchor",
+      "order": 2,
+      "title": "codex-skills README 安装锚点(用户级)",
+      "summary": "su-ccb-codex-skills README install 段加锚点、强调用户级 ~/.codex/skills 先装再起 CCB",
+      "spec_section_md": "## 一、任务概述\n\n把 `su-ccb-codex-skills/README.md` 的安装段做成\"命令真相源\":稳定锚点 + 强调装到**用户级** Codex(`~/.codex/skills`),\"先装再起 CCB,Codex agent 才继承\"。纯文档,子仓改动。\n\n## 二、任务分解\n\n- `su-ccb-codex-skills/README.md`「快速开始」段:\n  - 给 install 命令块加可被链接的锚点(供 plugin README、SU-Oriel README 指)。\n  - 文案明确\"装到用户级 `~/.codex/skills`(`$skill-installer` 或手动 `cp`),先装再起 CCB,派生 Codex agent 才继承\";保留现有两种安装法。\n- 不动其它段。\n\n## 三、验收标准\n\n- [ ] codex-skills README 有可链接的 install 锚点。\n- [ ] install 段出现\"用户级 + 先装再起 CCB 才继承\"措辞。\n- [ ] 子仓 commit+push;主仓抬 su-ccb-codex-skills gitlink。\n\n## 四、边界 / 禁止\n\n- 只改 `su-ccb-codex-skills/README.md`。不碰 skill 逻辑。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr3-suoriel-readme-console",
+      "order": 3,
+      "title": "SU-Oriel README 控制台用户完整上手 + ccb kill 收尾",
+      "summary": "控制台用户独立 clone SU-Oriel 自洽上手 + 评估者 5 分钟 + ccb kill;链接 pr1/pr2 锚点",
+      "spec_section_md": "## 一、任务概述\n\n给 `su-oriel/README.md` 写\"控制台用户\"的完整上手——这是控制台用户**唯一会看的仓**,必须自洽:独立 clone SU-Oriel(不要求 SU-CCB)→ 装/起控制台 → 系统级装 plugin/skills(链接 pr1/pr2 锚点,不复制命令)→ 装 bridge → 每加项目跑 `/ccb:su-init` → 用 `ccb kill` 收尾。再加一条\"评估者 5 分钟看控制台\"最短路径。纯文档,子仓改动。\n\n## 二、任务分解\n\n- `su-oriel/README.md`:\n  - 「控制台用户上手」有序步骤:`git clone …/SU-Oriel.git && cd SU-Oriel && pnpm install && pnpm build` → 起 `scripts/dev-server.sh` + `dev-web.sh`(另开 shell)。\n  - 「系统级装 plugin/skills」:一句话 + 链接 pr1(plugin README install 锚点)/ pr2(codex-skills README install 锚点),**不复制命令**。\n  - 「装底层 bridge」:链接 claude_codex_bridge 官方 README(`./install.sh install`)。\n  - 「每加一个项目」:说明控制台顶部 ProjectOnboardingBanner——一键投递或终端 `/ccb:su-init`;ready 判定(`.ccb/ccb.config` + `docs/.ccb/docs-structure-contract.yaml`)。\n  - 「收尾」:`ccb kill`(残留 `ccb kill -f`);oriel dev server/web 关对应终端 / Ctrl-C;强调后台 `project ccbd` 是**有意常驻**(长任务不被打断),不是 bug。\n  - 「评估者 5 分钟看控制台」最短路径,首屏可见,带稳定锚点供顶层 README 指。\n\n## 三、验收标准\n\n- [ ] SU-Oriel README 自洽:控制台用户不 clone SU-CCB 也能照走装→起→加项目→收尾。\n- [ ] plugin/skills 安装为链接(非复制命令);含 `ccb kill` 收尾段 + \"有意常驻\"说明 + 评估者 5 分钟锚点。\n- [ ] 子仓 commit+push;主仓抬 su-oriel gitlink。\n\n## 四、边界 / 禁止\n\n- 只改 `su-oriel/README.md`。不碰 oriel server/web 代码、不改启停行为。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr1-plugin-readme-anchor",
+        "pr2-codex-skills-readme-anchor"
+      ],
+      "include": true
+    },
+    {
+      "section_id": "pr4-succb-readme-roles-versions",
+      "order": 4,
+      "title": "SU-CCB 顶层 README 角色路由 + HTTPS clone + 版本表",
+      "summary": "顶层 README 三角色路由 + HTTPS --recursive + 分层版本表(真相源)+ 评估者指针",
+      "spec_section_md": "## 一、任务概述\n\n把 `README.md`(SU-CCB 顶层)改成\"总览 + 角色路由\":一眼看清三种角色各去哪(只用 plugin/skills → 各组件 README;用控制台 → SU-Oriel README;整套开发者 → 本 README + docs/install)。补 HTTPS `git clone --recursive`,放一份**分层版本表(全仓版本真相源)**,并指向 pr3 的评估者路径。纯文档。\n\n## 二、任务分解\n\n- `README.md`:\n  - 「三种使用角色」表加\"上手去哪\"列,链接到对应 README(plugin / codex-skills / SU-Oriel)。\n  - 「上手」段补 HTTPS:`git clone --recursive https://github.com/Im-Sue/SU-CCB.git`(现仅 SSH,评估者第一步就可能卡)。\n  - 新增「环境与版本」**分层版本表**:Python(bridge 3.10+ / 本仓脚本 3.8+)、Node 18+、pnpm 10.25.0、git 2.30+——作为全仓版本真相源,带锚点供 install.md 链接。\n  - 「快速试用(评估者)」一句话指向 pr3 SU-Oriel README 的评估者锚点。\n\n## 三、验收标准\n\n- [ ] README 有角色路由(三角色 → 各自上手文档链接)。\n- [ ] 有 HTTPS `git clone --recursive` 路径。\n- [ ] 有分层版本表且带锚点。\n- [ ] 评估者路径指向 pr3 锚点(非死链)。\n\n## 四、边界 / 禁止\n\n- 只改 `README.md`。不复制组件命令(链接 pr1/pr2)。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr1-plugin-readme-anchor",
+        "pr2-codex-skills-readme-anchor",
+        "pr3-suoriel-readme-console"
+      ],
+      "include": true
+    },
+    {
+      "section_id": "pr5-check-prerequisites-extend",
+      "order": 5,
+      "title": "check-prerequisites.sh 加 ccb/tmux + 防假绿",
+      "summary": "加 ccb/tmux 检查(ccb --print-version)+ 自动可验/仅提示分段防假绿",
+      "spec_section_md": "## 一、任务概述\n\n扩展 `scripts/check-prerequisites.sh`:在现有 Node/pnpm/git/python/build/WSL 检查上,加 `ccb`、`tmux` 存在性检查;并把输出分\"自动可验\"与\"仅提示(需手动)\"两段——明确\"CLI 在 ≠ 已登录/已 init/plugin 已启用\",防假绿。\n\n## 二、任务分解\n\n- `scripts/check-prerequisites.sh`:\n  - 加 `command_required` 检查 `ccb`、`tmux`(缺失给安装提示,如指向 bridge README)。\n  - 探测 ccb 用 `ccb --print-version` 或 `ccb --help`,**不用 `ccb version`**(会联网检查更新,不宜进脚本)。\n  - 末尾输出\"仅提示\"段:列脚本**无法自动验证**的项(Claude/Codex CLI 已登录、项目已 `/ccb:su-init`、plugin 已系统级启用),提示用户自查。\n  - 保持现有\"全绿才 exit 0\"退出码契约。\n\n## 三、验收标准\n\n- [ ] 缺 ccb 或 tmux 时脚本 `PREREQ_FAIL` 并给安装提示。\n- [ ] `rg 'ccb version' scripts/check-prerequisites.sh` 0 命中(用 --print-version)。\n- [ ] 输出含\"仅提示/需手动\"段,点名登录/init/plugin 启用三项不被自动验证。\n\n## 四、边界 / 禁止\n\n- 只改 `scripts/check-prerequisites.sh`。不改其\"全绿 exit 0\"契约语义。",
+      "priority": "medium",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "section_id": "pr6-succb-docs-driftfix",
+      "order": 6,
+      "title": "docs/install.md 修漂移 + quickstart.md 标受众",
+      "summary": "install.md 删 apps/ccb-console 改 multi-repo、版本链 pr4、解释 pr5;quickstart 标受众+链评估者",
+      "spec_section_md": "## 一、任务概述\n\n修掉 SU-CCB 两份过时文档:`docs/install.md` 还按老单仓 `apps/ccb-console/` 布局写(照做即失败),`docs/quickstart.md` 演示开发者协作闭环却没标受众。install 改对 multi-repo 现实、版本口径链接 pr4 版本表、解释 pr5 脚本边界;quickstart 标注受众=开发者 + 首屏链接 pr3 评估者路径。纯文档。\n\n## 二、任务分解\n\n- `docs/install.md`:\n  - 删所有 `apps/ccb-console/` 路径,改 `su-oriel/`(控制台)、`su-ccb-claude-plugin/references/kernel/`(内核);删根目录 `pnpm install`/`pnpm -r build` 假设(根仓无 pnpm 工程,只 su-oriel/ 内有)。\n  - 版本要求改为**链接 pr4 顶层版本表**(不再各写数字,消除 3.8 vs 3.10 不一致)。\n  - 接入并解释 pr5 `check-prerequisites.sh` 的新输出边界(自动可验 vs 仅提示)。\n- `docs/quickstart.md`:\n  - 顶部标注\"受众=开发者(演示 spec→review→execute→archive 协作闭环)\"。\n  - 首屏加一句链接到 pr3 SU-Oriel README 的\"评估者 5 分钟\"路径。\n  - 修正其中根目录 `references/kernel` / 根 pnpm 旧路径假设。\n\n## 三、验收标准\n\n- [ ] `rg 'apps/ccb-console' docs/install.md docs/quickstart.md` 0 命中。\n- [ ] install.md 版本要求是链接 pr4 版本表,不再硬写数字。\n- [ ] quickstart.md 有受众标注 + 评估者路径链接(非死链)。\n\n## 四、边界 / 禁止\n\n- 只改 `docs/install.md` 与 `docs/quickstart.md`。不改协作闭环 quickstart 的演示语义(只标受众 + 修路径)。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr4-succb-readme-roles-versions",
+        "pr5-check-prerequisites-extend",
+        "pr3-suoriel-readme-console"
+      ],
+      "include": true
+    },
+    {
+      "section_id": "pr7-verify-entry-files",
+      "order": 7,
+      "title": "只读机器验收(入口文件集,不改脚本)",
+      "summary": "入口 6 文件死链/锚点 + grep 无 apps/ccb-console + 版本一致;只读不改文件",
+      "spec_section_md": "## 一、任务概述\n\n纯**只读**机器验收(不改任何脚本/文档),把关本次 6 个改动的口径一致性。验收范围**只限本次用户入口文件**,不扫全仓(历史档/ADR/子仓示例仍有 apps/ccb-console 历史引用,扫全仓必误报)。fresh-clone smoke / 插件继承 / `ccb kill` 实测属 review-time 人工验,不进本任务。\n\n## 二、任务分解\n\n入口文件集 = `README.md`、`docs/install.md`、`docs/quickstart.md`、`su-oriel/README.md`、`su-ccb-claude-plugin/README.md`、`su-ccb-codex-skills/README.md`。逐项跑:\n\n- 死链/锚点:这些文件里指向命令锚点(plugin install、codex-skills install、SU-Oriel 评估者、顶层版本表)的链接,目标锚点都存在。\n- 漂移清零:`rg 'apps/ccb-console' <入口文件集>` 0 命中。\n- 命令单一真相源:plugin README 不复制 `$skill-installer`;SU-Oriel / 顶层 README 不复制组件命令块(人工裁决:链接 vs 复制)。\n- 版本一致:install.md 不再硬写 Python 版本数字,而是链接顶层版本表。\n\n## 三、验收标准\n\n- [ ] 入口文件集死链/锚点检查 0 失败。\n- [ ] 入口文件集 `rg 'apps/ccb-console'` 0 命中。\n- [ ] 出一份简短验收回执(每项 pass/fail + 命中位置)。\n\n## 四、边界 / 禁止\n\n- **只读验证,不修改任何文件**(含不改 `check-cross-repo.sh`);如需持久化 lint,另开 follow-up,不在本需求范围。\n- grep 一律限入口文件集,禁扫全仓。",
+      "priority": "medium",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr1-plugin-readme-anchor",
+        "pr2-codex-skills-readme-anchor",
+        "pr3-suoriel-readme-console",
+        "pr4-succb-readme-roles-versions",
+        "pr5-check-prerequisites-extend",
+        "pr6-succb-docs-driftfix"
+      ],
+      "include": true
+    }
+  ],
+  "requirement_id": "cmq7z6fmcdd8e3116c6ffc5ff",
+  "carrier_task_id": "cmq7z6fmcdd8e3116c6ffc5ff",
+  "review_history": [
+    {
+      "at": "2026-06-10T15:45:44.283Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-06-10T15:50:25.324Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "用户经 Console su-materialize 指令触发审查"
+    },
+    {
+      "at": "2026-06-10T15:50:25.478Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "用户经 Console su-materialize 指令确认通过 7 切片草案"
+    },
+    {
+      "at": "2026-06-10T15:50:26.740Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-06-10T15:50:25.478Z",
+  "approved_by": "user",
+  "consumed_at": "2026-06-10T15:50:26.740Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "c1af8933a6068ea84d3503accd2515ba28eba26d1afdb466f7331f4cebf57756"
+}
