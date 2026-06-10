@@ -1,7 +1,7 @@
 {
   "schema_version": "requirement-worktree-v0.2",
   "requirement_id": "cmq4szijx6b73983193d91293",
-  "aggregate_status": "merged",
+  "aggregate_status": "archived",
   "spaces": [
     {
       "space_id": "root",
@@ -11,7 +11,7 @@
       "branch": "ccb/req-cmq4szijx6b73983193d91293",
       "target_branch": "main",
       "base_sha": "deec910a4a6f4a2314612acc240311109bc16103",
-      "status": "merged",
+      "status": "archived",
       "merged_branch_sha": "deec910a4a6f4a2314612acc240311109bc16103",
       "target_sha_after_merge": "962f1f58c86adf382734e5554db45dd33870bf9f",
       "merged_at": "2026-06-10T11:09:39.386Z",
@@ -41,8 +41,11 @@
         "merge_stdout": "",
         "merge_stderr": ""
       },
-      "archived_at": null,
-      "archive": null,
+      "archived_at": "2026-06-10T11:23:12.417Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "deec910a4a6f4a2314612acc240311109bc16103"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -55,7 +58,7 @@
       "branch": "ccb/req-cmq4szijx6b73983193d91293",
       "target_branch": "main",
       "base_sha": "74de38b2e1d665e475e34dd726fed37f45dfd0aa",
-      "status": "merged",
+      "status": "archived",
       "merged_branch_sha": "74de38b2e1d665e475e34dd726fed37f45dfd0aa",
       "target_sha_after_merge": "0d99a4554c9a5335bea0449d44e327bd2ed81b6f",
       "merged_at": "2026-06-10T11:09:39.503Z",
@@ -66,8 +69,11 @@
         "merge_stdout": "",
         "merge_stderr": ""
       },
-      "archived_at": null,
-      "archive": null,
+      "archived_at": "2026-06-10T11:23:12.547Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "74de38b2e1d665e475e34dd726fed37f45dfd0aa"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -80,7 +86,7 @@
       "branch": "ccb/req-cmq4szijx6b73983193d91293",
       "target_branch": "main",
       "base_sha": "45117f4db78a6eca01e0d157f56553b510f3a5ee",
-      "status": "merged",
+      "status": "archived",
       "merged_branch_sha": "63c09291e4de590aa396d5ae7d430e629a680b80",
       "target_sha_after_merge": "762c5def877cbc444ad5202accaf4f214cfbf7c4",
       "merged_at": "2026-06-10T11:09:39.616Z",
@@ -91,8 +97,11 @@
         "merge_stdout": "Auto-merging web/src/pages/overview/OverviewPage.tsx\nAuto-merging web/src/tests/__snapshots__/e12-acceptance-snapshots.spec.tsx.snap\nAuto-merging web/src/tests/e12-acceptance-snapshots.spec.tsx\nMerge made by the 'ort' strategy.\n web/src/lib/requirement-board-config.ts            |  12 ++-\n web/src/lib/ui-mapping.ts                          |  25 +++--\n web/src/pages/overview/OverviewPage.tsx            |   8 +-\n .../pages/requirements/RequirementsPage.module.css |  16 +++\n web/src/tests/OverviewPage.spec.tsx                | 108 +++++++++++++++++++++\n web/src/tests/RequirementsPage.spec.tsx            |  39 ++++++--\n .../e12-acceptance-snapshots.spec.tsx.snap         |  36 ++++++-\n web/src/tests/e12-acceptance-snapshots.spec.tsx    |   6 +-\n web/src/tests/ui-mapping.spec.ts                   |  23 ++++-\n 9 files changed, 238 insertions(+), 35 deletions(-)\n create mode 100644 web/src/tests/OverviewPage.spec.tsx\n",
         "merge_stderr": ""
       },
-      "archived_at": null,
-      "archive": null,
+      "archived_at": "2026-06-10T11:23:13.010Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "63c09291e4de590aa396d5ae7d430e629a680b80"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -105,7 +114,7 @@
       "branch": "ccb/req-cmq4szijx6b73983193d91293",
       "target_branch": "main",
       "base_sha": "646cf721e15624a207b4c59089b491e45b24587d",
-      "status": "merged",
+      "status": "archived",
       "merged_branch_sha": "646cf721e15624a207b4c59089b491e45b24587d",
       "target_sha_after_merge": "646cf721e15624a207b4c59089b491e45b24587d",
       "merged_at": "2026-06-10T11:09:39.730Z",
@@ -116,8 +125,11 @@
         "merge_stdout": "",
         "merge_stderr": ""
       },
-      "archived_at": null,
-      "archive": null,
+      "archived_at": "2026-06-10T11:23:13.102Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "646cf721e15624a207b4c59089b491e45b24587d"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -168,5 +180,5 @@
   },
   "last_error": null,
   "created_at": "2026-06-10T05:15:49.952Z",
-  "updated_at": "2026-06-10T11:11:41.206Z"
+  "updated_at": "2026-06-10T11:23:13.157Z"
 }
