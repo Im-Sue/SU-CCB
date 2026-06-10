@@ -1,0 +1,63 @@
+{
+  "schema_version": "breakdown-draft-v0.2",
+  "status": "consumed",
+  "carrier_task_key": "archive-button-gate-fix-a654c0",
+  "base_task_revision": null,
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot4_claude",
+    "cx_agent": "slot4_codex",
+    "ccb_job_id": "job_46cd609dd443"
+  },
+  "generated_at": "2026-06-08T08:39:30.670Z",
+  "updated_at": "2026-06-10T05:08:40.358Z",
+  "plan": {
+    "title": "归档按钮门控修复（简版）· 单任务交付",
+    "summary": "按技设 td-a654c0 简版结论落地：前端归档按钮软门控 delivered→delivering + 确认弹窗提示 + 同文件 spec 三态/提示测试；后端/DB/plugin 零改动，finalize 安全交 plugin 既有关卡。Codex 协商 job_114fa6d8026f 同议单切片不拆，并增补 spec fixture 翻转策略与验收点。",
+    "spec_outline_md": "## 交付总览\n\n- 单子任务（Codex job_114fa6d8026f 同议不拆）：前端归档按钮软门控 `delivered→delivering` + 确认弹窗提示 + 同文件 spec 三态/提示测试。\n- 共享约束：只改 `su-oriel/web` 两文件（`RequirementDetailPage.tsx` + `.spec.tsx`）；后端/DB/plugin 零改动；finalize 安全交 plugin 既有关卡（cleanupGateAllows / requirement.finalize）。\n- 无内部依赖、无执行顺序问题；无新依赖、无 schema/DB 变更、无公共 API 破坏。\n- 用户审查门：draft 生成后停在 review，等用户确认或 `/ccb:su-revise-breakdown`，不主动 materialize。"
+  },
+  "subtasks": [
+    {
+      "order": 1,
+      "section_id": "pr1-archive-button-gate-fix",
+      "title": "归档按钮门控 delivered→delivering + 确认弹窗提示 + 门三态测试",
+      "summary": "前端 RequirementDetailPage：lifecycleDisabledReason(su-archive) 由 delivered 改 delivering + 新 tooltip；归档确认弹窗条件化加'子任务完成合并'提示；同文件 spec 补门三态与提示断言、翻转 delivered 归档断言、it.each 归档 fixture 改 delivering。",
+      "spec_section_md": "## 任务概述\n\n把需求详情页那个\"一直点不动的归档按钮\"修好：它现在要求需求\"已交付(delivered)\"才可点，而\"已交付\"恰恰是点完归档才会有的结果——死循环、永远灰。改成**需求处于\"推进中(delivering)\"就可点**；至于此刻能不能真归档成功，交给 plugin 既有硬关卡判断，前端不预先卡死。同时给归档确认弹窗加一句提醒，防手滑提前点。后端/DB/plugin 不动。\n\n> 术语白话：delivering=需求推进中；delivered=需求已交付（终态）。\"软门控\"=前端只控制按钮亮不亮，真正能否归档由 plugin 硬关卡（cleanupGateAllows / requirement.finalize）判定。\n\n```\n当前（错）                          目标（对）\ngate: status == \"delivered\"         gate: status == \"delivering\"\n   └─ 永远点不到（死循环）              └─ 推进中即可点 ─► 派 /ccb:su-archive\n                                          └─ 能否真 finalize 由 plugin 关卡判定\n```\n\n## 任务分解\n\n改 2 个强耦合文件（行为 + 同文件测试，必须同改）：\n\n1. `su-oriel/web/src/pages/requirements/RequirementDetailPage.tsx`\n   - `lifecycleDisabledReason` 的 `case \"su-archive\"`（约 L257-260）：判据 `status===\"delivered\"` → `status===\"delivering\"`；非 delivering 态返回新 tooltip（如\"仅 delivering（推进中）状态可归档\"）。\n   - 归档确认弹窗正文（约 L1433 起的非 su-cancel 分支）：**仅当 `confirmLifecycleAction.command === \"su-archive\"`** 时追加一行提示\"请确认子任务已全部完成并合并后再归档\"，不得污染暂缓/复活/恢复运行时/取消的弹窗文案。`confirmActionText`（L278-283）按需配合。\n2. `su-oriel/web/src/pages/requirements/RequirementDetailPage.spec.tsx`\n   - \"shows lifecycle actions with status and runtime constraints\" 用例（约 L1050-1073）：**保留 `status:\"delivered\"` fixture**（该用例还覆盖恢复运行时/暂缓/取消约束），只把\"归档\"断言从 `not.toBeDisabled()` 翻转为 `toBeDisabled()` 并断言新 title。\n   - `it.each` 归档 dispatch 用例（约 L1075-1097）：归档项 fixture `status:\"delivered\"` → 改为 `delivering`，否则点不开确认弹窗（Codex 明确风险点）。\n   - 新增门三态用例：`delivering` 亮（可打开\"确认归档需求\"弹窗）/ `planning` 等非 delivering 灰（断言新 tooltip）/ `delivered` 灰（断言新 tooltip）。\n   - 新增确认弹窗提示断言：归档弹窗含\"请确认子任务已全部完成并合并后再归档\"。\n\n## 验收标准\n\n1. `delivering`：归档按钮 enabled，可打开\"确认归档需求\"弹窗。\n2. `planning` / `cancelled` / `deferred` 等非 delivering：归档 disabled，title 为新 tooltip。\n3. `delivered`：归档 disabled，title 为新 tooltip。\n4. 归档确认弹窗包含\"请确认子任务已全部完成并合并后再归档\"提示；该提示不出现在取消/其它生命周期弹窗。\n5. 确认后 dispatch 仍为 `{ command: \"su-archive\", payload: {} }`（与命令行 /ccb:su-archive 同 requirement-finalize 路径）。\n6. `RequirementDetailPage.spec.tsx` 全绿；后端/DB/plugin 零改动。\n\n## 边界 / 不做项\n\n- 不投影 worktree 运行态进 DB；不加后端 dispatch 归档专用守卫；不改 kernel 两段式 archive 本体；不做 su-batch 自动 finalize。\n- 不动 `node-board-config.ts`（仅命令描述文案，非门控）；不改其它含\"归档\"的 spec（Codex 已核实无\"delivered 可归档\"断言：RequirementsPage/ui-mapping 是分桶卡片动作、DocumentsPage 是文档档位、SlotsPage 是 slot 归档、app-redesign 是任务 archive 展示、e2e 仅 multitab 隔离）。\n- finalize 安全完全由 plugin 既有两道关卡负责，本任务不削弱它们。\n\n> 来源：技术设计 td-a654c0 全文（八·变更清单 + 五·测试策略）+ Codex 执行可行性协商 job_114fa6d8026f（spec fixture 翻转策略、提示条件化、验收增补）。",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    }
+  ],
+  "requirement_id": "cmq4tn9ub44963ca7baa654c0",
+  "carrier_task_id": "cmq4tn9ub44963ca7baa654c0",
+  "review_history": [
+    {
+      "at": "2026-06-08T08:39:30.675Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-06-10T05:08:39.991Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "用户触发 /ccb:su-materialize-requirement 并在审查门确认放行（PAIBAN 扫描 clean + Codex 强协商 job_0bfbca4480ad 判定可执行）"
+    },
+    {
+      "at": "2026-06-10T05:08:40.126Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "用户审查门批准，放行物化"
+    },
+    {
+      "at": "2026-06-10T05:08:40.358Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-06-10T05:08:40.126Z",
+  "approved_by": "user",
+  "consumed_at": "2026-06-10T05:08:40.358Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "f83ef32cfbc69720b1682a81860ae509fb61910a70260443ce3a1b934c275f74"
+}
