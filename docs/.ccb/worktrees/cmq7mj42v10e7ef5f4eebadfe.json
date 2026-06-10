@@ -1,7 +1,7 @@
 {
   "schema_version": "requirement-worktree-v0.2",
   "requirement_id": "cmq7mj42v10e7ef5f4eebadfe",
-  "aggregate_status": "merged",
+  "aggregate_status": "archived",
   "spaces": [
     {
       "space_id": "root",
@@ -11,7 +11,7 @@
       "branch": "ccb/req-cmq7mj42v10e7ef5f4eebadfe",
       "target_branch": "main",
       "base_sha": "7f9afa9c43ce3de9c78597a692e8f45ca421af05",
-      "status": "merged",
+      "status": "archived",
       "merged_branch_sha": "7f9afa9c43ce3de9c78597a692e8f45ca421af05",
       "target_sha_after_merge": "bc64f3949a53c499659a03ece2a2c883d898c514",
       "merged_at": "2026-06-10T13:53:47.351Z",
@@ -47,8 +47,11 @@
         "merge_stdout": "",
         "merge_stderr": ""
       },
-      "archived_at": null,
-      "archive": null,
+      "archived_at": "2026-06-10T14:37:45.061Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "7f9afa9c43ce3de9c78597a692e8f45ca421af05"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -61,7 +64,7 @@
       "branch": "ccb/req-cmq7mj42v10e7ef5f4eebadfe",
       "target_branch": "main",
       "base_sha": "0d99a4554c9a5335bea0449d44e327bd2ed81b6f",
-      "status": "merged",
+      "status": "archived",
       "merged_branch_sha": "0d99a4554c9a5335bea0449d44e327bd2ed81b6f",
       "target_sha_after_merge": "0d99a4554c9a5335bea0449d44e327bd2ed81b6f",
       "merged_at": "2026-06-10T13:53:47.469Z",
@@ -72,8 +75,11 @@
         "merge_stdout": "",
         "merge_stderr": ""
       },
-      "archived_at": null,
-      "archive": null,
+      "archived_at": "2026-06-10T14:37:45.191Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "0d99a4554c9a5335bea0449d44e327bd2ed81b6f"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -86,7 +92,7 @@
       "branch": "ccb/req-cmq7mj42v10e7ef5f4eebadfe",
       "target_branch": "main",
       "base_sha": "762c5def877cbc444ad5202accaf4f214cfbf7c4",
-      "status": "merged",
+      "status": "archived",
       "merged_branch_sha": "016991612216b8d9b736e45888ad38c79200db77",
       "target_sha_after_merge": "016991612216b8d9b736e45888ad38c79200db77",
       "merged_at": "2026-06-10T13:53:47.579Z",
@@ -97,8 +103,11 @@
         "merge_stdout": "Updating 762c5de..0169916\nFast-forward\n .../attention-inbox/attention-inbox.routes.spec.ts |  11 +-\n .../attention-inbox.service.spec.ts                |  12 +-\n .../attention-inbox/attention-inbox.service.ts     |   9 +-\n .../attention-inbox/attention-inbox.types.ts       |   2 +\n .../notifications/NotificationBell.module.css      | 198 ++++++++++++-\n .../notifications/NotificationBell.spec.tsx        | 319 +++++++++++++++++++++\n .../components/notifications/NotificationBell.tsx  | 263 +++++++++++++----\n .../notifications/NotificationManager.spec.tsx     | 117 ++++++--\n .../notifications/NotificationManager.tsx          |  57 ++--\n web/src/lib/attention-navigation.spec.ts           |  72 +++++\n web/src/lib/attention-navigation.ts                |  20 ++\n web/src/lib/browser-notify.ts                      |   2 +-\n web/src/lib/console-api.ts                         |   2 +\n web/src/stores/ui-store.ts                         |  51 +++-\n web/src/tests/console-api.spec.ts                  |   8 +-\n 15 files changed, 1030 insertions(+), 113 deletions(-)\n create mode 100644 web/src/components/notifications/NotificationBell.spec.tsx\n create mode 100644 web/src/lib/attention-navigation.spec.ts\n create mode 100644 web/src/lib/attention-navigation.ts\n",
         "merge_stderr": ""
       },
-      "archived_at": null,
-      "archive": null,
+      "archived_at": "2026-06-10T14:37:45.747Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "016991612216b8d9b736e45888ad38c79200db77"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -111,7 +120,7 @@
       "branch": "ccb/req-cmq7mj42v10e7ef5f4eebadfe",
       "target_branch": "main",
       "base_sha": "646cf721e15624a207b4c59089b491e45b24587d",
-      "status": "merged",
+      "status": "archived",
       "merged_branch_sha": "646cf721e15624a207b4c59089b491e45b24587d",
       "target_sha_after_merge": "646cf721e15624a207b4c59089b491e45b24587d",
       "merged_at": "2026-06-10T13:53:47.692Z",
@@ -122,8 +131,11 @@
         "merge_stdout": "",
         "merge_stderr": ""
       },
-      "archived_at": null,
-      "archive": null,
+      "archived_at": "2026-06-10T14:37:45.856Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "646cf721e15624a207b4c59089b491e45b24587d"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -174,5 +186,5 @@
   },
   "last_error": null,
   "created_at": "2026-06-10T13:21:04.473Z",
-  "updated_at": "2026-06-10T14:14:24.526Z"
+  "updated_at": "2026-06-10T14:37:45.931Z"
 }
