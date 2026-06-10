@@ -1,7 +1,7 @@
 {
   "schema_version": "requirement-worktree-v0.2",
   "requirement_id": "cmq7mj42v10e7ef5f4eebadfe",
-  "aggregate_status": "ready",
+  "aggregate_status": "merged",
   "spaces": [
     {
       "space_id": "root",
@@ -11,11 +11,42 @@
       "branch": "ccb/req-cmq7mj42v10e7ef5f4eebadfe",
       "target_branch": "main",
       "base_sha": "7f9afa9c43ce3de9c78597a692e8f45ca421af05",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
+      "status": "merged",
+      "merged_branch_sha": "7f9afa9c43ce3de9c78597a692e8f45ca421af05",
+      "target_sha_after_merge": "bc64f3949a53c499659a03ece2a2c883d898c514",
+      "merged_at": "2026-06-10T13:53:47.351Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": {
+          "status": "committed",
+          "committed": true,
+          "commitSha": "bc64f3949a53c499659a03ece2a2c883d898c514",
+          "paths": [
+            "docs/.ccb/events/journal.jsonl",
+            "docs/00_文档地图.md",
+            "docs/03_开发计划/attention-数据与投递层-dnd-拆层契约-snapshot-store-投递互斥-166365-开发任务.md",
+            "docs/03_开发计划/bell-弹窗重构-消息列表-单条-全部已读-dnd-横幅-设置折叠-07231b-开发任务.md",
+            "docs/.ccb/worktrees/cmq7mj42v10e7ef5f4eebadfe.json"
+          ],
+          "allowlist": [
+            "docs/02_需求设计/bug-通知相关的消息没有展示出来-ebadfe-需求.md",
+            "docs/03_开发计划/bug-通知相关的消息没有展示出来-ebadfe-技术设计.md",
+            "docs/03_开发计划/attention-数据与投递层-dnd-拆层契约-snapshot-store-投递互斥-166365-开发任务.md",
+            "docs/03_开发计划/bell-弹窗重构-消息列表-单条-全部已读-dnd-横幅-设置折叠-07231b-开发任务.md",
+            "docs/00_文档地图.md",
+            "docs/.ccb/events/journal.jsonl",
+            "docs/.ccb/worktrees/cmq7mj42v10e7ef5f4eebadfe.json",
+            "docs/.ccb/drafts/breakdown/cmq7mj42v10e7ef5f4eebadfe.json"
+          ],
+          "tolerated_paths": [
+            "docs/02_需求设计/优化-第一次使用引导问题-b9d989-需求.md",
+            "docs/02_需求设计/治理-oriel的自动运行问题-ffc5ff-需求.md"
+          ]
+        },
+        "merge_stdout": "",
+        "merge_stderr": ""
+      },
       "archived_at": null,
       "archive": null,
       "discarded_at": null,
@@ -30,11 +61,17 @@
       "branch": "ccb/req-cmq7mj42v10e7ef5f4eebadfe",
       "target_branch": "main",
       "base_sha": "0d99a4554c9a5335bea0449d44e327bd2ed81b6f",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
+      "status": "merged",
+      "merged_branch_sha": "0d99a4554c9a5335bea0449d44e327bd2ed81b6f",
+      "target_sha_after_merge": "0d99a4554c9a5335bea0449d44e327bd2ed81b6f",
+      "merged_at": "2026-06-10T13:53:47.469Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "",
+        "merge_stderr": ""
+      },
       "archived_at": null,
       "archive": null,
       "discarded_at": null,
@@ -49,11 +86,17 @@
       "branch": "ccb/req-cmq7mj42v10e7ef5f4eebadfe",
       "target_branch": "main",
       "base_sha": "762c5def877cbc444ad5202accaf4f214cfbf7c4",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
+      "status": "merged",
+      "merged_branch_sha": "016991612216b8d9b736e45888ad38c79200db77",
+      "target_sha_after_merge": "016991612216b8d9b736e45888ad38c79200db77",
+      "merged_at": "2026-06-10T13:53:47.579Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "Updating 762c5de..0169916\nFast-forward\n .../attention-inbox/attention-inbox.routes.spec.ts |  11 +-\n .../attention-inbox.service.spec.ts                |  12 +-\n .../attention-inbox/attention-inbox.service.ts     |   9 +-\n .../attention-inbox/attention-inbox.types.ts       |   2 +\n .../notifications/NotificationBell.module.css      | 198 ++++++++++++-\n .../notifications/NotificationBell.spec.tsx        | 319 +++++++++++++++++++++\n .../components/notifications/NotificationBell.tsx  | 263 +++++++++++++----\n .../notifications/NotificationManager.spec.tsx     | 117 ++++++--\n .../notifications/NotificationManager.tsx          |  57 ++--\n web/src/lib/attention-navigation.spec.ts           |  72 +++++\n web/src/lib/attention-navigation.ts                |  20 ++\n web/src/lib/browser-notify.ts                      |   2 +-\n web/src/lib/console-api.ts                         |   2 +\n web/src/stores/ui-store.ts                         |  51 +++-\n web/src/tests/console-api.spec.ts                  |   8 +-\n 15 files changed, 1030 insertions(+), 113 deletions(-)\n create mode 100644 web/src/components/notifications/NotificationBell.spec.tsx\n create mode 100644 web/src/lib/attention-navigation.spec.ts\n create mode 100644 web/src/lib/attention-navigation.ts\n",
+        "merge_stderr": ""
+      },
       "archived_at": null,
       "archive": null,
       "discarded_at": null,
@@ -68,11 +111,17 @@
       "branch": "ccb/req-cmq7mj42v10e7ef5f4eebadfe",
       "target_branch": "main",
       "base_sha": "646cf721e15624a207b4c59089b491e45b24587d",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
+      "status": "merged",
+      "merged_branch_sha": "646cf721e15624a207b4c59089b491e45b24587d",
+      "target_sha_after_merge": "646cf721e15624a207b4c59089b491e45b24587d",
+      "merged_at": "2026-06-10T13:53:47.692Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "",
+        "merge_stderr": ""
+      },
       "archived_at": null,
       "archive": null,
       "discarded_at": null,
@@ -87,10 +136,10 @@
       "from_space": "su-ccb-claude-plugin",
       "to_space": "root",
       "submodule_path": "su-ccb-claude-plugin",
-      "status": "pending",
-      "synced_commit_sha": null,
-      "noop": false,
-      "synced_at": null,
+      "status": "synced",
+      "synced_commit_sha": "0d99a4554c9a5335bea0449d44e327bd2ed81b6f",
+      "noop": true,
+      "synced_at": "2026-06-10T14:14:24.092Z",
       "last_error": null
     },
     {
@@ -99,10 +148,10 @@
       "from_space": "su-oriel",
       "to_space": "root",
       "submodule_path": "su-oriel",
-      "status": "pending",
-      "synced_commit_sha": null,
+      "status": "synced",
+      "synced_commit_sha": "4947fc5d8f940ab6e7ae14ee16abac8dfb76237a",
       "noop": false,
-      "synced_at": null,
+      "synced_at": "2026-06-10T14:14:24.281Z",
       "last_error": null
     },
     {
@@ -111,10 +160,10 @@
       "from_space": "su-ccb-codex-skills",
       "to_space": "root",
       "submodule_path": "su-ccb-codex-skills",
-      "status": "pending",
-      "synced_commit_sha": null,
-      "noop": false,
-      "synced_at": null,
+      "status": "synced",
+      "synced_commit_sha": "646cf721e15624a207b4c59089b491e45b24587d",
+      "noop": true,
+      "synced_at": "2026-06-10T14:14:24.437Z",
       "last_error": null
     }
   ],
@@ -125,5 +174,5 @@
   },
   "last_error": null,
   "created_at": "2026-06-10T13:21:04.473Z",
-  "updated_at": "2026-06-10T13:21:05.230Z"
+  "updated_at": "2026-06-10T14:14:24.526Z"
 }

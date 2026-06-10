@@ -2,7 +2,7 @@
 id: cmq7mj42v10e7ef5f4eebadfe
 title: "BUG: 通知相关的消息没有展示出来"
 doc_type: requirement
-status: planning
+status: delivering
 created: 2026-06-10T05:24:17.385Z
 analysis_input_hash: 0cc17ea5b0484fc273886b1149961e40526d3e9c3b41d953facecd53e0775395
 analysis_applied_at: 2026-06-10T06:35:29.949Z
