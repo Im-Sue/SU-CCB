@@ -136,13 +136,27 @@ flowchart TD
 
 ## 三种使用角色
 
-| 角色 | 怎么用 | 是否需 SU-CCB / 平级 plugin |
-|---|---|---|
-| **整套开发者**（维护者） | `git clone --recursive` SU-CCB，统一管理、跨仓开发、各仓独立提交、回 SU-CCB 更新指针做版本绑定 | 是（SU-CCB 为根，三仓为 submodule） |
-| **只用 plugin / skills** | `/plugin marketplace add` + skill-installer 装进各自 CLI；要改自行 fork | 否（不涉及 SU-CCB / console） |
-| **用 SU-Oriel 控制台** | 单独 clone SU-Oriel 运行 + 把 plugin / skills 装进 CLI | 否（控制台经项目本地契约 + 内置 fallback 运行，不要求平级 plugin） |
+| 角色 | 怎么用 | 是否需 SU-CCB / 平级 plugin | 上手去哪 |
+|---|---|---|---|
+| **整套开发者**（维护者） | `git clone --recursive` SU-CCB，统一管理、跨仓开发、各仓独立提交、回 SU-CCB 更新指针做版本绑定 | 是（SU-CCB 为根，三仓为 submodule） | [本 README「上手」](#上手) + [docs/install.md](docs/install.md) |
+| **只用 plugin / skills** | 按组件 README 把 plugin / skills 装进各自 CLI；要改自行 fork | 否（不涉及 SU-CCB / console） | [Claude plugin 安装](https://github.com/Im-Sue/su-ccb-claude-plugin#install) + [Codex skills 安装](https://github.com/Im-Sue/su-ccb-codex-skills#install) |
+| **用 SU-Oriel 控制台** | 单独 clone SU-Oriel 运行 + 把 plugin / skills 装进 CLI | 否（控制台经项目本地契约 + 内置 fallback 运行，不要求平级 plugin） | [SU-Oriel 5 分钟快速试用](https://github.com/Im-Sue/SU-Oriel#quick-eval) |
+
+<a id="versions"></a>
 
 ## 运行依赖与环境
+
+### 环境与版本
+
+以下为全仓版本真相源；各子仓 README / 安装文档应链接到这里，避免版本要求漂移。
+
+| 层 / 工具 | 版本要求 | 说明 |
+|---|---:|---|
+| Python（底层 bridge） | 3.10+ | `claude_codex_bridge` 运行时要求 |
+| Python（本仓脚本） | 3.8+ | 本仓脚本、kernel lint 与文档治理脚本要求 |
+| Node.js | 18+ | SU-Oriel web / server 与 workspace 脚本要求 |
+| pnpm | 10.25.0 | 与仓内 `packageManager` 锁定版本一致 |
+| git | 2.30+ | submodule、worktree 与跨仓检查脚本要求 |
 
 - **底层运行时（必装）**：SU-CCB 构建在 [SeemSeam/claude_codex_bridge](https://github.com/SeemSeam/claude_codex_bridge) 之上 —— 它提供 Claude ↔ Codex 的多 agent 桥接运行时：`ccb` CLI、`ccbd` 守护进程、ask / dispatch 派工、slot / window 多 agent 编排。本文上面讲的**协作层**（Claude 决策 / Codex 执行、协商、回抛、精简回执）都跑在它上面。**先装它，SU-CCB 才能跑**：
 
@@ -160,12 +174,21 @@ flowchart TD
 
 ## 上手
 
+### 快速试用（评估者）
+
+只想先看控制台，请走 [SU-Oriel 评估者 5 分钟看控制台](https://github.com/Im-Sue/SU-Oriel#quick-eval)；不需要先 clone SU-CCB 根仓。
+
 ### 整套开发者：一行拉齐（带版本绑定）
 
 SU-CCB 以 submodule 钉住三仓的精确组合，`--recursive` 一次拉全：
 
 ```bash
+# HTTPS
+git clone --recursive https://github.com/Im-Sue/SU-CCB.git
+
+# SSH
 git clone --recursive git@github.com:Im-Sue/SU-CCB.git
+
 # 已 clone 但没拉 submodule：git submodule update --init --recursive
 ```
 
