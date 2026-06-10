@@ -2,9 +2,10 @@
 doc_type: dev_task
 task_id: subtask-f90f0007231b
 title: Bell 弹窗重构：消息列表 + 单条/全部已读 + DND 横幅 + 设置折叠
-status: reviewing
-current_node: dispatch
-node_substate: awaiting_codex_pickup
+status: done
+current_node: archive
+node_substate: archived
+review_status: passed
 priority: high
 requirement_id: cmq7mj42v10e7ef5f4eebadfe
 section_id: pr2-notification-bell-inbox-ui
@@ -14,6 +15,8 @@ dependencies: [subtask-ce9aa7166365]
 source_breakdown_draft: docs/.ccb/drafts/breakdown/cmq7mj42v10e7ef5f4eebadfe.json
 source_draft_hash: b6a07fab75d454be15309f0dd3b4a2ff3b618ad143a36e8c79f1631a3ae00b17
 created_at: 2026-06-10T09:52:50.664Z
+updated_at: 2026-06-10T13:52:53.027Z
+updated_by: ccb_claude
 code_workspace: {"path":"../SU-CCB-req-cmq7mj42v10e7ef5f4eebadfe","branch":"ccb/req-cmq7mj42v10e7ef5f4eebadfe"}
 ---
 

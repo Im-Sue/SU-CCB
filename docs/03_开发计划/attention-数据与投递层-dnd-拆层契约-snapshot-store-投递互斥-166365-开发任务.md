@@ -2,9 +2,10 @@
 doc_type: dev_task
 task_id: subtask-ce9aa7166365
 title: attention 数据与投递层：DND 拆层契约 + snapshot store + 投递互斥
-status: reviewing
-current_node: dispatch
-node_substate: awaiting_codex_pickup
+status: done
+current_node: archive
+node_substate: archived
+review_status: passed
 priority: high
 requirement_id: cmq7mj42v10e7ef5f4eebadfe
 section_id: pr1-attention-data-delivery-layer
@@ -14,6 +15,8 @@ dependencies: []
 source_breakdown_draft: docs/.ccb/drafts/breakdown/cmq7mj42v10e7ef5f4eebadfe.json
 source_draft_hash: b6a07fab75d454be15309f0dd3b4a2ff3b618ad143a36e8c79f1631a3ae00b17
 created_at: 2026-06-10T09:52:50.664Z
+updated_at: 2026-06-10T13:40:15.807Z
+updated_by: ccb_claude
 code_workspace: {"path":"../SU-CCB-req-cmq7mj42v10e7ef5f4eebadfe","branch":"ccb/req-cmq7mj42v10e7ef5f4eebadfe"}
 ---
 
