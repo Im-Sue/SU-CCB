@@ -22,25 +22,15 @@
       "reopened_at": null,
       "last_error": {
         "op": "merge",
-        "reason": "canonical_dirty_outside_allowlist",
-        "at": "2026-06-10T08:00:30.737Z",
-        "status": "escalated",
-        "requirementId": "cm6241561f52fc0d749mgsync",
-        "path": "/home/sue/dev/SU-CCB",
-        "porcelain": " M su-oriel\n?? docs/.ccb/assets/requirements/cmq7mj42v10e7ef5f4eebadfe/688965295ae035dbd0533ea7f9da22df0c15162c55c38aa413949fe4a5388b2e.png",
-        "tolerated_paths": [
-          "docs/.ccb/drafts/breakdown/cmq4szijx6b73983193d91293.json",
-          "docs/.ccb/drafts/breakdown/cmq4tn9ub44963ca7baa654c0.json",
-          "docs/.ccb/drafts/breakdown/cmq7mj42v10e7ef5f4eebadfe.json",
-          "docs/.ccb/worktrees/cmq4szijx6b73983193d91293.json",
-          "docs/.ccb/worktrees/cmq4tn9ub44963ca7baa654c0.json",
-          "docs/02_需求设计/bug-超出slot3的slot会被自动删除-41041a-需求.md",
-          "docs/02_需求设计/bug-通知相关的消息没有展示出来-ebadfe-需求.md",
-          "docs/03_开发计划/bug-通知相关的消息没有展示出来-ebadfe-技术设计.md",
-          "docs/03_开发计划/归档按钮门控-delivered-delivering-确认弹窗提示-门三态测试-1842fc-开发任务.md",
-          "docs/03_开发计划/需求看板分组优化-推进中拆分-已搁置改名-列内滚动-首页活跃口径-549c0c-开发任务.md"
-        ],
-        "space_id": "root"
+        "reason": "merge_conflict",
+        "at": "2026-06-10T08:04:07.038Z",
+        "space_id": "root",
+        "targetBranch": "main",
+        "branch": "ccb/req-cm6241561f52fc0d749mgsync",
+        "path": "/home/sue/dev/SU-CCB-req-cm6241561f52fc0d749mgsync",
+        "warnings": [],
+        "stderr": "",
+        "stdout": "Auto-merging docs/06_决策记录/ADR-0036-per-requirement-implementation-worktree.md\nCONFLICT (content): Merge conflict in docs/06_决策记录/ADR-0036-per-requirement-implementation-worktree.md\nAutomatic merge failed; fix conflicts and then commit the result.\n"
       }
     },
     {
@@ -146,26 +136,16 @@
   },
   "last_error": {
     "op": "merge",
-    "reason": "canonical_dirty_outside_allowlist",
-    "at": "2026-06-10T08:00:30.737Z",
-    "status": "escalated",
-    "requirementId": "cm6241561f52fc0d749mgsync",
-    "path": "/home/sue/dev/SU-CCB",
-    "porcelain": " M su-oriel\n?? docs/.ccb/assets/requirements/cmq7mj42v10e7ef5f4eebadfe/688965295ae035dbd0533ea7f9da22df0c15162c55c38aa413949fe4a5388b2e.png",
-    "tolerated_paths": [
-      "docs/.ccb/drafts/breakdown/cmq4szijx6b73983193d91293.json",
-      "docs/.ccb/drafts/breakdown/cmq4tn9ub44963ca7baa654c0.json",
-      "docs/.ccb/drafts/breakdown/cmq7mj42v10e7ef5f4eebadfe.json",
-      "docs/.ccb/worktrees/cmq4szijx6b73983193d91293.json",
-      "docs/.ccb/worktrees/cmq4tn9ub44963ca7baa654c0.json",
-      "docs/02_需求设计/bug-超出slot3的slot会被自动删除-41041a-需求.md",
-      "docs/02_需求设计/bug-通知相关的消息没有展示出来-ebadfe-需求.md",
-      "docs/03_开发计划/bug-通知相关的消息没有展示出来-ebadfe-技术设计.md",
-      "docs/03_开发计划/归档按钮门控-delivered-delivering-确认弹窗提示-门三态测试-1842fc-开发任务.md",
-      "docs/03_开发计划/需求看板分组优化-推进中拆分-已搁置改名-列内滚动-首页活跃口径-549c0c-开发任务.md"
-    ],
-    "space_id": "root"
+    "reason": "merge_conflict",
+    "at": "2026-06-10T08:04:07.038Z",
+    "space_id": "root",
+    "targetBranch": "main",
+    "branch": "ccb/req-cm6241561f52fc0d749mgsync",
+    "path": "/home/sue/dev/SU-CCB-req-cm6241561f52fc0d749mgsync",
+    "warnings": [],
+    "stderr": "",
+    "stdout": "Auto-merging docs/06_决策记录/ADR-0036-per-requirement-implementation-worktree.md\nCONFLICT (content): Merge conflict in docs/06_决策记录/ADR-0036-per-requirement-implementation-worktree.md\nAutomatic merge failed; fix conflicts and then commit the result.\n"
   },
   "created_at": "2026-06-10T05:07:54.291Z",
-  "updated_at": "2026-06-10T08:00:30.737Z"
+  "updated_at": "2026-06-10T08:04:07.038Z"
 }
