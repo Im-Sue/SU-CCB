@@ -1,0 +1,76 @@
+{
+  "schema_version": "breakdown-draft-v0.2",
+  "status": "consumed",
+  "carrier_task_key": "attention-list-toast-dnd-ebadfe",
+  "base_task_revision": null,
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot4_claude",
+    "cx_agent": "slot4_codex",
+    "ccb_job_id": "job_c72881d7da5d"
+  },
+  "generated_at": "2026-06-10T07:50:27.777Z",
+  "updated_at": "2026-06-10T09:52:50.979Z",
+  "plan": {
+    "title": "通知消息列表 + 页面 Toast + DND 拆层 · 2 片串行交付",
+    "summary": "按技设 td-ebadfe 拆 2 片串行：pr1 数据与投递层（server DND 拆层契约 + snapshot store + Manager 投递互斥 + 共享 lib，含 Bell 最小角标 selector 改动保编译）；pr2 Bell 弹窗重构（列表/单条 ack/全部已读/DND 横幅/设置折叠 + 从零新增组件测试）。Codex 协商 job_97dacc9f381e 执行视角判定采纳 2 片、否决 1 片（审查面过大）与 3 片（server 单拆价值低且制造 DND 中间态行为风险），并增补 routes spec 改写、fixtures 补字段、attention-navigation fallback 测试、全部已读 fulfilled/rejected 语义等验收点。",
+    "spec_outline_md": "## 交付总览\n\n- pr1「attention 数据与投递层」→ pr2「Bell 弹窗重构」，串行（pr2 依赖 pr1 的 snapshot API / attention-navigation lib / dnd 契约）。\n- 共享约束：全部在 su-oriel 仓；无新依赖、无 DB 变更、无新端点；Toast 维持 3s 纯文本不可点击；技设排除项（历史分页/跨项目/轮询频率/pageToastEnabled）禁止回塞。\n- 文件冲突：唯一共享触碰文件 ui-store 与 NotificationBell 均为「pr1 建立/最小改，pr2 消费/重构」串行关系，无并发同文件冲突。\n- 为什么不是另一种拆法：1 片 = 9+ 文件 server/web/UI/spec 混在一处回执审查面过大；3 片 = server 契约单拆仅 ~30 行且 DND 后端改动若不与 Manager 投递抑制同片落地，会出现「暂停期消息被旧逻辑继续投递」的中间态行为风险。\n- 用户审查门：draft 生成后停在 review，等用户确认或 /ccb:su-revise-breakdown，不主动 materialize。"
+  },
+  "subtasks": [
+    {
+      "order": 1,
+      "section_id": "pr1-attention-data-delivery-layer",
+      "title": "attention 数据与投递层：DND 拆层契约 + snapshot store + 投递互斥",
+      "summary": "server computeAttention 删 DND 清空、响应加 dnd_active/dnd_until；ui-store 升级 attentionSnapshot（set/clear/removeRefs）；buildAttentionNavigatePath 抽 lib、导出 playAttentionSound；Manager tick 写 snapshot + 投递互斥（visible→Toast 聚合/hidden→浏览器通知/dnd→全停）；Bell 仅最小角标 selector 改动保编译；server service+routes spec 改写 DND 断言、Manager spec 重写投递断言。",
+      "spec_section_md": "## 任务概述\n\n把通知系统的「数据与投递层」改对：①后端「项目暂停」(DND) 不再把未读消息藏起来——接口照常返回未读列表，只是多告诉前端「现在处于暂停中」；②前端把轮询拿到的完整消息数据存进全局 store（现在只存了个数字），给后续弹窗列表当数据源；③新消息提示改成互斥投递：你正看着页面就弹页面内 Toast，没看页面才走浏览器系统通知，暂停期间两者全停。本片不动弹窗 UI 重构（那是 pr2），但要对 NotificationBell 做最小改动（角标数据源换成新 store），保证本片合并后全仓可编译、行为自洽。\n\n> 术语白话：snapshot（= 一次轮询结果的完整快照，含项目 id 防串台）；dnd_active（= 服务端判定的「暂停中」标记）；投递互斥（= 同一条新消息只走 Toast 或浏览器通知一个通道，不双发）。\n\n技术设计：`docs/03_开发计划/bug-通知相关的消息没有展示出来-ebadfe-技术设计.md`（二、三、四、七章为本片契约）。\n\n## 任务分解\n\n1. server `attention-inbox.service.ts`：`computeAttention` 删除 `visible = dndActive ? [] : unacked` 清空逻辑，items/count 恒为排序后的 unacked；响应新增 `dnd_active: boolean`、`dnd_until: string|null`（snake_case）。`attention-inbox.types.ts` 同步 `AttentionListResponse`。\n2. web `console-api.ts`：`AttentionListResponse` 类型同步两字段。\n3. web `ui-store.ts`：`attentionUnreadCount` 升级为 `attentionSnapshot { projectId, items, count, dndActive, dndUntil, fetchedAt }`，配 `setAttentionSnapshot / clearAttentionSnapshot / removeAttentionRefs`（removeRefs 同步减 count）。\n4. `[NEW]` web `lib/attention-navigation.ts`：`buildAttentionNavigatePath` 自 NotificationManager 迁入并导出；slot/project cta 沿用现状 fallback（落 overview/任务/需求路径），用测试钉住该行为。\n5. web `browser-notify.ts`：导出 `playAttentionSound`。\n6. web `NotificationManager.tsx`：tick 写 snapshot（projectId 为 null 或切换时 clear + badge 清零）；投递分支改写——`dnd_active` → 全静默仅更新展示；`document.visibilityState === \"visible\"` → `addToast`（1 条 `新通知：{title}`，多条 `${N} 条新通知`）+ `soundEnabled && playAttentionSound()`；hidden → 现状浏览器通知分支（leader 协调保留）。首轮不投递（knownRefs===null）与 shownRefs 去重沿用，Toast 分支同样登记 shownRefs。\n7. web `NotificationBell.tsx`：仅最小改动——角标数据源从 `attentionUnreadCount` 换为 snapshot 派生 count（projectId 匹配校验），不做弹窗 UI 重构（Codex 协商否决保留旧 count 兼容字段，避免冗余 store 状态）。\n\n## 验收标准\n\n- [ ] server `attention-inbox.service` spec：DND 激活时 items/count 仍返回 unacked 且 `dnd_active=true`、`dnd_until` 透传；未设置时 `dnd_active=false`（改写旧「DND 后 count=0」断言）\n- [ ] server `attention-inbox.routes` spec：DND 后 GET `/attention` 仍返回 items/count 且含 `dnd_active/dnd_until`（旧断言同批改写）\n- [ ] `NotificationManager` spec：visible → 仅 Toast（聚合文案断言）+ 声音 mock，不走浏览器通知；hidden → 仅浏览器通知且仍走 leader 协调；`dnd_active=true` → toast/browser/sound 全停但 snapshot/badge 照常更新；ack pending 重试行为不回归；fixtures 补 `dnd_active/dnd_until` 字段\n- [ ] 项目切换 / `projectId=null`：snapshot 清空、badge 清零、角标不读 stale 数据（专项断言）\n- [ ] `attention-navigation` 测试：task / requirement / project / slot 四类 cta 的跳转与 fallback 行为明确钉住\n- [ ] 全仓 `attentionUnreadCount` 引用清零（ui-store / Manager / Bell / spec 四处，grep 验证），typecheck/build 通过\n\n## 边界 / 不做项\n\n- 不做 Bell 弹窗列表 UI、全部已读、DND 横幅、设置折叠（全部归 pr2）\n- 不动 Toast 组件模型（3s 纯文本）、不加批量端点、不改 DB/路由注册、不加依赖\n- 不为多 tab 同时可见的重复 Toast 加协调逻辑（技设接受的 v1 边界）\n- 技设排除项（历史分页 / 跨项目通知 / 轮询频率 / pageToastEnabled）禁止回塞\n",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [],
+      "include": true
+    },
+    {
+      "order": 2,
+      "section_id": "pr2-notification-bell-inbox-ui",
+      "title": "Bell 弹窗重构：消息列表 + 单条/全部已读 + DND 横幅 + 设置折叠",
+      "summary": "NotificationBell 重排为列表为主（severity/标题/摘要/时间，点击 navigate+ack）、全部已读 Promise.allSettled 部分失败语义、dndActive 横幅、saveDnd 即时同步 snapshot、设置原样折叠入 details、aria-label 修正；NotificationBell.spec.tsx 从零新增覆盖列表/ack 失败保留/全部已读/DND/stale 防护/折叠区回归。",
+      "spec_section_md": "## 任务概述\n\n把「通知」弹窗从设置面板改造成真正的消息中心入口：点开先看到未读消息列表（severity 标记、标题、摘要单行省略、相对时间），点一条跳到对应任务/需求并自动标记已读；头部有未读数和「全部已读」；「项目暂停」激活时显示「已暂停投递，消息仍可见」横幅；原来的投递设置和项目暂停按钮原样收进底部折叠区。这是用户报告 bug 的直接修复面——点「通知」终于能看到消息了。数据全部来自 pr1 建好的 snapshot store，本片纯展示与交互。\n\n> 术语白话：ack（= 标记已处理，消息从未读列表消失、角标减一）；severity（= 消息级别：attention 需要动作 / warning 警示 / info 通知）。\n\n技术设计：`docs/03_开发计划/bug-通知相关的消息没有展示出来-ebadfe-技术设计.md`（三、四章「Bell 单条点击 / 全部已读 / saveDnd」流程为本片契约）。\n\n```\n┌─ 通知 (6)                 [全部已读] ─┐\n│ ● title（attention 红点）             │\n│   summary 单行省略…        12:03     │\n│ ● title              [warning 标记]  │\n│   …（max-height 滚动）                │\n├──────────────────────────────────────┤\n│ （dndActive 时）已暂停投递至 xx，消息仍可见 │\n│ ▸ 通知设置（投递 / 项目暂停，默认折叠）   │\n└──────────────────────────────────────┘\n```\n\n## 任务分解\n\n1. `NotificationBell.tsx` 重排：头部（标题 + 未读数 + 全部已读按钮）→ 消息列表（snapshot.items，仅当 `snapshot.projectId === 当前项目`）→ DND 横幅（dndActive 时）→ `<details>` 折叠区移入现有投递设置与项目暂停 JSX（功能不变）。\n2. 触发按钮 aria-label 由「通知设置」改为「通知」（弹窗 dialog 的 aria-label 同步语义）。\n3. 单条点击：`navigate(buildAttentionNavigatePath(item))` → `ackAttention(ref)`；成功 → `removeAttentionRefs([ref])`；失败 → error toast「标记已读失败」，条目保留（不乐观清除，不承诺自动重试）。\n4. 全部已读：`Promise.allSettled(items.map(ack))`；fulfilled refs 本地移除、rejected 保留并 toast「N 条标记失败」；count 同步为剩余条数。\n5. `saveDnd` 成功后立即同步 snapshot 的 `dndActive/dndUntil`（不等下一轮 7s 轮询），DND 横幅即时出现/消失。\n6. `NotificationBell.module.css`：列表区样式（max-height + overflow-y 滚动、severity 标记、摘要单行省略）。\n7. `[NEW] NotificationBell.spec.tsx`：现状无此文件，从零新增完整组件测试。\n\n## 验收标准\n\n- [ ] 列表渲染：severity / 标题 / 摘要省略 / 相对时间；空列表显示「暂无未读通知」空态\n- [ ] 单条点击：navigate 路径正确 + ack 成功后条目移除、角标减一；ack 失败条目保留 + error toast\n- [ ] 全部已读：全成功角标清零；部分失败仅移除 fulfilled refs、rejected 保留、count = 剩余条数、toast 提示\n- [ ] DND：dndActive 时横幅显示；saveDnd 成功后横幅与 snapshot 立即同步（不等轮询）\n- [ ] snapshot.projectId 与当前项目不匹配时不渲染列表（stale 防护）\n- [ ] 折叠设置区内浏览器通知/声音开关与 DND 三按钮功能不回归\n- [ ] aria-label 断言更新；typecheck/build/spec 全绿\n\n## 边界 / 不做项\n\n- 不改投递逻辑与 NotificationManager（pr1 已定）\n- 不加批量 ack 端点（逐条 `Promise.allSettled`，未读量常态个位数）\n- 不动 Toast 组件（3s 纯文本不可点击）\n- 不做历史分页 / 消息中心页 / 跨项目通知（技设排除项）\n\n## 依赖\n\n> 依赖 pr1：attentionSnapshot store API（set/clear/removeRefs）、`lib/attention-navigation.ts`、`dnd_active/dnd_until` 契约。pr1 合并前本片不可开工。\n",
+      "priority": "high",
+      "implementation_owner": "ccb_codex",
+      "dependencies": [
+        "pr1-attention-data-delivery-layer"
+      ],
+      "include": true
+    }
+  ],
+  "requirement_id": "cmq7mj42v10e7ef5f4eebadfe",
+  "carrier_task_id": "cmq7mj42v10e7ef5f4eebadfe",
+  "review_history": [
+    {
+      "at": "2026-06-10T07:50:27.783Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-06-10T09:52:50.414Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "user approved via /ccb:su-materialize-requirement (job_2ba58ec053be)"
+    },
+    {
+      "at": "2026-06-10T09:52:50.568Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "user approved content (hash-mismatch root-caused as benign trailing-newline trim; content verified intact)"
+    },
+    {
+      "at": "2026-06-10T09:52:50.979Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-06-10T09:52:50.568Z",
+  "approved_by": "user",
+  "consumed_at": "2026-06-10T09:52:50.979Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "b6a07fab75d454be15309f0dd3b4a2ff3b618ad143a36e8c79f1631a3ae00b17"
+}

@@ -1,0 +1,63 @@
+{
+  "schema_version": "breakdown-draft-v0.2",
+  "status": "consumed",
+  "carrier_task_key": "requirements-board-grouping-d91293",
+  "base_task_revision": null,
+  "generated_at": "2026-06-08T08:44:10.933Z",
+  "updated_at": "2026-06-10T05:03:41.500Z",
+  "generated_by": "ai_session",
+  "generation_source": {
+    "cc_agent": "slot3_claude",
+    "cx_agent": "slot3_codex",
+    "ccb_job_id": "job_93d70d243df9"
+  },
+  "plan": {
+    "title": "需求看板分组优化(4→5 列 + 列内滚动 + 首页活跃口径)",
+    "summary": "把控制台「需求管理」看板从 4 列改 5 列(planning 单列)、列内容区限高滚动、「已归档」改名「已搁置」,并连带修正首页活跃口径纳入 planning。纯前端,不碰 status 枚举/DB/接口/kernel。单切片一次 review,经 slot3_codex 执行视角协商确认合并不拆。",
+    "spec_outline_md": "## 单任务交付概要\n\n按需求 d91293 + 技术设计落地需求看板纯前端优化,零后端改动:\n\n- **拆列**:`ui-mapping.ts` 分桶 4→5(planning 单列、`inProgress` 重命名 `delivering`)+ `requirement-board-config.ts` 列定义按生命周期排 5 列。\n- **改名**:archived 列 label「已归档」→「已搁置」(内部 key 不动);`getRequirementAction` 同步去残留旧词。\n- **滚动**:`RequirementsPage.module.css` 列内容区限高 + 桌面列内滚动、窄屏解除限高(整页滚动)。\n- **首页连带**:`OverviewPage` 活跃口径抽 `isActiveRequirementTab` 谓词并纳入 planning(防静默漏算)。\n- **测试**:`ui-mapping.spec` / `RequirementsPage.spec` / `e12` 快照同步(快照防掩盖回归的更新顺序见子任务)。\n\n单切片、一次 review;经 slot3_codex 执行视角协商确认合并不拆(CSS 小且与列结构同属看板体验、拆开会撞同一测试 / 快照文件)。owner = `claude`,纯前端 Claude 亲自实施。\n"
+  },
+  "subtasks": [
+    {
+      "section_id": "pr1-board-grouping",
+      "order": 1,
+      "title": "需求看板分组优化:推进中拆分 + 已搁置改名 + 列内滚动 + 首页活跃口径",
+      "summary": "按技术设计落地需求看板纯前端优化:ui-mapping 分桶 4→5、requirement-board-config 列定义、OverviewPage 活跃连带、RequirementsPage CSS 列内滚动,及 3 个测试/快照同步。owner=claude。",
+      "spec_section_md": "## 一、任务概述\n\n把控制台「需求管理」看板从 4 列改成 5 列、给每列加滚动条、并修正一处首页统计口径——纯前端展示优化,一行后端 / DB / 接口 / kernel 都不碰。\n\n一句话:现在「推进中」这一列其实混着两种需求(还在规划的 + 已在交付的),卡片上早就分别标了「规划中 / 推进中」,只有列没拆;这次把列也拆开,顺手把「已归档」标题改成更贴切的「已搁置」,并给越堆越长的列加上限高滚动。\n\n**真相源**:技术设计 `docs/03_开发计划/优化-需求管理页面的优化-d91293-技术设计.md`(下称技术设计),其「八、文件结构 / 变更清单」为逐文件改动清单;需求 `docs/02_需求设计/优化-需求管理页面的优化-d91293-需求.md`。\n\n**术语(白话)**:planning = 规划中(需求已分析、在做技术设计 / 拆分);delivering = 推进中(子任务已在交付);桶 / 列 = 看板的一栏。\n\n**为什么是一个子任务**:全部改动围绕同一个分桶真相源 `ui-mapping.ts`,且组件测试与 e12 快照同时断言列结构和滚动属性,拆开会让多个子任务改同一测试文件、制造二次回归窗口;CSS 仅数行无独立交付价值。经 slot3_codex 执行视角协商确认合并不拆。\n\n## 二、任务分解(改 4 源文件 + 3 测试,以技术设计 §八 为准)\n\n目标态列序(按生命周期,与 status 枚举同序):\n\n```\n待处理 → 规划中 → 推进中 → 已交付 → 已搁置(灰)\ndrafting   planning   delivering   delivered   deferred+cancelled\n```\n\n1. **分桶真相源 `web/src/lib/ui-mapping.ts`**\n   - `RequirementTabKey`:由 `\"pending\" | \"inProgress\" | \"delivered\" | \"archived\"` → 加 `planning`、`inProgress` 重命名 `delivering`,即 `\"pending\" | \"planning\" | \"delivering\" | \"delivered\" | \"archived\"`。\n   - `REQUIREMENT_TAB_LABELS`:加「规划中」、`delivering`=「推进中」、`archived` label 改「已搁置」。\n   - `classifyRequirementTab`:`planning→planning`(单独桶)、`delivering→delivering`;其余不变(drafting→pending、delivered→delivered、deferred|cancelled→archived、未知→archived 兜底)。\n   - `getRequirementAction(deferred/cancelled)`:旧返回 label「已归档」→改「已搁置」(消除残留旧词,Codex 点出)。\n   - 新增 `isActiveRequirementTab(tab)` 谓词:`pending|planning|delivering`=true,`delivered|archived`=false。\n\n2. **列定义 `web/src/lib/requirement-board-config.ts`**\n   - `REQUIREMENT_BOARD_COLUMNS`:4 列 → 5 列,按上面列序;`archived` 列保留 `muted`;`buckets` Record 同步加 planning。\n   - JSDoc「4 个分类桶 / 4 列」→「5」。\n\n3. **首页连带 `web/src/pages/overview/OverviewPage.tsx`**\n   - 活跃口径由内联 `tab === \"inProgress\"` 改用 `isActiveRequirementTab`(含 planning + delivering);行内文案「待处理 + 推进中」→「待处理 + 规划中 + 推进中」。\n   - (本任务头号回归风险:不改则规划中需求从首页「活跃」静默漏算。)\n\n4. **列内滚动 `web/src/pages/requirements/RequirementsPage.module.css`**\n   - `.columnBody` 加 `max-height: calc(100vh - ~220px); overflow-y: auto; scrollbar-gutter: stable; overscroll-behavior: contain;`(具体 px 实现时按视觉调,沿用仓内 `DocumentsPage.module.css` 同款 calc idiom)。\n   - **窄屏口径(Codex 收口)**:窄屏 media query **解除**列限高,回归整页滚动(列内滚动只在桌面)。验收按此口径,勿在窄屏强制列内滚动。\n\n5. **测试同步**\n   - `ui-mapping.spec.ts`:`classifyRequirementTab` 六状态 → 五桶;新增 `isActiveRequirementTab` 真值表。\n   - `RequirementsPage.spec.tsx`:渲染 5 列、标题(含「已搁置」)、archived muted、列内容区滚动属性存在。\n   - `e12-acceptance-snapshots.spec.tsx` + `__snapshots__`:overview + requirements baseline 重生成;**tasks board「已归档」快照不应变**。\n\n**更新顺序(防快照掩盖回归,Codex 确认)**:改实现 + 非快照断言 → 跑相关 vitest 确认只剩 E12 快照差 → 人工看 diff 确认只变 overview / requirements、tasks board 不变 → 定向 `pnpm vitest -u e12-acceptance-snapshots.spec.tsx`(勿全量 `-u`)→ 最后 `pnpm build` / `pnpm test`。**不要先 `-u`**。\n\n## 三、验收标准\n\n- [ ] `classifyRequirementTab`:drafting→pending、planning→planning、delivering→delivering、delivered→delivered、deferred→archived、cancelled→archived、未知→archived。\n- [ ] `REQUIREMENT_BOARD_COLUMNS` = 5 列,顺序 待处理→规划中→推进中→已交付→已搁置;archived 列 `muted`;label 含「已搁置」且不含「已归档」。\n- [ ] `isActiveRequirementTab`:pending / planning / delivering = true,delivered / archived = false。\n- [ ] OverviewPage 活跃计数含 planning(一条 planning 需求计入活跃);文案为「待处理 + 规划中 + 推进中」。\n- [ ] `getRequirementAction(deferred/cancelled)` 返回 label =「已搁置」(无残留「已归档」)。\n- [ ] RequirementsPage 渲染 5 列、archived muted、`.columnBody` 滚动相关属性存在。\n- [ ] e12 快照:overview / requirements 已更新;**tasks board「已归档」快照字节不变**。\n- [ ] `pnpm vitest` 全绿、`pnpm build` 通过。\n- [ ] 视觉验证(happy-dom 测不到真实滚动):浏览器 / Playwright 看桌面列内滚动 + 窄屏解除限高的整页滚动表现正常、5 列窄屏不过度拥挤。\n\n## 四、边界 / 禁止\n\n- 不改 kernel 需求 status 枚举 `[drafting,planning,delivering,delivered,deferred,cancelled]` 与任何 transition。\n- 不改 DB schema / 接口 / indexer 投影 / server。\n- 不新增「已取消」独立列;cancelled 仍归「已搁置」。\n- 不改卡片内 badge 文案(规划中 / 推进中 / 已交付 / 已暂缓 / 已取消)与点击跳转行为。\n- 不全局替换字符串「已归档 / archived」:**不碰** `TasksBoardView.tsx`、`NodeStepper.tsx`、`ActiveNodePanel.tsx`、`node-board-config.ts` 及任务看板快照里的「已归档」(它们各有自己的 archived 语义,Codex 点名)。\n- `archived` 内部 key 不动(只改可见 label);muted 样式走 `column.muted → data-archived`,不绑 key 字符串。\n\n## 五、依赖与 owner\n\n- 依赖:无(单切片;技术设计已定,无前置产物)。\n- owner:`claude`(纯前端交互 / 视觉,Claude 亲自实施,不派 Codex)。\n",
+      "priority": "medium",
+      "implementation_owner": "claude",
+      "dependencies": [],
+      "include": true
+    }
+  ],
+  "requirement_id": "cmq4szijx6b73983193d91293",
+  "carrier_task_id": "cmq4szijx6b73983193d91293",
+  "review_history": [
+    {
+      "at": "2026-06-08T08:44:10.940Z",
+      "actor": "ai",
+      "action": "created"
+    },
+    {
+      "at": "2026-06-10T05:03:41.098Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "进入审查门(materialize 流程,补记 Console 未落盘的审查步骤)"
+    },
+    {
+      "at": "2026-06-10T05:03:41.253Z",
+      "actor": "user",
+      "action": "status_changed",
+      "note": "用户在 materialize 流程中明确批准当前拆分草案(原 Console 批准未持久化,经基线/journal 核验后补记)"
+    },
+    {
+      "at": "2026-06-10T05:03:41.500Z",
+      "actor": "user",
+      "action": "status_changed"
+    }
+  ],
+  "approved_at": "2026-06-10T05:03:41.253Z",
+  "approved_by": "user",
+  "consumed_at": "2026-06-10T05:03:41.500Z",
+  "consumed_by": "ccb_claude",
+  "consumed_from_hash": "5422b3dfd947b11dd9d524f241532df16c4e1838ed20ddf6a48be9cc0da44252"
+}

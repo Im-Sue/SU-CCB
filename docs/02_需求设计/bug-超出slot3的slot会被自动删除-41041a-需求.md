@@ -2,7 +2,7 @@
 id: cmq4sjzxda85540e69141041a
 title: "BUG: 超出slot3的slot会被自动删除"
 doc_type: requirement
-status: planning
+status: deferred
 created: 2026-06-08T05:49:37.825Z
 analysis_input_hash: abddb5f3ce12d442238288ef9822c625376cd44078303763d4afc18b578df7c5
 analysis_applied_at: 2026-06-08T06:28:46.832Z
