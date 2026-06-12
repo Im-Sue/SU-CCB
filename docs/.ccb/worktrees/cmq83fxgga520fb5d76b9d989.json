@@ -1,7 +1,7 @@
 {
   "schema_version": "requirement-worktree-v0.2",
   "requirement_id": "cmq83fxgga520fb5d76b9d989",
-  "aggregate_status": "ready",
+  "aggregate_status": "archived",
   "spaces": [
     {
       "space_id": "root",
@@ -11,13 +11,63 @@
       "branch": "ccb/req-cmq83fxgga520fb5d76b9d989",
       "target_branch": "main",
       "base_sha": "d2ff9d441f06a700b4512a5ae2aec10f675398f0",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
-      "archived_at": null,
-      "archive": null,
+      "status": "archived",
+      "merged_branch_sha": "d2ff9d441f06a700b4512a5ae2aec10f675398f0",
+      "target_sha_after_merge": "9c1ca4c6a7f11e48481b13dc3a2d1b88c9885c86",
+      "merged_at": "2026-06-10T16:28:43.522Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": {
+          "status": "committed",
+          "committed": true,
+          "commitSha": "9c1ca4c6a7f11e48481b13dc3a2d1b88c9885c86",
+          "paths": [
+            "docs/.ccb/events/journal.jsonl",
+            "docs/00_文档地图.md",
+            "docs/02_需求设计/优化-第一次使用引导问题-b9d989-需求.md",
+            "docs/.ccb/drafts/breakdown/cmq83fxgga520fb5d76b9d989.json",
+            "docs/.ccb/worktrees/cmq83fxgga520fb5d76b9d989.json",
+            "docs/03_开发计划/onboarding-状态地基-store-slice-gate-hook-modal-触发-pid-锚定-5fd4e3-开发任务.md",
+            "docs/03_开发计划/sidebar-项目组锁定-引导-modal-9ca45e-开发任务.md",
+            "docs/03_开发计划/优化-第一次使用引导问题-b9d989-技术设计.md",
+            "docs/03_开发计划/抽-useprojectonboardingactions-banner-行为等价重构-877ee3-开发任务.md",
+            "docs/03_开发计划/概览整页两步引导-ready-切换-a3106e-开发任务.md"
+          ],
+          "allowlist": [
+            "docs/02_需求设计/优化-第一次使用引导问题-b9d989-需求.md",
+            "docs/03_开发计划/优化-第一次使用引导问题-b9d989-技术设计.md",
+            "docs/03_开发计划/onboarding-状态地基-store-slice-gate-hook-modal-触发-pid-锚定-5fd4e3-开发任务.md",
+            "docs/03_开发计划/sidebar-项目组锁定-引导-modal-9ca45e-开发任务.md",
+            "docs/03_开发计划/抽-useprojectonboardingactions-banner-行为等价重构-877ee3-开发任务.md",
+            "docs/03_开发计划/概览整页两步引导-ready-切换-a3106e-开发任务.md",
+            "docs/00_文档地图.md",
+            "docs/.ccb/events/journal.jsonl",
+            "docs/.ccb/worktrees/cmq83fxgga520fb5d76b9d989.json",
+            "docs/.ccb/drafts/breakdown/cmq83fxgga520fb5d76b9d989.json"
+          ],
+          "tolerated_paths": [
+            "docs/.ccb/drafts/breakdown/cmq7z6fmcdd8e3116c6ffc5ff.json",
+            "docs/.ccb/worktrees/cmq7z6fmcdd8e3116c6ffc5ff.json",
+            "docs/02_需求设计/治理-oriel的自动运行问题-ffc5ff-需求.md",
+            "docs/03_开发计划/check-prerequisites-sh-加-ccb-tmux-防假绿-16ee6a-开发任务.md",
+            "docs/03_开发计划/codex-skills-readme-安装锚点-用户级-63fe0a-开发任务.md",
+            "docs/03_开发计划/docs-install-md-修漂移-quickstart-md-标受众-a2cd9f-开发任务.md",
+            "docs/03_开发计划/plugin-readme-安装锚点-命令真相源-系统级-713c2e-开发任务.md",
+            "docs/03_开发计划/su-ccb-顶层-readme-角色路由-https-clone-版本表-101157-开发任务.md",
+            "docs/03_开发计划/su-oriel-readme-控制台用户完整上手-ccb-kill-收尾-1f75fd-开发任务.md",
+            "docs/03_开发计划/只读机器验收-入口文件集-不改脚本-617dd4-开发任务.md",
+            "docs/03_开发计划/治理-oriel的自动运行问题-ffc5ff-技术设计.md"
+          ]
+        },
+        "merge_stdout": "",
+        "merge_stderr": ""
+      },
+      "archived_at": "2026-06-12T01:32:46.241Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "d2ff9d441f06a700b4512a5ae2aec10f675398f0"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -30,13 +80,22 @@
       "branch": "ccb/req-cmq83fxgga520fb5d76b9d989",
       "target_branch": "main",
       "base_sha": "6607c74e49bc2f79e1a63301d9615c81c9f0a2f9",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
-      "archived_at": null,
-      "archive": null,
+      "status": "archived",
+      "merged_branch_sha": "6607c74e49bc2f79e1a63301d9615c81c9f0a2f9",
+      "target_sha_after_merge": "6607c74e49bc2f79e1a63301d9615c81c9f0a2f9",
+      "merged_at": "2026-06-10T16:28:43.655Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "",
+        "merge_stderr": ""
+      },
+      "archived_at": "2026-06-12T01:32:46.404Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "6607c74e49bc2f79e1a63301d9615c81c9f0a2f9"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -49,13 +108,22 @@
       "branch": "ccb/req-cmq83fxgga520fb5d76b9d989",
       "target_branch": "main",
       "base_sha": "7c17474c5e530b53418cbe12aa503e21b9175b70",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
-      "archived_at": null,
-      "archive": null,
+      "status": "archived",
+      "merged_branch_sha": "7798bb4771de5b9ee8db57adfd9f8a0859f13e52",
+      "target_sha_after_merge": "7798bb4771de5b9ee8db57adfd9f8a0859f13e52",
+      "merged_at": "2026-06-10T16:28:43.778Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "Updating 7c17474..7798bb4\nFast-forward\n web/src/App.tsx                                    |   3 +\n web/src/components/layout/Sidebar.spec.tsx         | 100 +++++++++\n web/src/components/layout/Sidebar.tsx              |  26 +++\n .../projects/OnboardingRequiredModal.spec.tsx      |  62 ++++++\n .../projects/OnboardingRequiredModal.tsx           |  56 +++++\n .../projects/ProjectOnboardingBanner.spec.tsx      |  35 +++\n .../projects/ProjectOnboardingBanner.tsx           | 247 +++------------------\n .../projects/ProjectSetupGuide.module.css          | 139 ++++++++++++\n web/src/components/projects/ProjectSetupGuide.tsx  | 121 ++++++++++\n web/src/lib/use-project-onboarding-actions.ts      | 212 ++++++++++++++++++\n web/src/lib/use-project-onboarding-gate.spec.ts    | 107 +++++++++\n web/src/lib/use-project-onboarding-gate.ts         |  52 +++++\n web/src/pages/overview/OverviewPage.spec.tsx       |  97 ++++++++\n web/src/pages/overview/OverviewPage.tsx            |  28 +++\n web/src/stores/project-store.ts                    |  78 ++++++-\n web/src/stores/ui-store.ts                         |  16 +-\n web/src/tests/OverviewPage.spec.tsx                |  20 +-\n 17 files changed, 1176 insertions(+), 223 deletions(-)\n create mode 100644 web/src/components/layout/Sidebar.spec.tsx\n create mode 100644 web/src/components/projects/OnboardingRequiredModal.spec.tsx\n create mode 100644 web/src/components/projects/OnboardingRequiredModal.tsx\n create mode 100644 web/src/components/projects/ProjectSetupGuide.module.css\n create mode 100644 web/src/components/projects/ProjectSetupGuide.tsx\n create mode 100644 web/src/lib/use-project-onboarding-actions.ts\n create mode 100644 web/src/lib/use-project-onboarding-gate.spec.ts\n create mode 100644 web/src/lib/use-project-onboarding-gate.ts\n create mode 100644 web/src/pages/overview/OverviewPage.spec.tsx\n",
+        "merge_stderr": ""
+      },
+      "archived_at": "2026-06-12T01:32:47.636Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "2b03c62ec15f009ed6d10a66716e92837b01fc08"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -68,13 +136,22 @@
       "branch": "ccb/req-cmq83fxgga520fb5d76b9d989",
       "target_branch": "main",
       "base_sha": "646cf721e15624a207b4c59089b491e45b24587d",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
-      "archived_at": null,
-      "archive": null,
+      "status": "archived",
+      "merged_branch_sha": "646cf721e15624a207b4c59089b491e45b24587d",
+      "target_sha_after_merge": "646cf721e15624a207b4c59089b491e45b24587d",
+      "merged_at": "2026-06-10T16:28:43.856Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "",
+        "merge_stderr": ""
+      },
+      "archived_at": "2026-06-12T01:32:47.745Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "646cf721e15624a207b4c59089b491e45b24587d"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -87,10 +164,10 @@
       "from_space": "su-ccb-claude-plugin",
       "to_space": "root",
       "submodule_path": "su-ccb-claude-plugin",
-      "status": "pending",
-      "synced_commit_sha": null,
-      "noop": false,
-      "synced_at": null,
+      "status": "synced",
+      "synced_commit_sha": "6607c74e49bc2f79e1a63301d9615c81c9f0a2f9",
+      "noop": true,
+      "synced_at": "2026-06-10T16:28:44.062Z",
       "last_error": null
     },
     {
@@ -99,10 +176,10 @@
       "from_space": "su-oriel",
       "to_space": "root",
       "submodule_path": "su-oriel",
-      "status": "pending",
-      "synced_commit_sha": null,
+      "status": "synced",
+      "synced_commit_sha": "282220720f3b012a745ee39d057bd731490107df",
       "noop": false,
-      "synced_at": null,
+      "synced_at": "2026-06-10T16:28:44.350Z",
       "last_error": null
     },
     {
@@ -111,10 +188,10 @@
       "from_space": "su-ccb-codex-skills",
       "to_space": "root",
       "submodule_path": "su-ccb-codex-skills",
-      "status": "pending",
-      "synced_commit_sha": null,
-      "noop": false,
-      "synced_at": null,
+      "status": "synced",
+      "synced_commit_sha": "646cf721e15624a207b4c59089b491e45b24587d",
+      "noop": true,
+      "synced_at": "2026-06-10T16:28:44.599Z",
       "last_error": null
     }
   ],
@@ -125,5 +202,5 @@
   },
   "last_error": null,
   "created_at": "2026-06-10T15:55:15.941Z",
-  "updated_at": "2026-06-10T15:55:16.669Z"
+  "updated_at": "2026-06-12T01:32:47.810Z"
 }
