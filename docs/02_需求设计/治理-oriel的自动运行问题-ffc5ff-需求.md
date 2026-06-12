@@ -2,7 +2,7 @@
 id: cmq7z6fmcdd8e3116c6ffc5ff
 title: 治理：oriel的自动运行问题
 doc_type: requirement
-status: planning
+status: delivered
 created: 2026-06-10T11:18:20.821Z
 analysis_input_hash: d44930b37771f2f5153ada13a96390977952f0c135d94fde0fc02c81bbcd82d8
 analysis_applied_at: 2026-06-10T15:07:54.410Z

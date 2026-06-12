@@ -1,7 +1,7 @@
 {
   "schema_version": "requirement-worktree-v0.2",
   "requirement_id": "cmq7z6fmcdd8e3116c6ffc5ff",
-  "aggregate_status": "ready",
+  "aggregate_status": "archived",
   "spaces": [
     {
       "space_id": "root",
@@ -11,13 +11,58 @@
       "branch": "ccb/req-cmq7z6fmcdd8e3116c6ffc5ff",
       "target_branch": "main",
       "base_sha": "d2ff9d441f06a700b4512a5ae2aec10f675398f0",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
-      "archived_at": null,
-      "archive": null,
+      "status": "archived",
+      "merged_branch_sha": "fd759dfa7cc4f207fd8f9329353a608794e3ef61",
+      "target_sha_after_merge": "37ed0527a21adcc590397546bae6381e04fc2e2a",
+      "merged_at": "2026-06-10T16:29:51.890Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": {
+          "status": "committed",
+          "committed": true,
+          "commitSha": "0053b9e4f54af955d14db1b8d3624eda4747b4a8",
+          "paths": [
+            "docs/.ccb/events/journal.jsonl",
+            "docs/02_需求设计/治理-oriel的自动运行问题-ffc5ff-需求.md",
+            "docs/.ccb/drafts/breakdown/cmq7z6fmcdd8e3116c6ffc5ff.json",
+            "docs/.ccb/worktrees/cmq7z6fmcdd8e3116c6ffc5ff.json",
+            "docs/03_开发计划/check-prerequisites-sh-加-ccb-tmux-防假绿-16ee6a-开发任务.md",
+            "docs/03_开发计划/codex-skills-readme-安装锚点-用户级-63fe0a-开发任务.md",
+            "docs/03_开发计划/docs-install-md-修漂移-quickstart-md-标受众-a2cd9f-开发任务.md",
+            "docs/03_开发计划/plugin-readme-安装锚点-命令真相源-系统级-713c2e-开发任务.md",
+            "docs/03_开发计划/su-ccb-顶层-readme-角色路由-https-clone-版本表-101157-开发任务.md",
+            "docs/03_开发计划/su-oriel-readme-控制台用户完整上手-ccb-kill-收尾-1f75fd-开发任务.md",
+            "docs/03_开发计划/只读机器验收-入口文件集-不改脚本-617dd4-开发任务.md",
+            "docs/03_开发计划/治理-oriel的自动运行问题-ffc5ff-技术设计.md"
+          ],
+          "allowlist": [
+            "docs/02_需求设计/治理-oriel的自动运行问题-ffc5ff-需求.md",
+            "docs/03_开发计划/治理-oriel的自动运行问题-ffc5ff-技术设计.md",
+            "docs/03_开发计划/check-prerequisites-sh-加-ccb-tmux-防假绿-16ee6a-开发任务.md",
+            "docs/03_开发计划/codex-skills-readme-安装锚点-用户级-63fe0a-开发任务.md",
+            "docs/03_开发计划/docs-install-md-修漂移-quickstart-md-标受众-a2cd9f-开发任务.md",
+            "docs/03_开发计划/plugin-readme-安装锚点-命令真相源-系统级-713c2e-开发任务.md",
+            "docs/03_开发计划/su-ccb-顶层-readme-角色路由-https-clone-版本表-101157-开发任务.md",
+            "docs/03_开发计划/su-oriel-readme-控制台用户完整上手-ccb-kill-收尾-1f75fd-开发任务.md",
+            "docs/03_开发计划/只读机器验收-入口文件集-不改脚本-617dd4-开发任务.md",
+            "docs/00_文档地图.md",
+            "docs/.ccb/events/journal.jsonl",
+            "docs/.ccb/worktrees/cmq7z6fmcdd8e3116c6ffc5ff.json",
+            "docs/.ccb/drafts/breakdown/cmq7z6fmcdd8e3116c6ffc5ff.json"
+          ],
+          "tolerated_paths": [
+            "docs/.ccb/worktrees/cmq83fxgga520fb5d76b9d989.json"
+          ]
+        },
+        "merge_stdout": "Merge made by the 'ort' strategy.\n README.md                      |  33 +++-\n docs/install.md                | 338 ++++++++++++++---------------------------\n docs/quickstart.md             |  34 ++---\n scripts/check-prerequisites.sh |  31 +++-\n 4 files changed, 189 insertions(+), 247 deletions(-)\n",
+        "merge_stderr": ""
+      },
+      "archived_at": "2026-06-11T13:55:42.988Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "fd759dfa7cc4f207fd8f9329353a608794e3ef61"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -30,13 +75,22 @@
       "branch": "ccb/req-cmq7z6fmcdd8e3116c6ffc5ff",
       "target_branch": "main",
       "base_sha": "6607c74e49bc2f79e1a63301d9615c81c9f0a2f9",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
-      "archived_at": null,
-      "archive": null,
+      "status": "archived",
+      "merged_branch_sha": "95c57b6053711b2ac8a4a5a22319031080d69b26",
+      "target_sha_after_merge": "95c57b6053711b2ac8a4a5a22319031080d69b26",
+      "merged_at": "2026-06-10T16:29:52.014Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "Updating 6607c74..95c57b6\nFast-forward\n README.md | 14 ++++++++------\n 1 file changed, 8 insertions(+), 6 deletions(-)\n",
+        "merge_stderr": ""
+      },
+      "archived_at": "2026-06-11T13:55:43.113Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "95c57b6053711b2ac8a4a5a22319031080d69b26"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -49,13 +103,22 @@
       "branch": "ccb/req-cmq7z6fmcdd8e3116c6ffc5ff",
       "target_branch": "main",
       "base_sha": "7c17474c5e530b53418cbe12aa503e21b9175b70",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
-      "archived_at": null,
-      "archive": null,
+      "status": "archived",
+      "merged_branch_sha": "b0e95871c247308773d7a1c195a08117f391f887",
+      "target_sha_after_merge": "61dcb03482684742861f4758aad97ab2ecb40a74",
+      "merged_at": "2026-06-10T16:29:52.115Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "Merge made by the 'ort' strategy.\n README.md | 73 +++++++++++++++++++++++++++++++++++++++++++++++++--------------\n 1 file changed, 57 insertions(+), 16 deletions(-)\n",
+        "merge_stderr": ""
+      },
+      "archived_at": "2026-06-11T13:55:43.254Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "b0e95871c247308773d7a1c195a08117f391f887"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -68,13 +131,22 @@
       "branch": "ccb/req-cmq7z6fmcdd8e3116c6ffc5ff",
       "target_branch": "main",
       "base_sha": "646cf721e15624a207b4c59089b491e45b24587d",
-      "status": "ready",
-      "merged_branch_sha": null,
-      "target_sha_after_merge": null,
-      "merged_at": null,
-      "merge": null,
-      "archived_at": null,
-      "archive": null,
+      "status": "archived",
+      "merged_branch_sha": "12b6b52f082d84af9e060e345eb963b9073e7a9f",
+      "target_sha_after_merge": "12b6b52f082d84af9e060e345eb963b9073e7a9f",
+      "merged_at": "2026-06-10T16:29:52.207Z",
+      "merge": {
+        "target_branch": "main",
+        "warnings": [],
+        "canonical_sync": null,
+        "merge_stdout": "Updating 646cf72..12b6b52\nFast-forward\n README.md | 14 ++++++++------\n 1 file changed, 8 insertions(+), 6 deletions(-)\n",
+        "merge_stderr": ""
+      },
+      "archived_at": "2026-06-11T13:55:43.354Z",
+      "archive": {
+        "target_branch": "main",
+        "branch_sha": "12b6b52f082d84af9e060e345eb963b9073e7a9f"
+      },
       "discarded_at": null,
       "reopened_at": null,
       "last_error": null
@@ -87,10 +159,10 @@
       "from_space": "su-ccb-claude-plugin",
       "to_space": "root",
       "submodule_path": "su-ccb-claude-plugin",
-      "status": "pending",
-      "synced_commit_sha": null,
+      "status": "synced",
+      "synced_commit_sha": "756dcf45eeca8eee14eac95285a70d7909883a1f",
       "noop": false,
-      "synced_at": null,
+      "synced_at": "2026-06-10T16:29:52.518Z",
       "last_error": null
     },
     {
@@ -99,10 +171,10 @@
       "from_space": "su-oriel",
       "to_space": "root",
       "submodule_path": "su-oriel",
-      "status": "pending",
-      "synced_commit_sha": null,
+      "status": "synced",
+      "synced_commit_sha": "a60dc8476890195e9e5e4cd3c88345739895b971",
       "noop": false,
-      "synced_at": null,
+      "synced_at": "2026-06-10T16:29:52.712Z",
       "last_error": null
     },
     {
@@ -111,10 +183,10 @@
       "from_space": "su-ccb-codex-skills",
       "to_space": "root",
       "submodule_path": "su-ccb-codex-skills",
-      "status": "pending",
-      "synced_commit_sha": null,
+      "status": "synced",
+      "synced_commit_sha": "d9913e6e0d561dfb11cd40732bfcca348b382dc5",
       "noop": false,
-      "synced_at": null,
+      "synced_at": "2026-06-10T16:29:52.899Z",
       "last_error": null
     }
   ],
@@ -125,5 +197,5 @@
   },
   "last_error": null,
   "created_at": "2026-06-10T15:59:15.254Z",
-  "updated_at": "2026-06-10T15:59:15.951Z"
+  "updated_at": "2026-06-11T13:55:43.413Z"
 }
